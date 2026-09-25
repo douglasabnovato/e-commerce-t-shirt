@@ -4,6 +4,9 @@
  * Configuração da aplicação (Laravel 12).
  * - statefulApi(): ativa o Sanctum em modo SPA, dando sessão e proteção
  *   CSRF às requisições vindas dos domínios de SANCTUM_STATEFUL_DOMAINS.
+ * - trustProxies('*'): em produção o HTTPS termina no proxy da hospedagem;
+ *   confiar nos cabeçalhos X-Forwarded-* faz o Laravel reconhecer o HTTPS
+ *   (links https:// e cookie de sessão seguro).
  * - Erros em rotas /api/* sempre respondem em JSON, com mensagens em
  *   português para 401 e 404.
  */
@@ -24,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

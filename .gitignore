@@ -11,6 +11,7 @@ backend/vendor/
 dist/
 frontend/dist/
 backend/public/build/
+backend/public/spa/
 backend/public/hot
 backend/public/storage
 backend/storage/*.key

@@ -6,6 +6,9 @@
  * - Alias @docs para a pasta docs/ da raiz do repositório: a página Teste
  *   Técnico lê as respostas direto de docs/respostas no build (D13).
  * - Variáveis e mixins LESS injetados em todos os estilos dos componentes.
+ * - No build, o resultado vai para backend/public/spa (base /spa/): o
+ *   Laravel entrega o index.html em todas as rotas do front e o Apache
+ *   serve os arquivos estáticos (D15 e D20).
  */
 
 import { fileURLToPath, URL } from 'node:url'
@@ -17,7 +20,8 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 const caminho = (relativo) => fileURLToPath(new URL(relativo, import.meta.url))
 const backend = 'http://localhost:8000'
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/spa/' : '/',
   plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {
@@ -32,6 +36,10 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    outDir: caminho('../backend/public/spa'),
+    emptyOutDir: true,
+  },
   server: {
     fs: {
       allow: ['..'],
@@ -42,6 +50,6 @@ export default defineConfig({
       '/storage': { target: backend, changeOrigin: false },
     },
   },
-})
+}))
 
 /* Fim de vite.config.js */
