@@ -1,0 +1,270 @@
+EXERCÍCIO 15 - SQL COM ELOQUENT: PRODUTOS, FORNECEDORES E ESTOQUE
+===================================================================
+
+Dados fornecidos no enunciado
+-----------------------------
+
+produtos
+  id | nome      | fornecedor_id | categoria   | preco_unit | data_aquisicao
+  1  | Produto 1 | 1             | Eletrônicos | 150        | 2023-01-10
+  2  | Produto 2 | 2             | Eletrônicos | 300        | 2023-02-15
+  3  | Produto 3 | 3             | Móveis      | 500        | 2023-03-20
+  4  | Produto 4 | 1             | Móveis      | 700        | 2023-01-30
+
+fornecedores
+  id | nome         | pais     | status
+  1  | Fornecedor A | Brasil   | Ativo
+  2  | Fornecedor B | China    | Ativo
+  3  | Fornecedor C | Alemanha | Inativo
+  4  | Fornecedor D | Brasil   | Ativo
+
+estoque
+  id | produto_id | quantidade | data_contagem
+  1  | 1          | 100        | 2023-06-10
+  2  | 2          | 50         | 2023-06-10
+  3  | 3          | 0          | 2023-06-10
+  4  | 4          | 300        | 2023-06-10
+  5  | 5          | 200        | 2023-06-10
+
+
+Particularidades dos dados (e como foram tratadas)
+--------------------------------------------------
+
+1. Estoque órfão: a linha 5 do estoque aponta para produto_id = 5, que não
+   existe em produtos. É um dado inconsistente (faltaria uma chave
+   estrangeira estoque.produto_id -> produtos.id).
+   Tratamento: as médias de estoque consideram apenas linhas ligadas a um
+   produto existente (INNER JOIN). Comparação dos dois cálculos:
+     - média com a linha órfã:  (100 + 50 + 0 + 300 + 200) / 5 = 130
+     - média sem a linha órfã:  (100 + 50 + 0 + 300) / 4       = 112,5
+   Com estes dados, os resultados das consultas 1 e 3 são os mesmos nos
+   dois cálculos, mas a escolha fica documentada porque, com outros dados,
+   a linha órfã mudaria a resposta.
+
+2. Fornecedor D (Brasil, ativo) não tem produtos. Não aparece em nenhum
+   resultado, porque todas as consultas partem de produtos.
+
+3. Fornecedor C está inativo. O enunciado não pede filtro por status, então
+   ele entra nas consultas. Isso importa na consulta 2: se inativos fossem
+   excluídos, a média de Móveis passaria de 600 para 700 e o Produto 4 deixaria
+   de estar acima da média. A variação com o filtro está indicada abaixo.
+
+4. Uma contagem por produto: há uma única data_contagem (2023-06-10). Se
+   houvesse várias contagens por produto, o correto seria usar apenas a mais
+   recente de cada um.
+
+
+Models considerados
+-------------------
+
+class Produto extends Model
+{
+    protected $table = 'produtos';
+
+    public function fornecedor(): BelongsTo
+    {
+        return $this->belongsTo(Fornecedor::class);
+    }
+
+    public function estoque(): HasOne
+    {
+        return $this->hasOne(Estoque::class);
+    }
+}
+
+class Fornecedor extends Model
+{
+    protected $table = 'fornecedores';
+
+    public function produtos(): HasMany
+    {
+        return $this->hasMany(Produto::class);
+    }
+}
+
+class Estoque extends Model
+{
+    protected $table = 'estoque';
+
+    public function produto(): BelongsTo
+    {
+        return $this->belongsTo(Produto::class);
+    }
+}
+
+Subconsulta reutilizada nas consultas 1 e 3 (média de estoque dos produtos
+existentes):
+
+$mediaEstoque = Estoque::query()
+    ->join('produtos', 'produtos.id', '=', 'estoque.produto_id')
+    ->selectRaw('AVG(estoque.quantidade)');
+
+
+===================================================================
+CONSULTA 1 - Produtos com estoque abaixo da média geral
+===================================================================
+
+Eloquent:
+
+$produtos = Produto::query()
+    ->join('estoque', 'estoque.produto_id', '=', 'produtos.id')
+    ->where('estoque.quantidade', '<', $mediaEstoque)
+    ->select('produtos.id', 'produtos.nome', 'estoque.quantidade')
+    ->orderBy('estoque.quantidade')
+    ->get();
+
+SQL equivalente:
+
+SELECT p.id, p.nome, e.quantidade
+FROM produtos p
+INNER JOIN estoque e ON e.produto_id = p.id
+WHERE e.quantidade < (
+    SELECT AVG(e2.quantidade)
+    FROM estoque e2
+    INNER JOIN produtos p2 ON p2.id = e2.produto_id
+)
+ORDER BY e.quantidade;
+
+Resultado esperado (média = 112,5):
+
+  id | nome      | quantidade
+  3  | Produto 3 | 0
+  2  | Produto 2 | 50
+  1  | Produto 1 | 100
+
+Explicação: a média é calculada no próprio banco, numa subconsulta, em uma
+única ida ao banco. O Laravel aceita um Query Builder como valor do where e
+o transforma em subconsulta. Com a média de 130 (incluindo a linha órfã) o
+resultado seria o mesmo.
+
+
+===================================================================
+CONSULTA 2 - Fornecedores com produtos de preço acima da média da categoria
+             (fornecedor, produto, categoria, preço; ordenado por categoria
+             e preço unitário)
+===================================================================
+
+Eloquent:
+
+$mediasPorCategoria = Produto::query()
+    ->select('categoria')
+    ->selectRaw('AVG(preco_unit) AS media_categoria')
+    ->groupBy('categoria');
+
+$resultado = Produto::query()
+    ->join('fornecedores', 'fornecedores.id', '=', 'produtos.fornecedor_id')
+    ->joinSub($mediasPorCategoria, 'medias', function ($join) {
+        $join->on('medias.categoria', '=', 'produtos.categoria');
+    })
+    ->whereColumn('produtos.preco_unit', '>', 'medias.media_categoria')
+    ->select(
+        'fornecedores.nome AS fornecedor',
+        'produtos.nome AS produto',
+        'produtos.categoria',
+        'produtos.preco_unit AS preco'
+    )
+    ->orderBy('produtos.categoria')
+    ->orderBy('produtos.preco_unit')
+    ->get();
+
+SQL equivalente:
+
+SELECT f.nome AS fornecedor,
+       p.nome AS produto,
+       p.categoria,
+       p.preco_unit AS preco
+FROM produtos p
+INNER JOIN fornecedores f ON f.id = p.fornecedor_id
+INNER JOIN (
+    SELECT categoria, AVG(preco_unit) AS media_categoria
+    FROM produtos
+    GROUP BY categoria
+) medias ON medias.categoria = p.categoria
+WHERE p.preco_unit > medias.media_categoria
+ORDER BY p.categoria, p.preco_unit;
+
+Médias por categoria:
+  Eletrônicos: (150 + 300) / 2 = 225
+  Móveis:      (500 + 700) / 2 = 600
+
+Resultado esperado:
+
+  fornecedor   | produto   | categoria   | preco
+  Fornecedor B | Produto 2 | Eletrônicos | 300
+  Fornecedor A | Produto 4 | Móveis      | 700
+
+Explicação: as médias são calculadas uma vez por categoria numa tabela
+derivada (joinSub), em vez de uma subconsulta por produto. A ordenação é por
+categoria e, dentro dela, por preço unitário crescente, como pedido.
+
+Variação, se fornecedores inativos não devessem contar (nem no resultado nem
+na média), acrescentar o filtro nas duas partes:
+
+    ->where('fornecedores.status', 'Ativo')
+    (e na subconsulta: join com fornecedores + where status = 'Ativo')
+
+Com esse filtro a média de Móveis vira 700 e o Produto 4 sai do resultado,
+restando apenas o Fornecedor B / Produto 2.
+
+
+===================================================================
+CONSULTA 3 - Produtos mais recentes, de fornecedores do Brasil, com estoque
+             acima da média de todos os produtos
+===================================================================
+
+Eloquent:
+
+$produtos = Produto::query()
+    ->join('fornecedores', 'fornecedores.id', '=', 'produtos.fornecedor_id')
+    ->join('estoque', 'estoque.produto_id', '=', 'produtos.id')
+    ->where('fornecedores.pais', 'Brasil')
+    ->where('estoque.quantidade', '>', $mediaEstoque)
+    ->select(
+        'produtos.id',
+        'produtos.nome',
+        'fornecedores.nome AS fornecedor',
+        'produtos.data_aquisicao',
+        'estoque.quantidade'
+    )
+    ->orderByDesc('produtos.data_aquisicao')
+    ->get();
+
+SQL equivalente:
+
+SELECT p.id, p.nome, f.nome AS fornecedor, p.data_aquisicao, e.quantidade
+FROM produtos p
+INNER JOIN fornecedores f ON f.id = p.fornecedor_id
+INNER JOIN estoque e ON e.produto_id = p.id
+WHERE f.pais = 'Brasil'
+  AND e.quantidade > (
+      SELECT AVG(e2.quantidade)
+      FROM estoque e2
+      INNER JOIN produtos p2 ON p2.id = e2.produto_id
+  )
+ORDER BY p.data_aquisicao DESC;
+
+Resultado esperado:
+
+  id | nome      | fornecedor   | data_aquisicao | quantidade
+  4  | Produto 4 | Fornecedor A | 2023-01-30     | 300
+
+Explicação:
+  - Fornecedores do Brasil: A (produtos 1 e 4) e D (sem produtos).
+  - Produto 1 tem 100 unidades, abaixo da média (112,5 ou 130), e sai.
+  - Produto 4 tem 300 unidades, acima da média, e fica.
+  - "Mais recentes" não tem quantidade nem período definidos no enunciado.
+    A consulta ordena da aquisição mais recente para a mais antiga; para
+    limitar, basta acrescentar ->limit(N) ou um filtro de período, por
+    exemplo ->where('produtos.data_aquisicao', '>=', now()->subMonths(6)).
+
+
+Recomendações sobre o modelo de dados
+-------------------------------------
+
+- Chave estrangeira estoque.produto_id -> produtos.id, impedindo linhas
+  órfãs como a do produto 5.
+- Chave estrangeira produtos.fornecedor_id -> fornecedores.id.
+- Índices em produtos(categoria, preco_unit), produtos(fornecedor_id,
+  data_aquisicao), estoque(produto_id) e fornecedores(pais).
+- Se o estoque tiver histórico de contagens, uma visão (VIEW) ou consulta
+  com a contagem mais recente por produto.

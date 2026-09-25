@@ -1,104 +1,110 @@
 # REQUISITOS — Teste Técnico Full Stack
 
-> Fonte: documento de requisitos enviado pela empresa
+> Fonte: documento de especificação enviado pela empresa. O enunciado é seguido como está escrito.
 > Status: ⬜ pendente · 🟨 em andamento · ✅ atendido
-> "Onde" = caminho no repositório ou rota da aplicação que atende o requisito
+> "Onde" = caminho no repositório ou rota da aplicação que atende o requisito. Só é preenchido quando o item existe.
 
 ## A. Requisitos gerais
 
-| ID | Requisito | Critério de "atendido" | Onde | Status |
+| ID | Requisito (enunciado) | Critério de "atendido" | Onde | Status |
 |---|---|---|---|---|
-| G1 | Respostas documentadas em repositório Git (público ou com acesso ao avaliador) | Repositório criado e acesso testado | github.com/douglasabnovato/e-commerce-t-shirt | 🟨 |
-| G2 | Boas práticas de programação, versionamento e organização | Commits pequenos no padrão convencional (docs:, feat:, fix:, chore:); nenhum arquivo gerado ou `.env` versionado | — | 🟨 |
-| G3 | README com instruções para rodar e justificativa das decisões técnicas | Passo a passo testado do zero, `.env.example` e link para `docs/DECISOES.md` | README.md | ⬜ |
-| G4 | Cada exercício claramente identificado | Índice no README e na página Teste Técnico ligando cada exercício (1–15) ao seu arquivo ou rota | README.md | ⬜ |
+| G1 | Respostas documentadas em repositório Git (público ou privado com acesso concedido ao avaliador) | Repositório criado; se privado, acesso do avaliador concedido e testado | github.com/douglasabnovato/e-commerce-t-shirt | 🟨 |
+| G2 | Boas práticas de programação, versionamento e organização de código | Commits no padrão D9; fluxo de branches D14; nenhum `.env`, `vendor/` ou `node_modules/` versionado | — | 🟨 |
+| G3 | README com instruções claras de como rodar o projeto | Passo a passo testado do zero; `.env.example` coerente com o passo a passo | README.md | ⬜ |
+| G4 | README justificando as decisões técnicas | Seção de arquitetura com link para cada decisão em `docs/DECISOES.md` | README.md | 🟨 |
+| G5 | Cada exercício claramente identificado | Índice 1–15 no README e na página Teste Técnico ligando cada exercício ao seu arquivo ou rota | README.md | 🟨 |
 
-## B. Regras do front-end (valem para o ex. 12 e para o front do ex. 10)
+## B. Questão de front-end (vale para toda a interface)
 
-| ID | Requisito | Critério de "atendido" | Onde | Status |
+| ID | Requisito (enunciado) | Critério de "atendido" | Onde | Status |
 |---|---|---|---|---|
-| F1 | Paleta e fontes livres | Paleta e fontes definidas em variáveis e documentadas | — | ⬜ |
-| F2 | Imagens da Uma Penca ou da Chico Rei (opcional) | Se usadas, origem citada no README | — | ⬜ |
-| F3 | Dados de exemplo com fakerjs (sugerido) | `@faker-js/faker` usado com locale pt_BR | — | ⬜ |
-| F4 | Framework CSS permitido, com personalização em **LESS** | Pelo menos um arquivo `.less` compilado no build, alterando tamanhos, fontes, cores ou espaçamentos | — | ⬜ |
-| F5 | Avaliados: código limpo, documentação, **acessibilidade**, **otimização**, criatividade | Labels em todos os campos, `aria-live` nas mensagens, navegação por teclado, contraste AA, `alt` nas imagens, lazy loading, build minificado, medição Lighthouse registrada no README | — | ⬜ |
+| F1 | Paleta de cores e fontes livres | Paleta e fontes definidas em variáveis LESS | — | ⬜ |
+| F2 | Pode usar imagens da Uma Penca ou da Chico Rei | Se usadas, origem citada no README | README.md | ⬜ |
+| F3 | Sugerido: fakerjs para preencher o conteúdo das páginas | `@faker-js/faker` usado com locale pt_BR nos dados de exemplo | — | ⬜ |
+| F4 | Estilos prontos permitidos, mas deve-se personalizar com **LESS** | Arquivos `.less` compilados no build, definindo tamanhos, fontes, cores e espaçamentos | — | ⬜ |
+| F5 | Avaliados: código limpo e organizado, documentação, acessibilidade, otimização, criatividade | Labels em todos os campos, `aria-live` nas mensagens, navegação por teclado, contraste AA, `alt` nas imagens, `lang="pt-BR"`, lazy loading, build minificado, medição Lighthouse registrada no README | — | ⬜ |
 
-## C. Exercícios teóricos (resposta escrita)
+## C. Exercícios teóricos
 
-| ID | Tema | Critério de "atendido" | Onde | Status |
+| ID | Requisito (enunciado) | Critério de "atendido" | Onde | Status |
 |---|---|---|---|---|
-| E1 | Vue.js: ciclo de vida e performance | Hooks de criação, montagem, atualização e desmontagem; custo de re-render; exemplos (limpeza em `onUnmounted`, `v-once`/`v-memo`, `computed` × `watch`, `KeepAlive`, lazy loading) | docs/respostas/01-*.md | ⬜ |
-| E2 | Laravel + Vue: autenticação segura | Compara Sanctum SPA (cookie HttpOnly + CSRF) com token Bearer; fluxo passo a passo; onde **não** guardar token; CORS, expiração, logout. **Mesma estratégia implementada no E10** | docs/respostas/02-*.md | ⬜ |
-| E3 | Endpoint lento | Medir (APM, Telescope, log de queries, `EXPLAIN`) → hipóteses (N+1, índices, payload, serviço externo) → correções (eager loading, índices, cache, paginação, filas) → nova medição | docs/respostas/03-*.md | ⬜ |
-| E4 | CDN e performance | Latência pela borda, cache de estáticos, descarga da origem, compressão, HTTP/2 e 3, invalidação e versionamento de arquivos | docs/respostas/04-*.md | ⬜ |
-| E5 | Memcached / ElastiCache com MySQL (RDS) | Cache de leitura, sessão e resultados; Memcached × Redis; redução de carga no RDS; escala horizontal; invalidação | docs/respostas/05-*.md | ⬜ |
-| E6 | Eloquent: vantagens, desvantagens e N+1 | Prós e contras; exemplo de N+1 e correção com `with()`/`load()`; `preventLazyLoading()`; quando usar Query Builder ou SQL puro | docs/respostas/06-*.md | ⬜ |
-| E7 | Filas assíncronas no Laravel | Driver (database/Redis/SQS), Job, dispatch, worker e supervisor, retries e `failed_jobs`; casos de uso | docs/respostas/07-*.md | ⬜ |
-| E8 | Transactions | Escritas que precisam ser atômicas, `DB::transaction`, locks, transação curta e sem chamadas externas dentro | docs/respostas/08-*.md | ⬜ |
-| E9 | Leitura do log | Causa (`getImage()` em null em `Imagem.php:147`, dentro do `rememberForever` ao montar thumbs do produto 667); leitura da pilha (controller → factory → transformer → model); correção (null-safe, relação órfã, dado no banco); risco do `rememberForever` | docs/respostas/09-*.md | ⬜ |
-| E11 | Crítica do transformer | Null nas relações (mesmo erro do E9), N+1 em listas, acoplamento, chamadas repetidas; propõe null-safe, eager loading, extração de variáveis e testes | docs/respostas/11-*.md | ⬜ |
-| E13 | Experiência profissional | Contexto, desafios, soluções, impacto e lições, com tecnologias e resultados concretos, sem dados confidenciais | docs/respostas/13-*.md | ⬜ |
+| E1 | Ciclo de vida de um componente Vue e como influencia a performance | Explica as fases (criação, montagem, atualização, desmontagem) e liga cada uma a um impacto de performance, com exemplos | docs/respostas/01.md | ⬜ |
+| E2 | Melhor abordagem de autenticação Laravel + Vue; fluxo seguro de login; armazenamento de tokens; comunicação entre as camadas | Responde às quatro partes; compara as opções de armazenamento de token; descreve o fluxo implementado no E10 (D10) | docs/respostas/02.md | ⬜ |
+| E3 | Técnicas para identificar e resolver um endpoint lento no backend | Responde às duas partes: como identificar e como resolver | docs/respostas/03.md | ⬜ |
+| E4 | Como a CDN melhora a performance de uma aplicação web | Explica os mecanismos pelos quais a CDN reduz tempo de resposta e carga na origem | docs/respostas/04.md | ⬜ |
+| E5 | Por que usar Memcached ou ElastiCache com Laravel + MySQL (RDS) e como ajudam na escalabilidade | Responde às duas partes | docs/respostas/05.md | ⬜ |
+| E6 | Vantagens e desvantagens do Eloquent; problemas recorrentes (N+1) | Responde às três partes, com exemplo de N+1 e sua correção | docs/respostas/06.md | ⬜ |
+| E7 | Como implementar filas assíncronas no Laravel e para quais funcionalidades são úteis | Responde às duas partes | docs/respostas/07.md | ⬜ |
+| E8 | Quando é interessante utilizar transactions | Casos de uso com justificativa | docs/respostas/08.md | ⬜ |
+| E9 | O que se entende do log apresentado | Identifica o erro e o ponto de origem; lê a pilha (dois `rememberForever` aninhados: `ProdutoController@info` e `Imagem::getThumbs()`; transformers Fractal; include `capa`; produto 667); propõe correção | docs/respostas/09.md | ⬜ |
+| E11 | Criticar o código do transformer e explicar como melhorar | Aponta os problemas do código (incluindo chamadas repetidas e ausência de tratamento de nulo) e apresenta versão melhorada | docs/respostas/11.md | ⬜ |
+| E13 | Projeto desafiador recente: contexto, desafios, soluções, impacto e lições aprendidas | As cinco partes presentes, com tecnologias e resultados concretos | docs/respostas/13.md | ⬜ |
 
 ## D. Exercícios práticos
 
-### E10 — CRUD de produtos (Laravel + Vue)
+### E10 — CRUD de produtos (Laravel + Vue.js)
 
-| ID | Requisito | Critério de "atendido" | Onde | Status |
+| ID | Requisito (enunciado) | Critério de "atendido" | Onde | Status |
 |---|---|---|---|---|
-| E10.1 | Produto com Nome, Descrição, Preço e Imagem | Migration com os 4 campos e tipos adequados | — | ⬜ |
-| E10.2 | Model, migration, controller e rotas REST | Model, resource controller, `apiResource` com as 5 ações | — | ⬜ |
-| E10.3 | Validação no backend | Form Request aplicado no controller (obrigatórios, preço > 0, imagem com tipo e tamanho) | — | ⬜ |
-| E10.4 | Upload de imagem | Armazenamento público (ou S3/R2), URL completa na API, arquivo removido ao trocar e ao excluir | — | ⬜ |
-| E10.5 | Front Vue consome a API | Listar, criar, editar e excluir funcionando na interface | — | ⬜ |
-| E10.6 | Só autenticados modificam | Leitura pública; criar, editar e excluir protegidos; teste com 401 sem login | — | ⬜ |
-| E10.7 | Login e logout no front | Tela de login coerente com a resposta do E2 | — | ⬜ |
-| E10.8 | Seed com faker | Seeder com produtos de exemplo | — | ⬜ |
-| E10.9 | Testes | Testes de feature da API (CRUD e autorização) | — | ⬜ |
+| E10.1 | Produto com Nome, Descrição, Preço e Imagem | Migration com os quatro campos e tipos adequados | — | ⬜ |
+| E10.2 | Criação, leitura, atualização e deleção | As quatro operações funcionando pela API e pela interface | — | ⬜ |
+| E10.3 | Backend: modelo, migration, controller e rotas REST para cada ação | Model, controller de recurso e rotas REST para listar, exibir, criar, atualizar e excluir | — | ⬜ |
+| E10.4 | Frontend Vue: interface para consumir a API e exibir os produtos | Tela de listagem e formulário consumindo a API | — | ⬜ |
+| E10.5 | Apenas usuários autenticados podem modificar produtos | Criar, atualizar e excluir exigem login; requisição sem login retorna 401 | — | ⬜ |
+
+Itens de implementação (decisões D10 e D17, não exigidos literalmente pelo enunciado):
+
+| ID | Item | Critério | Onde | Status |
+|---|---|---|---|---|
+| E10.6 | Validação no backend | Form Request aplicado no controller | — | ⬜ |
+| E10.7 | Upload de imagem | Arquivo salvo via `Storage`; imagem anterior removida ao trocar e ao excluir | — | ⬜ |
+| E10.8 | Login e logout na interface | Fluxo Sanctum SPA descrito no E2 | — | ⬜ |
+| E10.9 | Testes | Testes de feature: 401 sem login, sucesso com login, 422 com dados inválidos | — | ⬜ |
 
 ### E12 — Página de finalização de compra
 
-| ID | Requisito | Critério de "atendido" | Onde | Status |
+| ID | Requisito (enunciado) | Critério de "atendido" | Onde | Status |
 |---|---|---|---|---|
-| E12.1 | Sacola hardcoded | Lista fixa exibida com imagem, nome, preço e subtotal | — | ⬜ |
-| E12.2 | Validação de formato | Cartão (Luhn), validade (MM/AA no futuro), CVC, CEP, e-mail e telefone, com máscaras | — | ⬜ |
-| E12.3 | Validação de vazios | Todos obrigatórios, com mensagem por campo | — | ⬜ |
-| E12.4 | Alterar quantidade | Botões − e + e campo numérico, mínimo 1, totais recalculados | — | ⬜ |
-| E12.5 | Endereço pelo CEP com **cep-promise** | Preenche rua, bairro, cidade e UF; trata CEP inválido ou inexistente | — | ⬜ |
-| E12.6 | Indicador de carregamento | Loading visível e acessível na busca do CEP e no envio | — | ⬜ |
-| E12.7 | Mensagem de sucesso | Exibida só quando todos os campos forem válidos | — | ⬜ |
-| E12.8 | `console.log` do objeto final | Objeto com itens, totais, contato, endereço e pagamento (cartão mascarado) | — | ⬜ |
-| E12.9 | Layout de referência | Segue `docs/assets/checkout-frontend.jpg`: 2 colunas; Contato, Entrega (CEP com botão de busca) e Pagamento; botão "Fechar pedido"; "Sua sacola" com quantidade − e + | — | ⬜ |
-| E12.10 | LESS, acessibilidade e otimização | Cumpre F4 e F5 | — | ⬜ |
+| E12.1 | Produtos na sacola/carrinho hardcoded | Lista fixa exibida com imagem, nome, preço e quantidade | — | ⬜ |
+| E12.2 | Validação de campos com formatos específicos (cartão de crédito, data, CEP, e-mail, telefone, etc.) | Todos os campos do formulário com regra de formato e mensagem por campo | — | ⬜ |
+| E12.3 | Validação de campos vazios (todos obrigatórios) | Nenhum campo pode ser enviado vazio; mensagem por campo | — | ⬜ |
+| E12.4 | Alteração da quantidade dos produtos | Botões − e +, quantidade mínima 1, totais recalculados | — | ⬜ |
+| E12.5 | Endereço a partir do CEP com `cep-promise` | Preenche os campos de endereço; trata CEP inválido ou inexistente | — | ⬜ |
+| E12.6 | Indicadores de carregamento durante requisições | Loading visível e anunciado a leitores de tela na busca do CEP e no envio | — | ⬜ |
+| E12.7 | Mensagem de sucesso ao fechar o pedido, quando todos os campos forem válidos | Mensagem só aparece com o formulário inteiro válido | — | ⬜ |
+| E12.8 | `console.log` do objeto final ao fechar o pedido | Objeto com itens, totais, contato, endereço e pagamento | — | ⬜ |
+| E12.9 | Referência: exemplo de layout | Estrutura inspirada em `docs/assets/checkout-frontend.jpg` | — | ⬜ |
 
-## E. Queries (Eloquent / SQL)
+## E. Exercícios de SQL com Eloquent
 
 ### E14 — Clientes e pedidos
 
-| ID | Requisito | Critério de "atendido" | Onde | Status |
+| ID | Requisito (enunciado) | Critério de "atendido" | Onde | Status |
 |---|---|---|---|---|
-| E14.1 | Estados com maior volume de vendas | Join, `groupBy('estado')`, `SUM(valor_total)`, ordem decrescente | — | ⬜ |
-| E14.2 | Top 5 clientes por valor | `SUM(valor_total)` por cliente, ordem decrescente, `limit(5)` | — | ⬜ |
-| E14.3 | Otimização | Índices (`pedidos.cliente_id`, `clientes.estado`, composto), `EXPLAIN`, cache, tabela de resumo | — | ⬜ |
+| E14.1 | Query em Eloquent: estados com maior volume de vendas (soma de `valor_total`) | Query em Eloquent com agrupamento por estado e soma em ordem decrescente | docs/respostas/14.md | ⬜ |
+| E14.2 | Query em Eloquent: 5 clientes que mais compraram (`valor_total`) | Query em Eloquent com soma por cliente, ordem decrescente e limite 5 | docs/respostas/14.md | ⬜ |
+| E14.3 | Melhor forma de otimizar a performance dessas consultas | Proposta justificada | docs/respostas/14.md | ⬜ |
 
 ### E15 — Produtos, fornecedores e estoque
 
-| ID | Requisito | Critério de "atendido" | Onde | Status |
+| ID | Requisito (enunciado) | Critério de "atendido" | Onde | Status |
 |---|---|---|---|---|
-| E15.1 | Estoque abaixo da média geral | Subquery de média; explicar se a linha órfã (produto 5) entra na média | — | ⬜ |
-| E15.2 | Preço acima da média da categoria | Média por categoria; saída com fornecedor, produto, categoria e preço, ordenada por categoria e preço | — | ⬜ |
-| E15.3 | Recentes do Brasil com estoque acima da média | Filtro por país, comparação com a média, ordem por `data_aquisicao` decrescente; "mais recentes" definido e justificado | — | ⬜ |
-| E15.4 | Entregável .sql/.txt com explicação | Eloquent + SQL equivalente, resultado esperado com os dados fornecidos, notas sobre inconsistências (produto 5 órfão, fornecedor D sem produtos, fornecedor C inativo) | — | ⬜ |
+| E15.1 | Query em Eloquent: produtos com estoque abaixo da média geral | Query em Eloquent; explica como o registro de estoque sem produto correspondente afeta a média | docs/respostas/15.txt | ⬜ |
+| E15.2 | Query em Eloquent: fornecedores com produtos de preço unitário acima da média da categoria; exibir fornecedor, produto, categoria e preço; ordenar por categoria e preço unitário | Query em Eloquent com as quatro colunas e a ordenação pedida | docs/respostas/15.txt | ⬜ |
+| E15.3 | Query em Eloquent: produtos mais recentes, de fornecedores do Brasil, com estoque acima da média de todos os produtos | Query em Eloquent; critério de "mais recentes" explicado | docs/respostas/15.txt | ⬜ |
+| E15.4 | Queries em arquivo `.sql` ou `.txt`, com as explicações necessárias | Arquivo `15.txt` com as queries e explicações, incluindo as particularidades dos dados fornecidos | docs/respostas/15.txt | ⬜ |
+| E15.5 | Sugerido: documentar as respostas e justificar as escolhas | Justificativa de cada escolha no próprio arquivo | docs/respostas/15.txt | ⬜ |
 
-## F. Requisitos adicionais do projeto
+## F. Requisitos adicionais do projeto (decisões, não enunciado)
 
-| ID | Requisito | Critério de "atendido" | Onde | Status |
+| ID | Item | Critério | Onde | Status |
 |---|---|---|---|---|
-| X1 | Página "Teste Técnico" no menu (entregável principal) | Todas as respostas legíveis no link de produção, lidas de `docs/respostas/*.md`, com índice 1–15, âncoras por exercício, funcionando sem o backend | — | ⬜ |
-| X2 | README honesto | Descrição + arquitetura + plano de ação em checklist; cada [x] conferido no código | README.md | 🟨 |
-| X3 | Autenticação coerente | Estratégia da resposta do E2 = estratégia implementada no E10 | — | ⬜ |
-| X4 | Link de produção | Front e página Teste Técnico publicados; API publicada com imagens persistentes | — | ⬜ |
+| X1 | Página "Teste Técnico" no menu (D3, D13) | Todas as respostas legíveis no link de produção, com índice 1–15 e âncoras, funcionando sem o backend | — | ⬜ |
+| X2 | README honesto (D5) | Cada [x] conferido no código | README.md | 🟨 |
+| X3 | Autenticação coerente (D6, D10) | Estratégia da resposta do E2 igual à implementada no E10 | — | ⬜ |
+| X4 | Link de produção (D15) | Aplicação publicada em origem única: API, interface, página Teste Técnico e imagens persistentes | — | ⬜ |
 
-## G. Dúvidas em aberto
+## G. Dúvidas
 
-1. O exercício 12 pode ficar no mesmo app Vue do exercício 10? (proposta: sim, na rota do checkout)
-2. Horário exato de início e fim das 48h.
+1. ~~O exercício 12 pode ficar no mesmo app Vue do exercício 10?~~ Resolvida pelo enunciado: "O teste pode ser realizado em um único projeto".
+2. Horário exato de início e fim das 48h. **Em aberto.**

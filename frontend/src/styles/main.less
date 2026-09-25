@@ -1,0 +1,221 @@
+/*
+ * Estilos globais da aplicação, escritos em LESS sobre os tokens e mixins
+ * do projeto: reset, tipografia, layout base, botões, campos de formulário
+ * e utilitários de acessibilidade.
+ */
+
+@import 'tokens.less';
+@import 'mixins.less';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: @fonte-texto;
+  font-size: @texto-base;
+  line-height: 1.5;
+  color: @cor-texto;
+  background-color: @cor-fundo;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0 0 @espaco-4;
+  font-family: @fonte-titulo;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+h1 {
+  font-size: @texto-titulo;
+}
+
+h2 {
+  font-size: @texto-grande;
+}
+
+h3 {
+  font-size: @texto-medio;
+}
+
+p {
+  margin: 0 0 @espaco-4;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+:focus-visible {
+  .foco-visivel();
+}
+
+.container {
+  width: 100%;
+  max-width: @largura-maxima;
+  margin: 0 auto;
+  padding: 0 @espaco-4;
+
+  .acima-de(@bp-tablet, {
+    padding: 0 @espaco-5;
+  });
+}
+
+.pular-para-conteudo {
+  position: absolute;
+  top: @espaco-2;
+  left: @espaco-2;
+  z-index: 100;
+  padding: @espaco-2 @espaco-4;
+  background: @cor-preto;
+  color: @cor-branco;
+  transform: translateY(-200%);
+
+  &:focus {
+    transform: none;
+  }
+}
+
+.somente-leitor-de-tela {
+  .somente-leitor-de-tela();
+}
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: @espaco-2;
+  min-height: @altura-campo;
+  padding: 0 @espaco-5;
+  font-family: @fonte-titulo;
+  font-size: @texto-base;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border: 1px solid;
+  border-radius: @raio;
+  cursor: pointer;
+  transition:
+    background-color @transicao,
+    border-color @transicao;
+  .botao-variante(@cor-preto; @cor-branco);
+
+  &--secundario {
+    .botao-variante(@cor-branco; @cor-preto);
+  }
+
+  &--perigo {
+    .botao-variante(@cor-erro; @cor-branco);
+  }
+
+  &--pequeno {
+    min-height: 2rem;
+    padding: 0 @espaco-3;
+    font-size: @texto-pequeno;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: @espaco-1;
+  margin-bottom: @espaco-4;
+
+  &__rotulo {
+    font-size: @texto-pequeno;
+  }
+
+  &__entrada {
+    width: 100%;
+    min-height: @altura-campo;
+    padding: @espaco-2 @espaco-3;
+    font: inherit;
+    color: @cor-texto;
+    background: @cor-branco;
+    border: 1px solid @cor-borda;
+    border-radius: @raio;
+
+    &[aria-invalid='true'] {
+      border-color: @cor-erro;
+      box-shadow: inset 0 0 0 1px @cor-erro;
+    }
+  }
+
+  textarea&__entrada {
+    min-height: 7rem;
+    resize: vertical;
+  }
+
+  &__erro {
+    margin: 0;
+    font-size: @texto-pequeno;
+    color: @cor-erro;
+  }
+
+  &__ajuda {
+    margin: 0;
+    font-size: @texto-pequeno;
+    color: @cor-texto-suave;
+  }
+}
+
+.alerta {
+  margin-bottom: @espaco-4;
+  padding: @espaco-3 @espaco-4;
+  border: 1px solid;
+  border-left-width: 4px;
+  border-radius: @raio;
+
+  &--erro {
+    color: @cor-erro;
+    border-color: @cor-erro;
+    background: fade(@cor-erro, 6%);
+  }
+
+  &--sucesso {
+    color: @cor-sucesso;
+    border-color: @cor-sucesso;
+    background: fade(@cor-sucesso, 8%);
+  }
+
+  &--info {
+    color: @cor-texto;
+    border-color: @cor-preto;
+    background: @cor-cinza-100;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Fim de main.less */
