@@ -1,6 +1,6 @@
 # E-commerce T-Shirt
 
-E-commerce de moda desenvolvido como resposta a um teste técnico Full Stack (Laravel + Vue.js): catálogo de camisetas, moletons e acessórios, administração de produtos com autenticação, finalização de compra e uma página com as respostas de todas as questões do teste.
+E-commerce de moda desenvolvido a partir de requisitos para atender ser catálogo de camisetas, moletons e acessórios, administração de produtos com autenticação, finalização de compra e uma página com as respostas de todas as questões do teste.
 
 > **Status:** em desenvolvimento. O plano de ação abaixo mostra o que já está pronto.
 
