@@ -1,16 +1,8 @@
 # E-commerce T-Shirt
 
-E-commerce de moda desenvolvido a partir de requisitos para atender ser catálogo de camisetas, moletons e acessórios, administração de produtos com autenticação, finalização de compra e uma página com as respostas de todas as questões do teste.
+E-commerce de moda desenvolvido como resposta a um teste técnico Full Stack (Laravel + Vue.js). Reúne catálogo de camisetas, moletons e acessórios, administração de produtos com autenticação, página de finalização de compra e uma página com as respostas de todas as questões do teste.
 
-### Workflow
-
-Workflow de trabalho com branches
-
-- main: em produção
-- developer-mvp: tratar e testar
-- feature/fullstack: funcionalidades
-
-> **Status:** em desenvolvimento. O plano de ação abaixo mostra o que já está pronto.
+> **Status:** em desenvolvimento. O [plano de ação](#plano-de-ação) mostra o que já está pronto. Um item só recebe `[x]` quando estiver implementado e verificável.
 
 ---
 
@@ -18,8 +10,10 @@ Workflow de trabalho com branches
 
 - [Exercícios do teste](#exercícios-do-teste)
 - [Arquitetura](#arquitetura)
+- [Fluxo de trabalho](#fluxo-de-trabalho)
 - [Como rodar o projeto](#como-rodar-o-projeto)
 - [Plano de ação](#plano-de-ação)
+- [Requisitos do teste técnico](#requisitos-do-teste-técnico)
 - [Decisões técnicas](#decisões-técnicas)
 - [Créditos de imagens](#créditos-de-imagens)
 
@@ -27,85 +21,178 @@ Workflow de trabalho com branches
 
 ## Exercícios do teste
 
-| Nº | Tema | Onde está |
+Todas as respostas também ficam na página **Teste Técnico** da aplicação, com âncora por exercício (`/teste-tecnico#ex-NN`).
+
+| Nº | Tema | Onde fica (planejado) |
 |---|---|---|
-| 1 | Vue.js: ciclo de vida | a definir |
-| 2 | Laravel + Vue: autenticação | a definir |
-| 3 | APIs: endpoint lento | a definir |
-| 4 | Integrações: CDN | a definir |
-| 5 | Memcached / ElastiCache | a definir |
-| 6 | Eloquent e N+1 | a definir |
-| 7 | Filas assíncronas | a definir |
-| 8 | Transactions | a definir |
-| 9 | Leitura de log | a definir |
-| 10 | CRUD de produtos (Laravel + Vue) | a definir |
-| 11 | Crítica de código | a definir |
-| 12 | Página de finalização de compra | a definir |
-| 13 | Experiência profissional | a definir |
-| 14 | SQL: clientes e pedidos | a definir |
-| 15 | SQL: produtos, fornecedores e estoque | a definir |
+| 1 | Vue.js: ciclo de vida e performance | `docs/respostas/01.md` |
+| 2 | Laravel + Vue: autenticação | `docs/respostas/02.md` |
+| 3 | APIs: endpoint lento | `docs/respostas/03.md` |
+| 4 | Integrações: CDN | `docs/respostas/04.md` |
+| 5 | Memcached / ElastiCache com MySQL (RDS) | `docs/respostas/05.md` |
+| 6 | Eloquent e N+1 | `docs/respostas/06.md` |
+| 7 | Filas assíncronas | `docs/respostas/07.md` |
+| 8 | Transactions | `docs/respostas/08.md` |
+| 9 | Leitura de log | `docs/respostas/09.md` |
+| 10 | CRUD de produtos (Laravel + Vue) | `backend/` (API) e `frontend/` (tela de administração) · explicação em `docs/respostas/10.md` |
+| 11 | Crítica de código | `docs/respostas/11.md` |
+| 12 | Página de finalização de compra | `frontend/` (rota do checkout) · explicação em `docs/respostas/12.md` |
+| 13 | Experiência profissional | `docs/respostas/13.md` |
+| 14 | SQL com Eloquent: clientes e pedidos | `docs/respostas/14.md` |
+| 15 | SQL com Eloquent: produtos, fornecedores e estoque | `docs/respostas/15.txt` |
 
 ---
 
 ## Arquitetura
 
-> Seção em construção. As decisões são registradas em [`docs/DECISOES.md`](docs/DECISOES.md) e esta seção é atualizada quando forem aprovadas.
-
-Estrutura planejada do repositório:
-
 ```text
 e-commerce-t-shirt/
-├── backend/     API REST em Laravel
-├── frontend/    SPA em Vue.js
+├── backend/     Laravel 12 · API REST · autenticação Sanctum (modo SPA)
+├── frontend/    Vue 3 · Vite · Vue Router · Pinia · estilos em LESS
 └── docs/
-    ├── REQUISITOS.md   checklist de requisitos do teste
+    ├── REQUISITOS.md   checklist de requisitos com critério de "atendido"
     ├── DECISOES.md     registro das decisões técnicas
     ├── respostas/      respostas das questões (fonte da página Teste Técnico)
     └── assets/         imagens de referência do teste
 ```
 
+| Camada | Tecnologia | Decisão |
+|---|---|---|
+| Backend | Laravel 12 (PHP 8.2+) | [D11](docs/DECISOES.md) |
+| Frontend | Vue 3 com Composition API (`<script setup>`), Vue Router, Pinia, JavaScript | [D11](docs/DECISOES.md) |
+| Autenticação | Sanctum em modo SPA: cookie de sessão HttpOnly + proteção CSRF | [D10](docs/DECISOES.md) |
+| Estilos | LESS próprio, sem framework CSS | [D12](docs/DECISOES.md) |
+| Página Teste Técnico | Respostas embutidas no build a partir de `docs/respostas/` | [D13](docs/DECISOES.md) |
+| Banco de dados | MySQL | [D19](docs/DECISOES.md) |
+| Produção | Origem única: o Laravel serve a API e o build do Vue no mesmo domínio | [D15](docs/DECISOES.md) |
+
+---
+
+## Fluxo de trabalho
+
+| Branch | Papel |
+|---|---|
+| `feature/fullstack` | Desenvolvimento das funcionalidades |
+| `developer-mvp` | Integração e testes: recebe a `feature/fullstack` a cada checkpoint (H12, H24, H36) |
+| `main` | Produção: recebe a `developer-mvp` apenas nos deploys |
+
+Commits no padrão convencional: `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`.
+
 ---
 
 ## Como rodar o projeto
 
-> Seção em construção. Será preenchida com pré-requisitos, variáveis de ambiente e comandos testados do zero.
+> Rascunho. Esta seção será testada do zero, em máquina limpa, antes da entrega.
+
+### Pré-requisitos
+- PHP 8.2+ com as extensões `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `curl` e `zip`
+- Composer 2
+- Node.js 20.19+ e npm
+- MySQL 8 ou MariaDB 10.4+
+
+### Backend
+```bash
+mysql -u root -e "CREATE DATABASE e_commerce_t_shirt CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
+php artisan serve
+```
+API disponível em `http://localhost:8000`.
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Aplicação disponível em `http://localhost:5173`.
+
+### Testes
+```bash
+cd backend && php artisan test
+cd frontend && npm run test:unit
+```
 
 ---
 
 ## Plano de ação
 
-### Fase 0 — Organização
+### Bloco 0 · Organização e ambiente
 - [x] Repositório criado e ligado ao GitHub
 - [x] Checklist de requisitos (`docs/REQUISITOS.md`)
 - [x] Registro de decisões (`docs/DECISOES.md`)
-- [ ] Arquitetura e stack definidas
+- [x] Arquitetura e stack definidas (D10–D18)
+- [ ] Banco e localização definidos (D19)
+- [x] Projeto Laravel 12 criado, com Sanctum instalado
+- [x] Projeto Vue 3 criado, com Router, Pinia, Vitest, ESLint e Prettier
 
-### Fase 1 — Backend (exercício 10)
-- [ ] Projeto Laravel criado
-- [ ] Migration, model e seeder de produtos
-- [ ] Controller e rotas REST
+### Bloco A · Fundação
+- [ ] Remover as sobras dos templates (App.vue de exemplo, `stores/counter.js`, `App.spec.js`, READMEs padrão)
+- [ ] `index.html` com `lang="pt-BR"` e título do projeto
+- [ ] `.env.example` com MySQL e locale pt_BR
+- [ ] `@faker-js/faker` instalado no frontend
+- [ ] Proxy do Vite para `/api` e `/sanctum`
+- [ ] Base de estilos em LESS (variáveis, mixins, reset)
+- [ ] Header com o menu e as rotas principais
+
+### Bloco A2 · Deploy esqueleto
+- [ ] Host de produção definido
+- [ ] Aplicação mínima publicada e respondendo
+- [ ] Primeiro merge `developer-mvp → main`
+
+### Bloco B · Ex. 10 · Backend
+- [ ] Migration, model e factory de produtos
 - [ ] Validação com Form Request
-- [ ] Upload de imagem
-- [ ] Autenticação
-- [ ] Testes da API
+- [ ] Resposta com API Resource
+- [ ] Controller e rotas REST para cada ação
+- [ ] Upload de imagem com remoção da anterior
+- [ ] Autenticação Sanctum SPA (login, logout, rotas protegidas)
+- [ ] Seeder com usuário de demonstração e produtos
+- [ ] Testes de feature da API
 
-### Fase 2 — Frontend (exercícios 10 e 12)
-- [ ] Projeto Vue criado
-- [ ] Layout base com menu do header e estilos em LESS
-- [ ] Login e administração de produtos
-- [ ] Página de finalização de compra
-- [ ] Acessibilidade e otimização revisadas
+### Bloco C · Ex. 10 · Frontend
+- [ ] Cliente HTTP da API
+- [ ] Estado de autenticação (Pinia) e tela de login
+- [ ] Proteção das rotas de administração
+- [ ] Listagem de produtos
+- [ ] Formulário de criação e edição com preview da imagem
+- [ ] Exclusão de produto
 
-### Fase 3 — Respostas (exercícios 1–9, 11, 13–15)
-- [ ] Respostas teóricas em `docs/respostas/`
-- [ ] Queries do exercício 14
-- [ ] Queries do exercício 15 (`.sql`)
-- [ ] Página "Teste Técnico" exibindo todas as respostas
+### Bloco D · Ex. 12 · Finalização de compra
+- [ ] Layout com sacola hardcoded
+- [ ] Validações de formato e de campos vazios
+- [ ] Alteração de quantidade
+- [ ] Endereço pelo CEP com `cep-promise`
+- [ ] Indicadores de carregamento
+- [ ] Mensagem de sucesso e `console.log` do objeto final
+- [ ] Testes unitários das validações
 
-### Fase 4 — Entrega
-- [ ] README completo (como rodar e decisões)
-- [ ] Deploy em produção
-- [ ] Revisão final dos requisitos
+### Bloco E · Respostas teóricas e página Teste Técnico
+- [ ] Respostas 01–09, 11 e 13 em `docs/respostas/`
+- [ ] Explicações dos exercícios 10 e 12
+- [ ] Página "Teste Técnico" com índice e âncoras
+
+### Bloco F · Ex. 14 e 15
+- [ ] Queries em Eloquent do exercício 14 e resposta sobre otimização
+- [ ] Queries em Eloquent do exercício 15 em `docs/respostas/15.txt`, com explicações
+
+### Bloco G · Extras (somente com os obrigatórios concluídos)
+- [ ] Vitrine por categoria
+- [ ] Paginação
+
+### Bloco H · Qualidade
+- [ ] Revisão de acessibilidade
+- [ ] Revisão de otimização (medição Lighthouse registrada)
+- [ ] "Como rodar" testado do zero
+
+### Bloco I · Entrega
+- [ ] Deploy final
+- [ ] Varredura final dos requisitos
+- [ ] Acesso do avaliador ao repositório conferido
 
 ---
 
@@ -113,23 +200,21 @@ e-commerce-t-shirt/
 
 > Transcrição organizada do enunciado original.
 > Legenda: **[OBR]** obrigatório · **[SUG]** sugerido · **[AVAL]** critério de avaliação · **[REF]** referência, não obrigatório.
-> Um item só é marcado `[x]` quando estiver implementado e verificável no código ou no link de produção.
+> O critério de "atendido" e a evidência de cada item ficam em [`docs/REQUISITOS.md`](docs/REQUISITOS.md).
 
 ### Requisitos gerais
 - [ ] [OBR] Respostas documentadas em repositório Git (público, ou privado com acesso concedido ao avaliador)
-- [ ] [OBR] Boas práticas de programação
-- [ ] [OBR] Boas práticas de versionamento
-- [ ] [OBR] Boas práticas de organização de código
+- [ ] [OBR] Boas práticas de programação, versionamento e organização de código
 - [ ] [OBR] README com instruções claras de como rodar o projeto
 - [ ] [OBR] README com justificativa das decisões técnicas
 - [ ] [OBR] Cada exercício claramente identificado (o teste pode ser feito em um único projeto)
 
-### Questão de front-end (vale para toda a interface)
+### Questão de front-end
 - [ ] Paleta de cores e fontes: livre escolha
 - [ ] Imagens do site da Uma Penca ou da Chico Rei: permitido
-- [ ] [SUG] Usar o faker-js (https://github.com/faker-js/faker) para preencher os dados de exemplo
+- [ ] [SUG] Usar o fakerjs (https://github.com/faker-js/faker) para preencher o conteúdo das páginas
 - [ ] Estilos prontos (Bootstrap e afins): permitido
-- [ ] [OBR] Personalizar estilos com **LESS** (tamanhos, fontes, cores, espaçamentos etc.)
+- [ ] [OBR] Personalizar alguma coisa estilizando com **LESS** (tamanhos, fontes, cores, espaçamentos etc.)
 - [ ] [AVAL] Código limpo e organizado
 - [ ] [AVAL] Documentação
 - [ ] [AVAL] Princípios de acessibilidade
@@ -138,116 +223,83 @@ e-commerce-t-shirt/
 
 ### Ex. 01 · Vue.js
 - [ ] Explicar como funciona o ciclo de vida de um componente em Vue.js
-- [ ] Explicar como o ciclo de vida influencia a performance da aplicação
+- [ ] Explicar como isso influencia a performance de uma aplicação
 
 ### Ex. 02 · Laravel + Vue.js
-- [ ] Qual é a melhor abordagem para autenticação entre frontend e backend
-- [ ] Fluxo seguro de login
+- [ ] Qual é a melhor abordagem para lidar com autenticação entre frontend e backend
+- [ ] Explicar um fluxo seguro para login
 - [ ] Armazenamento de tokens
 - [ ] Comunicação entre as camadas
 
 ### Ex. 03 · APIs
-- [ ] Técnicas para **identificar** a causa de um endpoint lento no backend
-- [ ] Técnicas para **resolver** o problema
+- [ ] Técnicas para identificar o problema de um endpoint lento no backend
+- [ ] Técnicas para resolver o problema
 
 ### Ex. 04 · Integrações
-- [ ] Como o uso de CDN melhora a performance de uma aplicação web
+- [ ] Como a utilização de CDN melhora a performance de uma aplicação web
 
 ### Ex. 05 · Engenharia de Software e Banco de Dados
-- [ ] Por que usar Memcached ou ElastiCache numa aplicação Laravel com MySQL (RDS)
+- [ ] Por que seria interessante usar Memcached ou ElastiCache numa aplicação Laravel com MySQL (RDS)
 - [ ] Como essas tecnologias ajudam na escalabilidade
 
 ### Ex. 06 · Engenharia de Software e Banco de Dados
-- [ ] Vantagens do Eloquent
-- [ ] Desvantagens do Eloquent
-- [ ] Problemas recorrentes, em especial N+1 queries
+- [ ] Vantagens de utilizar o Eloquent
+- [ ] Desvantagens de utilizar o Eloquent
+- [ ] Problemas recorrentes (N+1 queries)
 
 ### Ex. 07 · Engenharia de Software e Banco de Dados
-- [ ] Como implementar filas assíncronas no Laravel
-- [ ] Para que tipo de funcionalidade essa abordagem é útil
+- [ ] Como implementar um sistema de filas assíncronas no Laravel
+- [ ] Para que tipo de funcionalidades essa abordagem é útil
 
 ### Ex. 08 · Engenharia de Software e Banco de Dados
-- [ ] Quando é interessante usar transactions
+- [ ] Quando é interessante utilizar transactions
 
 ### Ex. 09 · Leitura de log
-- [ ] Explicar o que o log indica
-- Elementos do log a considerar:
-  - Data e ambiente: `2018-05-16 01:07:31`, `production.ERROR`
-  - Erro: `Call to a member function getImage() on null` em `app/Models/Imagem.php:147` (`FatalThrowableError`)
-  - O erro ocorre dentro da closure de `rememberForever('products_667_im...')`, chamada em `Imagem::getThumbs()` (`Imagem.php:157`)
-  - `getThumbs()` é chamado por `ImagemTransformer::transform()` (`ImagemTransformer.php:25`)
-  - O `ImagemTransformer` é executado pelo include `'capa'` do `ProdutoTransformer` (Fractal)
-  - A resposta é montada pelo `ResponseFactory` (`handleItem` → `create`)
-  - Tudo roda dentro de outro `rememberForever('products_667_in...')`, em `Api\ProdutoController@info` (`ProdutoController.php:182`)
-  - Produto envolvido: id 667
-  - Middlewares no caminho: `AuthenticateApi`, `Localize`, `HandleCors`/`HandlePreflight` (barryvdh/laravel-cors), `SubstituteBindings`, `CheckForMaintenanceMode`
+- [ ] Explicar o que se entende do log apresentado no enunciado (erro `Call to a member function getImage() on null`, produto 667)
 
-### Ex. 10 · Desenvolvimento Full-Stack (Laravel + Vue.js) · CRUD de produtos
-- [ ] [OBR] Criação de produtos
-- [ ] [OBR] Leitura de produtos
-- [ ] [OBR] Atualização de produtos
-- [ ] [OBR] Deleção de produtos
-- [ ] [OBR] Campos do produto: Nome, Descrição, Preço, Imagem
-- [ ] [OBR] Backend Laravel: model
-- [ ] [OBR] Backend Laravel: migration
-- [ ] [OBR] Backend Laravel: controller
-- [ ] [OBR] Backend Laravel: rotas REST para cada ação
-- [ ] [OBR] Frontend Vue.js: interface que consome a API
-- [ ] [OBR] Frontend Vue.js: exibição dos produtos
+### Ex. 10 · Desenvolvimento Full-Stack (Laravel + Vue.js)
+- [ ] [OBR] CRUD de produtos: criação, leitura, atualização e deleção
+- [ ] [OBR] Cada produto contém: Nome, Descrição, Preço e Imagem
+- [ ] [OBR] Backend em Laravel: modelo, migration, controller e rotas REST para cada ação
+- [ ] [OBR] Frontend em Vue.js: interface para consumir a API e exibir os produtos
 - [ ] [OBR] Autenticação: apenas usuários autenticados podem modificar produtos
 
-### Ex. 11 · Crítica de código (transformer de item de pedido)
-- [ ] Criticar o código
+### Ex. 11 · Crítica de código
+- [ ] Criticar o código apresentado (transformer de item de pedido)
 - [ ] Explicar como poderia ser melhorado
-- Fatos do código a considerar:
-  - `getProduct()` é chamado 4 vezes (`getName`, `getLinkRewrite`, `isActive`, `getType`)
-  - `getSize()` é chamado 3 vezes (`getName`, `getGender`, `getLongGender`)
-  - Não há tratamento para `getProduct()` ou `getSize()` retornarem nulo
-  - Nomes de chaves misturam português e inglês (`item_pedido_id` e `product_id`)
 
 ### Ex. 12 · Front-end · Finalização de compra
-- [ ] [OBR] Produtos da sacola hardcoded
-- [ ] [OBR] Validação de formato: cartão de crédito
-- [ ] [OBR] Validação de formato: data
-- [ ] [OBR] Validação de formato: CEP
-- [ ] [OBR] Validação de formato: e-mail
-- [ ] [OBR] Validação de formato: telefone
-- [ ] [OBR] Validação de formato: demais campos ("etc." — titular, CVC, número, rua, bairro, cidade, estado)
-- [ ] [OBR] Validação de campos vazios (todos os campos são obrigatórios)
-- [ ] [OBR] Alteração da quantidade dos produtos na sacola
-- [ ] [OBR] Endereço carregado a partir do CEP com `cep-promise`
-- [ ] [OBR] Indicador de carregamento durante qualquer requisição
-- [ ] [OBR] Mensagem de sucesso ao fechar o pedido (sucesso = todos os campos válidos)
-- [ ] [OBR] `console.log` do objeto final ao fechar o pedido
-- [ ] [REF] Layout de exemplo (`docs/assets/checkout-frontend.jpg`): duas colunas; "Finalização do pedido" (Contato, Entrega, Pagamento, botão "Fechar pedido") e "Sua sacola" (imagem, nome, preço, quantidade − e +); preto e branco
+- [ ] [OBR] Produtos na sacola/carrinho hardcoded
+- [ ] [OBR] Validação de campos com formatos específicos (cartão de crédito, data, CEP, e-mail, telefone, etc.)
+- [ ] [OBR] Validação de campos vazios (todos são obrigatórios)
+- [ ] [OBR] Alteração da quantidade dos produtos na sacola/carrinho
+- [ ] [OBR] Carregamento do endereço a partir do CEP utilizando o `cep-promise`
+- [ ] [OBR] Indicadores de carregamento enquanto a página realizar alguma requisição
+- [ ] [OBR] Mensagem de sucesso ao fechar o pedido (sucesso quando todos os campos forem válidos)
+- [ ] [OBR] Ao fechar o pedido, exibir o objeto final no console (`console.log`)
+- [ ] [REF] Exemplo de layout: `docs/assets/checkout-frontend.jpg`
 
 ### Ex. 13 · Experiência profissional
-- [ ] Descrever um projeto desafiador recente como desenvolvedor full-stack, com:
+- [ ] Descrever um projeto desafiador recente como desenvolvedor full-stack, incluindo:
   - [ ] Contexto: propósito e objetivos do projeto
-  - [ ] Desafios: técnicos ou de gerenciamento de projeto
+  - [ ] Desafios: técnicos ou de gerenciamento de projetos
   - [ ] Soluções: o que foi implementado e como foram usadas tecnologias como Vue.js, Laravel ou outras da vaga
-  - [ ] Impacto: resultados em desempenho da equipe, satisfação do cliente ou melhoria do produto
+  - [ ] Impacto: resultados em desempenho da equipe, satisfação do cliente ou melhorias no produto
   - [ ] Lições aprendidas: o que aplicaria em projetos futuros
 
-### Ex. 14 · SQL (usando Eloquent)
-Estrutura dada: `clientes (id, nome, email, estado)` e `pedidos (id, cliente_id, data_pedido, valor_total)`, com FK `pedidos.cliente_id → clientes.id`.
-- [ ] [OBR] Query **em Eloquent**: estados com maior volume de vendas (soma de `valor_total`)
-- [ ] [OBR] Query **em Eloquent**: 5 clientes que mais compraram (por `valor_total`)
-- [ ] Melhor forma de otimizar a performance dessas consultas
+### Ex. 14 · SQL (utilizando o Eloquent do Laravel)
+Estrutura dada: `clientes (id, nome, email, estado)` e `pedidos (id, cliente_id, data_pedido, valor_total)`.
+- [ ] [OBR] Query em Eloquent: estados com maior volume de vendas (soma de `valor_total`)
+- [ ] [OBR] Query em Eloquent: 5 clientes que mais compraram (considerando `valor_total`)
+- [ ] Qual seria a melhor forma de otimizar a performance dessas consultas
 
-### Ex. 15 · SQL (usando Eloquent) · produtos, fornecedores e estoque
-Dados dados: `produtos` (4 registros), `fornecedores` (4 registros), `estoque` (5 registros).
-- [ ] [OBR] Query **em Eloquent**: produtos com estoque abaixo da média geral
-- [ ] [OBR] Query **em Eloquent**: fornecedores com produtos cujo preço unitário é maior que a média da sua categoria — exibir nome do fornecedor, nome do produto, categoria e preço; ordenar por categoria e preço unitário
-- [ ] [OBR] Query **em Eloquent**: produtos mais recentes, de fornecedores do Brasil, com estoque acima da média de todos os produtos
-- [ ] [OBR] Entregar as queries em arquivo `.sql` ou `.txt`, com as explicações necessárias
+### Ex. 15 · SQL (utilizando o Eloquent do Laravel)
+Dados fornecidos no enunciado: tabelas `produtos`, `fornecedores` e `estoque`.
+- [ ] [OBR] Query em Eloquent: produtos que possuem estoque abaixo da média geral
+- [ ] [OBR] Query em Eloquent: fornecedores que possuem produtos com preço unitário maior que a média dos preços da sua categoria — exibir nome do fornecedor, nome do produto, categoria e preço; ordenar por categoria e preço unitário
+- [ ] [OBR] Query em Eloquent: produtos mais recentes, adquiridos de fornecedores do Brasil, com estoque acima da média de todos os produtos
+- [ ] [OBR] Queries escritas em arquivo `.sql` ou `.txt`, com as explicações necessárias
 - [ ] [SUG] Documentar as respostas e justificar as escolhas
-- Particularidades dos dados a documentar:
-  - [ ] Estoque id 5 referencia `produto_id = 5`, que não existe em `produtos` (registro órfão)
-  - [ ] Fornecedor D (Brasil, ativo) não tem produtos
-  - [ ] Fornecedor C está inativo (o enunciado não diz se inativos devem ser filtrados)
-  - [ ] "Mais recentes" não tem critério definido no enunciado (por data de aquisição; quantidade ou período não especificados)
-
 
 ---
 
@@ -259,7 +311,7 @@ Todas as decisões, com contexto, alternativas e motivo, estão em [`docs/DECISO
 
 ## Créditos de imagens
 
-As imagens de produtos utilizadas são de lojas de moda autorizadas pelo enunciado do teste (Chico Rei / Uma Penca), usadas apenas para fins de demonstração.
+As imagens de produtos são das lojas Chico Rei e Uma Penca, com uso permitido pelo enunciado do teste, apenas para fins de demonstração.
 
 ---
 

@@ -1,13 +1,31 @@
 <!DOCTYPE html>
-<html lang="">
+<!--
+  Documento base da SPA. Idioma pt-BR (leitores de tela), descrição para
+  buscadores e fontes carregadas com preconnect e display=swap para não
+  bloquear a exibição do texto.
+-->
+<html lang="pt-BR">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Loja de camisetas, moletons e acessórios desenvolvida para o teste técnico Full Stack (Laravel + Vue.js)."
+    />
+    <meta name="theme-color" content="#111111" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@500;600&display=swap"
+    />
+    <title>T-Shirt Store</title>
   </head>
   <body>
+    <noscript>Esta aplicação precisa de JavaScript habilitado.</noscript>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
+<!-- Fim de index.html -->

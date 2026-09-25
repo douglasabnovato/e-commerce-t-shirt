@@ -33,3 +33,6 @@ coverage/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Material de consulta local (referências, repositórios antigos e PDF do enunciado)
+consultar/

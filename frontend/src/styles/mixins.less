@@ -1,0 +1,53 @@
+/*
+ * Mixins LESS reutilizados pelos componentes: foco visível, texto só para
+ * leitores de tela, media queries por largura mínima e variantes de botão
+ * geradas por função (com guarda que escolhe a cor do hover pelo brilho
+ * do fundo).
+ */
+
+.foco-visivel() {
+  outline: 3px solid @cor-preto;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px @cor-branco;
+}
+
+.somente-leitor-de-tela() {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.acima-de(@largura; @regras) {
+  @media (min-width: @largura) {
+    @regras();
+  }
+}
+
+.botao-variante(@fundo; @texto) when (lightness(@fundo) < 50%) {
+  background-color: @fundo;
+  color: @texto;
+  border-color: @fundo;
+
+  &:hover:not(:disabled) {
+    background-color: lighten(@fundo, 18%);
+    border-color: lighten(@fundo, 18%);
+  }
+}
+
+.botao-variante(@fundo; @texto) when (lightness(@fundo) >= 50%) {
+  background-color: @fundo;
+  color: @texto;
+  border-color: @texto;
+
+  &:hover:not(:disabled) {
+    background-color: darken(@fundo, 8%);
+  }
+}
+
+/* Fim de mixins.less */
