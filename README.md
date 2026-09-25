@@ -4,6 +4,8 @@ E-commerce de moda desenvolvido a partir de requisitos para atender ser catálog
 
 ### Workflow
 
+Workflow de trabalho com branches
+
 - main: em produção
 - developer-mvp: tratar e testar
 - feature/fullstack: funcionalidades
