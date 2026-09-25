@@ -29,10 +29,15 @@ const TELAS = [
 ]
 
 /**
- * Converte o markdown de uma resposta em HTML (HTML bruto desativado).
+ * Converte o markdown de uma resposta em HTML (HTML bruto desativado) e
+ * desce um nível nos títulos: cada resposta já tem o seu h2, então os
+ * títulos internos passam a h3, h4… e a hierarquia fica correta para
+ * leitores de tela.
  */
 function renderizar(corpo) {
-  return markdown.render(corpo)
+  return markdown
+    .render(corpo)
+    .replace(/<(\/?)h([1-5])(?=[\s>])/g, (_, barra, nivel) => `<${barra}h${Number(nivel) + 1}`)
 }
 </script>
 
@@ -158,9 +163,29 @@ function renderizar(corpo) {
       font-size: @texto-pequeno;
     }
 
-    :deep(h1),
-    :deep(h2) {
+    :deep(h3) {
       font-size: @texto-medio;
+    }
+
+    :deep(table) {
+      display: block;
+      overflow-x: auto;
+      width: 100%;
+      margin-bottom: @espaco-4;
+      font-size: @texto-pequeno;
+      border-collapse: collapse;
+    }
+
+    :deep(th),
+    :deep(td) {
+      padding: @espaco-2;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid @cor-cinza-300;
+    }
+
+    :deep(th) {
+      border-bottom-color: @cor-preto;
     }
   }
 
