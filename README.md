@@ -2,6 +2,12 @@
 
 E-commerce de moda desenvolvido a partir de requisitos para atender ser catálogo de camisetas, moletons e acessórios, administração de produtos com autenticação, finalização de compra e uma página com as respostas de todas as questões do teste.
 
+### Workflow
+
+- main: em produção
+- developer-mvp: tratar e testar
+- feature/fullstack: funcionalidades
+
 > **Status:** em desenvolvimento. O plano de ação abaixo mostra o que já está pronto.
 
 ---
