@@ -394,6 +394,55 @@ Todas as decisões, com contexto, alternativas e motivo, estão em [`docs/DECISO
 ### Fora do escopo do enunciado
 - **Histórico de vendas / persistência de pedidos:** o Ex. 12 pede uma página de finalização com envio simulado e `console.log` do pedido; não pede API de pedidos. A evolução natural seria as tabelas `pedidos` e `itens_pedido`, uma rota `POST /api/pedidos` com transaction e uma tela de pedidos no admin.
 
+--- 
+
+## Próximos passos
+
+O que o enunciado pede está entregue. Os itens abaixo são a evolução natural do projeto para um e-commerce real, em ordem de prioridade. Cada um vira uma decisão registrada em [`docs/DECISOES.md`](docs/DECISOES.md) antes de ser implementado.
+
+### 1. Sacola de compras real
+Hoje a sacola é **hardcoded**, como pede o Ex. 12: começa com 2 produtos fixos (3 itens), e a única interação é alterar a quantidade (mínimo 1, máximo 10).
+
+Evolução:
+- botão **"Adicionar à sacola"** na vitrine e na página do produto;
+- **remover item** e esvaziar a sacola;
+- **sacola persistida** no navegador (visitante) e no banco (usuário logado), mantida ao recarregar a página;
+- preços e disponibilidade conferidos na API no momento do checkout, e não apenas no front.
+
+### 2. Ciclo de vida do produto
+Hoje o produto tem os campos pedidos no Ex. 10 (nome, descrição, preço e imagem), e a vitrine filtra por categoria pelo nome do produto (D21).
+
+Evolução:
+- **categoria** como campo próprio, com filtro direto na API;
+- **variações** (tamanho e cor) com preço e estoque por variação;
+- **estoque** com baixa ao confirmar o pedido e aviso de produto esgotado;
+- **status** do produto (rascunho, ativo, inativo) para publicar e despublicar sem excluir;
+- **exclusão lógica** (*soft delete*), preservando o histórico dos pedidos que citam o produto;
+- **galeria** com mais de uma imagem e miniaturas otimizadas.
+
+### 3. Pedidos e histórico de vendas
+Hoje o checkout tem envio simulado (D16): o pedido termina na mensagem de sucesso e no `console.log`.
+
+Evolução:
+- tabelas `pedidos` e `itens_pedido`, com rota `POST /api/pedidos` gravando tudo numa **transaction** (tema do Ex. 08);
+- **status do pedido** (recebido, pago, enviado, entregue, cancelado);
+- tela de **pedidos e histórico de vendas** no admin, com filtros por período e indicadores (faturamento, ticket médio, produtos mais vendidos, no espírito do Ex. 14);
+- e-mail de confirmação enviado por **fila** (tema do Ex. 07).
+
+### 4. Pagamento
+- Integração com um gateway de pagamento, com **tokenização do cartão** no próprio gateway. O cartão nunca passa pelo nosso servidor, e o CVC continua fora de qualquer log.
+
+### 5. Qualidade e segurança
+- Medição **Lighthouse** registrada e revisão de acessibilidade (Bloco H do plano de ação);
+- testes **end-to-end** dos fluxos de login, CRUD e checkout;
+- **Content Security Policy** e cabeçalhos de segurança;
+- perfis de acesso (administrador e cliente) com **policies** do Laravel.
+
+### 6. Infraestrutura
+- **CI/CD** com GitHub Actions: testes a cada push e deploy automático da `main`, incluindo o build do front (hoje feito no computador local por limite de memória do plano gratuito, ver D20);
+- imagens em armazenamento de objetos (S3 ou Cloudflare R2), trocando só a configuração do disco (já previsto na D15);
+- cache das consultas da vitrine e CDN para os arquivos estáticos (temas dos Ex. 04 e 05).
+
 ---
 
 ## Créditos de imagens
