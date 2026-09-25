@@ -48,6 +48,7 @@
   - Camada 1: página Teste Técnico, vitrine por categoria, paginação.
   - Camada 2: produto com tamanho, adicionar à sacola, cupom, sacola persistida.
   - O checkout continua iniciando com itens fixos, conforme o exercício 12.
+- **Situação da entrega:** camadas 0 e 1 concluídas; a camada 2 fica fora desta entrega.
 - **Status:** ✅ aprovada · 25/09/2026
 
 ## D8 — Criação do projeto
@@ -68,17 +69,18 @@
 - **Notas de implementação:**
   - O trait `HasApiTokens` sugerido pelo `install:api` não é adicionado ao `User`: ele serve à autenticação por token Bearer. A tabela `personal_access_tokens` fica sem uso.
   - Ativar `statefulApi()` em `bootstrap/app.php` e incluir `localhost:5173` em `SANCTUM_STATEFUL_DOMAINS`.
-  - Com o proxy do Vite em desenvolvimento e a origem única em produção (D15), o navegador vê uma origem só: não há CORS a configurar e `withCredentials` não é necessário.
+  - Com o proxy do Vite em desenvolvimento e a origem única em produção (D15), o navegador vê uma origem só: não há CORS a configurar. O cliente axios mantém `withCredentials` e `withXSRFToken` ativos para enviar o cookie de sessão e o cabeçalho `X-XSRF-TOKEN` de forma explícita.
+  - `SANCTUM_STATEFUL_DOMAINS`: `localhost:5173` e `localhost:8000` no ambiente local; `douglasabnovato.alwaysdata.net` em produção.
 - **Status:** ✅ aprovada · 25/09/2026
 
 ## D11 — Versões e stack
 - **Contexto:** a tentativa anterior usava Laravel 10, sem suporte de segurança, e Vue com Options API.
 - **Decisão:**
-  - Backend: Laravel 12 (`^12.0`), compatível com o PHP 8.2 do ambiente.
+  - Backend: Laravel 12 (`^12.0`), compatível com o PHP 8.2 do ambiente local; produção em PHP 8.4.
   - Frontend: Vue 3.5 com Composition API (`<script setup>`), Vue Router, Pinia, Vite, em JavaScript.
   - Ferramentas: Vitest, ESLint e Prettier.
 - **Alternativas:** Laravel 10 com PHP 8.1; Vue com Options API; TypeScript.
-- **Motivo:** versões com suporte. A Composition API permite isolar regras (validação do checkout, busca de CEP) em composables testáveis. JavaScript evita horas de tipagem que o teste não pede, e o código reaproveitado já está em JS.
+- **Motivo:** versões com suporte. A Composition API e a separação de regras em funções puras (`utils/checkout/`) permitem testar validação, máscaras e montagem do pedido sem a tela. JavaScript evita horas de tipagem que o teste não pede, e o código reaproveitado já está em JS.
 - **Status:** ✅ aprovada · 25/09/2026
 
 ## D12 — Framework CSS
@@ -108,14 +110,14 @@
 
 ## D15 — Deploy em origem única
 - **Contexto:** a autenticação usa cookie de sessão (D10), que exige mesma origem ou domínios compartilhados.
-- **Decisão:** em produção, o Laravel serve a API e o build do Vue no mesmo domínio. Em desenvolvimento, o Vite faz proxy de `/api` e `/sanctum` para o Laravel. Imagens via `Storage` em disco persistente (trocável para S3/R2 por configuração). Banco MySQL gerenciado.
+- **Decisão:** em produção, o Laravel serve a API e o build do Vue no mesmo domínio. Em desenvolvimento, o Vite faz proxy de `/api`, `/sanctum` e `/storage` para o Laravel. Imagens via `Storage` em disco persistente (trocável para S3/R2 por configuração). Banco MySQL gerenciado.
 - **Alternativas:** front estático em um host e API em outro (exige domínio próprio, CORS com credenciais e ajuste de SameSite).
 - **Motivo:** elimina a principal fonte de falha da autenticação SPA e reduz o deploy a um único serviço.
 - **Status:** ✅ aprovada · 25/09/2026 (host definido na D20)
 
 ## D16 — Envio do checkout
 - **Contexto:** o exercício 12 exige loading, mensagem de sucesso e `console.log` do objeto final; não exige API de pedidos.
-- **Decisão:** envio simulado num serviço isolado (`checkoutService`), com latência artificial. A busca de CEP é real, via `cep-promise`.
+- **Decisão:** envio simulado num serviço isolado (`frontend/src/services/checkout.js`, função `enviarPedido`), com latência artificial e número de pedido gerado no front. A busca de CEP é real, via `cep-promise`.
 - **Alternativas:** endpoint `POST /api/pedidos` no Laravel.
 - **Motivo:** atende ao requisito sem acrescentar ~2h ao bloco de maior risco. A troca por uma API real fica isolada em um arquivo.
 - **Status:** ✅ aprovada · 25/09/2026
@@ -123,6 +125,9 @@
 ## D17 — Testes
 - **Contexto:** boas práticas são avaliadas, e o prazo não permite cobertura ampla.
 - **Decisão:** testes de feature no CRUD do exercício 10 (401 sem login, sucesso com login, 422 com dados inválidos) e testes unitários com Vitest nas validações do exercício 12.
+- **Situação atual:**
+  - Backend: 21 testes (`ProdutoApiTest`, `AutenticacaoTest`, `SpaTest` e os exemplos do Laravel), em SQLite em memória.
+  - Frontend: 21 testes (validações, máscaras, sacola, serviço de produtos e montagem das respostas).
 - **Alternativas:** sem testes; testes end-to-end.
 - **Motivo:** cobre os dois pontos de maior risco pelo menor custo.
 - **Status:** ✅ aprovada · 25/09/2026
@@ -132,7 +137,7 @@
 - **Decisão:** publicar uma versão mínima por volta de H8–H10 (`developer-mvp → main`), além do deploy final.
 - **Alternativas:** deploy único no fim, com 3–4h reservadas.
 - **Motivo:** problemas de infraestrutura aparecem com mais de 30h de margem, e o deploy final vira uma atualização.
-- **Status:** ✅ aprovada · 25/09/2026
+- **Status:** ✅ aprovada · 25/09/2026 · executada em 25/09/2026 (Bloco A2): https://douglasabnovato.alwaysdata.net
 
 ## D19 — Banco de dados e localização
 - **Contexto:** o enunciado trata de MySQL (exercícios 5 e 14); o Laravel 12 vem configurado com SQLite e locale em inglês.
@@ -147,10 +152,18 @@
 - **Contexto:** o projeto não tem orçamento; a hospedagem precisa ser gratuita e atender à D15 (origem única), à D19 (MySQL) e ao upload de imagens do exercício 10.
 - **Decisão:** alwaysdata, plano Free (PHP 8.4, MySQL, SSH, HTTPS no subdomínio `douglasabnovato.alwaysdata.net`).
   - Um único site PHP com raiz em `backend/public`.
-  - O build do Vue vai para `backend/public/spa` (base `/spa/`, fora do Git) e é gerado no servidor.
+  - O build do Vue vai para `backend/public/spa` (base `/spa/`, fora do Git). Ele é **gerado no computador local e enviado ao servidor com `scp`**: no primeiro deploy, o `npm ci` foi encerrado por falta de memória (`Killed`) nos 256 MB de RAM do plano Free.
+  - No servidor rodam apenas `git pull`, `composer install --no-dev --optimize-autoloader`, `php artisan migrate --force` e `php artisan optimize`. O `.env` de produção e a `APP_KEY` existem só no servidor.
   - Uma rota coringa no `routes/web.php` entrega o `index.html` da SPA para tudo que não é `api`, `sanctum`, `storage`, `spa` ou `up`.
   - `trustProxies('*')` para o Laravel reconhecer o HTTPS do proxy.
   - Aviso de loja de demonstração no rodapé (o plano Free não permite uso comercial).
 - **Alternativas:** Render Free + Aiven MySQL (hiberna após 15 min e perde as imagens enviadas); Koyeb Free (mesmos limites); Oracle Cloud Always Free (exige cartão e configuração completa do servidor); Cloudflare Tunnel do computador local (depende do PC ligado); Vercel/Netlify (não executam PHP).
 - **Motivo:** única opção gratuita que mantém PHP, MySQL, imagens persistentes e site sempre ativo no mesmo domínio, sem Docker.
 - **Status:** ✅ aprovada · 25/09/2026
+
+## D21 — Vitrine por categoria
+- **Contexto:** o menu da D4 tem Camisetas, Moletons e Acessórios, mas o produto do exercício 10 tem só os campos pedidos pelo enunciado (nome, descrição, preço e imagem), sem categoria.
+- **Decisão:** cada item do menu filtra a vitrine pelo parâmetro `?busca=` da API (`where nome like`), com o termo da categoria: Camiseta, Moletom e Sketchbook (Acessórios). O mapa fica em `frontend/src/utils/categorias.js`.
+- **Alternativas:** coluna `categoria` na tabela de produtos, com campo no formulário do admin.
+- **Motivo:** mantém o produto exatamente como o enunciado pede e entrega o extra da camada 1 sem migration nova. Se a categoria virar requisito, a troca fica restrita à API e ao `categorias.js`.
+- **Status:** ✅ implementada · 25/09/2026 (registrada após a implementação)
