@@ -3,6 +3,8 @@
  * Todas as páginas são carregadas sob demanda (lazy loading), o que reduz o
  * JavaScript baixado na primeira visita. As rotas de administração exigem
  * login (meta.exigeLogin) e redirecionam para /login quando não há sessão.
+ * O histórico usa a raiz do site ('/'): os arquivos do build ficam em
+ * /spa/, mas as rotas continuam em /, /checkout, /teste-tecnico etc.
  */
 
 import { createRouter, createWebHistory } from 'vue-router'
@@ -63,7 +65,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory('/'),
   routes,
   scrollBehavior(destino, _origem, posicaoSalva) {
     if (posicaoSalva) {

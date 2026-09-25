@@ -111,7 +111,7 @@
 - **Decisão:** em produção, o Laravel serve a API e o build do Vue no mesmo domínio. Em desenvolvimento, o Vite faz proxy de `/api` e `/sanctum` para o Laravel. Imagens via `Storage` em disco persistente (trocável para S3/R2 por configuração). Banco MySQL gerenciado.
 - **Alternativas:** front estático em um host e API em outro (exige domínio próprio, CORS com credenciais e ajuste de SameSite).
 - **Motivo:** elimina a principal fonte de falha da autenticação SPA e reduz o deploy a um único serviço.
-- **Status:** ✅ aprovada · 25/09/2026 (host a definir no Bloco A2)
+- **Status:** ✅ aprovada · 25/09/2026 (host definido na D20)
 
 ## D16 — Envio do checkout
 - **Contexto:** o exercício 12 exige loading, mensagem de sucesso e `console.log` do objeto final; não exige API de pedidos.
@@ -141,4 +141,16 @@
   - Locale `pt_BR` no Laravel (`APP_LOCALE`, `APP_FAKER_LOCALE`) e no faker-js do frontend.
 - **Alternativas:** SQLite local e MySQL em produção.
 - **Motivo:** uma consulta que roda localmente roda igual em produção, e os dados de exemplo ficam em português.
-- **Status:** 🟨 em análise · 25/09/2026
+- **Status:** ✅ aprovada · 25/09/2026
+
+## D20 — Hospedagem de produção
+- **Contexto:** o projeto não tem orçamento; a hospedagem precisa ser gratuita e atender à D15 (origem única), à D19 (MySQL) e ao upload de imagens do exercício 10.
+- **Decisão:** alwaysdata, plano Free (PHP 8.4, MySQL, SSH, HTTPS no subdomínio `douglasabnovato.alwaysdata.net`).
+  - Um único site PHP com raiz em `backend/public`.
+  - O build do Vue vai para `backend/public/spa` (base `/spa/`, fora do Git) e é gerado no servidor.
+  - Uma rota coringa no `routes/web.php` entrega o `index.html` da SPA para tudo que não é `api`, `sanctum`, `storage`, `spa` ou `up`.
+  - `trustProxies('*')` para o Laravel reconhecer o HTTPS do proxy.
+  - Aviso de loja de demonstração no rodapé (o plano Free não permite uso comercial).
+- **Alternativas:** Render Free + Aiven MySQL (hiberna após 15 min e perde as imagens enviadas); Koyeb Free (mesmos limites); Oracle Cloud Always Free (exige cartão e configuração completa do servidor); Cloudflare Tunnel do computador local (depende do PC ligado); Vercel/Netlify (não executam PHP).
+- **Motivo:** única opção gratuita que mantém PHP, MySQL, imagens persistentes e site sempre ativo no mesmo domínio, sem Docker.
+- **Status:** ✅ aprovada · 25/09/2026
