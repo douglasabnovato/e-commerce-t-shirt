@@ -62,11 +62,6 @@ async function entrar() {
     <h1 id="titulo-login">Entrar</h1>
     <p>Acesso à administração de produtos (Ex. 10).</p>
 
-    <div class="alerta alerta--info">
-      <p><strong>Acesso de demonstração</strong></p>
-      <p>E-mail: <code>avaliador@tshirt.test</code> · Senha: <code>Avaliador@2026</code></p>
-    </div>
-
     <div v-if="erroGeral" class="alerta alerta--erro" role="alert">{{ erroGeral }}</div>
 
     <form novalidate @submit.prevent="entrar">

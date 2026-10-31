@@ -1,10 +1,9 @@
 <?php
 
 /*
- * Seeder principal: cria o usuário de demonstração (para o avaliador testar
- * o CRUD do Ex. 10) e os produtos de exemplo.
- * Credenciais de demonstração documentadas no README:
- * e-mail avaliador@tshirt.test · senha Avaliador@2026
+ * Seeder principal: cria os produtos de exemplo e, se SEED_ADMIN_PASSWORD
+ * estiver definida, o usuário de demonstração para testar o CRUD do Ex. 10.
+ * A senha fica fora do repositório porque a conta altera dados em produção.
  */
 
 namespace Database\Seeders;
@@ -23,13 +22,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => 'avaliador@tshirt.test'],
-            [
-                'name' => 'Avaliador',
-                'password' => 'Avaliador@2026',
-            ]
-        );
+        $senha = env('SEED_ADMIN_PASSWORD');
+
+        if ($senha) {
+            User::updateOrCreate(
+                ['email' => 'avaliador@tshirt.test'],
+                [
+                    'name' => 'Avaliador',
+                    'password' => $senha,
+                ]
+            );
+        }
 
         $this->call(ProdutoSeeder::class);
     }
