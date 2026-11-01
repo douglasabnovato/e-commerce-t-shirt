@@ -4,10 +4,7 @@ E-commerce de moda desenvolvido como resposta a um teste técnico Full Stack (La
 
 **Produção:** https://douglasabnovato.alwaysdata.net
 
-| Acesso de demonstração | |
-|---|---|
-| E-mail | `avaliador@tshirt.test` |
-| Senha | `Avaliador@2026` |
+> **Acesso de demonstração:** enviado somente a quem for avaliar o projeto, porque a conta altera os produtos em produção.
 
 > **Status:** publicado em produção. O [plano de ação](#plano-de-ação) mostra o que está pronto; um item só recebe `[x]` quando está implementado e verificável.
 > Loja de demonstração: nenhum pedido é processado ou cobrado.
@@ -35,7 +32,7 @@ E-commerce de moda desenvolvido como resposta a um teste técnico Full Stack (La
 |---|---|---|---|
 | 1 | [Teste Técnico](https://douglasabnovato.alwaysdata.net/teste-tecnico) | Respostas das 15 questões, com índice e âncora por exercício | 1 a 15 |
 | 2 | [Vitrine](https://douglasabnovato.alwaysdata.net) | Produtos vindos da API, com paginação e menu por categoria | 10 |
-| 3 | [Entrar](https://douglasabnovato.alwaysdata.net/login) → Admin | Login com a conta de demonstração, depois criar, editar e excluir produto com imagem | 10 |
+| 3 | [Entrar](https://douglasabnovato.alwaysdata.net/login) → Admin | Login com a conta de demonstração, recebida do responsável, depois criar, editar e excluir produto com imagem | 10 |
 | 4 | [Sacola / Checkout](https://douglasabnovato.alwaysdata.net/checkout) | Sacola hardcoded, quantidade, validações, CEP com `cep-promise`, carregamento, mensagem de sucesso e `console.log` (F12) | 12 |
 | 5 | [`docs/respostas/15.txt`](docs/respostas/15.txt) | Queries Eloquent do exercício 15, entregues em `.txt` | 15 |
 
@@ -135,7 +132,7 @@ php artisan migrate --seed
 php artisan storage:link
 php artisan serve
 ```
-API disponível em `http://localhost:8000`. O seed cria o usuário de demonstração e 12 produtos com imagem.
+API disponível em `http://localhost:8000`. O seed cria 12 produtos com imagem e, se `SEED_ADMIN_PASSWORD` estiver no `.env`, o usuário de demonstração `avaliador@tshirt.test`.
 
 ### 2. Frontend: modo desenvolvimento
 ```bash
