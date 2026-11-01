@@ -32,7 +32,7 @@
 | # | Tarefa | Situação |
 |---|---|---|
 | 1 | Retirar a senha de demonstração do código e dos textos | PR aberto |
-| 2 | Trocar a senha em produção e enviá-la só a quem avaliar | Com o responsável (#9) |
+| 2 | Manter a conta de demonstração acessível, por ser de teste | Decidido pelo responsável (#9) |
 | 3 | Conferir o roteiro de 5 minutos em produção | Com o responsável |
 
 ## 3. Fora do MVP
