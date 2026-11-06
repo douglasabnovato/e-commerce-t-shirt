@@ -64,6 +64,53 @@ class ProdutoApiTest extends TestCase
     }
 
     /**
+     * O parâmetro ordem ordena por preço e por nome; sem ordem, o mais
+     * recente vem primeiro.
+     */
+    public function test_ordem_ordena_por_preco_e_nome(): void
+    {
+        Produto::factory()->create(['nome' => 'Camiseta B', 'preco' => 99.9]);
+        Produto::factory()->create(['nome' => 'Camiseta A', 'preco' => 49.9]);
+        Produto::factory()->create(['nome' => 'Camiseta C', 'preco' => 79.9]);
+
+        $nomes = fn (string $url) => array_column($this->getJson($url)->assertOk()->json('data'), 'nome');
+
+        $this->assertSame(['Camiseta C', 'Camiseta A', 'Camiseta B'], $nomes('/api/produtos'));
+        $this->assertSame(['Camiseta A', 'Camiseta C', 'Camiseta B'], $nomes('/api/produtos?ordem=menor-preco'));
+        $this->assertSame(['Camiseta B', 'Camiseta C', 'Camiseta A'], $nomes('/api/produtos?ordem=maior-preco'));
+        $this->assertSame(['Camiseta A', 'Camiseta B', 'Camiseta C'], $nomes('/api/produtos?ordem=nome'));
+    }
+
+    /**
+     * Ordem desconhecida ou com SQL não quebra a consulta: vale a padrão.
+     */
+    public function test_ordem_invalida_usa_a_padrao(): void
+    {
+        Produto::factory()->create(['nome' => 'Antigo']);
+        Produto::factory()->create(['nome' => 'Novo']);
+
+        foreach (['preco;drop table produtos', 'id desc', 'qualquer'] as $ordem) {
+            $this->getJson('/api/produtos?ordem='.urlencode($ordem))
+                ->assertOk()
+                ->assertJsonPath('data.0.nome', 'Novo');
+        }
+        $this->assertDatabaseCount('produtos', 2);
+    }
+
+    /**
+     * Preço empatado não repete nem perde produto entre as páginas.
+     */
+    public function test_ordem_com_empate_nao_repete_produto_entre_paginas(): void
+    {
+        Produto::factory()->count(5)->create(['preco' => 50]);
+
+        $pagina1 = array_column($this->getJson('/api/produtos?ordem=menor-preco&por_pagina=3&page=1')->json('data'), 'id');
+        $pagina2 = array_column($this->getJson('/api/produtos?ordem=menor-preco&por_pagina=3&page=2')->json('data'), 'id');
+
+        $this->assertCount(5, array_unique(array_merge($pagina1, $pagina2)));
+    }
+
+    /**
      * Visitante consegue ver um produto; id inexistente responde 404.
      */
     public function test_visitante_exibe_produto_e_recebe_404_para_id_inexistente(): void
