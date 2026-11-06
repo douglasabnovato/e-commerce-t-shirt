@@ -29,18 +29,33 @@ class ProdutoController extends Controller
     private const PASTA = 'produtos';
 
     /**
-     * GET /api/produtos · Lista os produtos do mais recente para o mais
-     * antigo, paginados. Aceita ?por_pagina=N (de 1 a 50, padrão 12) e
-     * ?busca=termo (filtra pelo nome; usado pelas categorias do menu).
+     * Ordenações aceitas em ?ordem=. A coluna vem só desta lista, nunca da
+     * requisição: o PDO não protege nomes de coluna (SQL injection).
+     */
+    private const ORDENACOES = [
+        'recentes' => ['id', 'desc'],
+        'menor-preco' => ['preco', 'asc'],
+        'maior-preco' => ['preco', 'desc'],
+        'nome' => ['nome', 'asc'],
+    ];
+
+    /**
+     * GET /api/produtos · Lista os produtos paginados, do mais recente para
+     * o mais antigo por padrão. Aceita ?por_pagina=N (de 1 a 50, padrão 12) e
+     * ?busca=termo (filtra pelo nome; usado pelas categorias do menu) e
+     * ?ordem=recentes|menor-preco|maior-preco|nome (valor desconhecido
+     * volta para recentes). O id desempata, para a página não repetir item.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
         $porPagina = min(max($request->integer('por_pagina', 12), 1), 50);
         $busca = trim((string) $request->query('busca', ''));
+        [$coluna, $direcao] = self::ORDENACOES[(string) $request->query('ordem', '')] ?? self::ORDENACOES['recentes'];
 
         $produtos = Produto::query()
             ->when($busca !== '', fn ($consulta) => $consulta->where('nome', 'like', '%'.$busca.'%'))
-            ->latest('id')
+            ->orderBy($coluna, $direcao)
+            ->when($coluna !== 'id', fn ($consulta) => $consulta->orderByDesc('id'))
             ->paginate($porPagina)
             ->withQueryString();
 

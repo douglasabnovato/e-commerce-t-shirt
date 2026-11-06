@@ -25,6 +25,7 @@ E-commerce de moda desenvolvido como resposta a um teste técnico Full Stack (La
 - [Plano de ação](#plano-de-ação)
 - [Requisitos do teste técnico](#requisitos-do-teste-técnico)
 - [Decisões técnicas](#decisões-técnicas)
+- [Estado e próximos passos (ciclo de 03/11/2026)](#estado-e-próximos-passos-ciclo-de-03112026)
 - [Créditos de imagens](#créditos-de-imagens)
 
 ---
@@ -395,6 +396,34 @@ Todas as decisões, com contexto, alternativas e motivo, estão em [`docs/DECISO
 - **Histórico de vendas / persistência de pedidos:** o Ex. 12 pede uma página de finalização com envio simulado e `console.log` do pedido; não pede API de pedidos. A evolução natural seria as tabelas `pedidos` e `itens_pedido`, uma rota `POST /api/pedidos` com transaction e uma tela de pedidos no admin.
 
 --- 
+
+## Estado e próximos passos (ciclo de 03/11/2026)
+
+Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda não está finalizado. Site publicado respondendo com HTTP 200 em 06/11/2026: https://douglasabnovato.alwaysdata.net
+
+**O que foi feito**
+- Ordenação da vitrine por mais recentes, menor preço, maior preço e nome, na API (`?ordem=`) e na tela, com testes (PR #22).
+- CI também nos PRs e pushes para `developer/**` (PR #22).
+- Pacotes Symfony com alertas de segurança de 04/11/2026 atualizados para 7.4.23; o `composer audit` voltou a passar (PR #22).
+- `docs/MVP.md` com o resumo batendo com a tabela e a régua N2 (PR #22).
+- Plano do ciclo com pesquisa e fontes em `docs/PLANO-DE-ACAO.md` (PR #22).
+- Medições de LCP e acessibilidade no site publicado (PR #13).
+- Acesso de demonstração mantido no README e no login, por decisão do responsável (PR #12, issue #9).
+
+**O que queremos fazer**
+- [#15](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/15) Proteger a `main` com PR e CI obrigatórios (responsável).
+- [#16](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/16) Publicar no alwaysdata pelo CI depois do merge (responsável).
+- [#17](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/17) Roteiro de 5 minutos com uma pessoa de fora e meta confirmada (responsável).
+- [#18](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/18) Decidir e ligar a medição de uso (responsável).
+- [#19](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/19) Acessibilidade da administração por teclado e axe.
+- [#20](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/20) Filtro da vitrine por faixa de preço.
+- [#21](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/21) Teste de ponta a ponta de vitrine, login e checkout.
+
+**Onde está a documentação**
+- Estado e critérios: [`docs/MVP.md`](docs/MVP.md).
+- Plano do ciclo, pesquisa e backlog: [`docs/PLANO-DE-ACAO.md`](docs/PLANO-DE-ACAO.md).
+
+---
 
 ## Próximos passos
 
