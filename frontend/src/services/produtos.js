@@ -22,11 +22,17 @@ export function montarFormData({ nome, descricao, preco, imagem }) {
 }
 
 /**
- * GET /api/produtos · Lista paginada, com busca opcional por nome.
+ * GET /api/produtos · Lista paginada, com busca opcional por nome e
+ * ordenação opcional (recentes, menor-preco, maior-preco, nome).
  */
-export async function listarProdutos({ pagina = 1, porPagina = 12, busca } = {}) {
+export async function listarProdutos({ pagina = 1, porPagina = 12, busca, ordem } = {}) {
   const { data } = await api.get('/produtos', {
-    params: { page: pagina, por_pagina: porPagina, busca: busca || undefined },
+    params: {
+      page: pagina,
+      por_pagina: porPagina,
+      busca: busca || undefined,
+      ordem: ordem && ordem !== 'recentes' ? ordem : undefined,
+    },
   })
   return { produtos: data.data, paginacao: data.meta }
 }
