@@ -399,7 +399,7 @@ Todas as decisões, com contexto, alternativas e motivo, estão em [`docs/DECISO
 
 ## Estado e próximos passos (ciclo de 03/11/2026)
 
-Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda não está finalizado. Site publicado respondendo com HTTP 200 em 06/11/2026: https://douglasabnovato.alwaysdata.net
+Nível: Vitrine (N2). **6 de 12** critérios do MVP atendidos; o projeto ainda não está finalizado. Site publicado respondendo com HTTP 200 em 06/11/2026: https://douglasabnovato.alwaysdata.net
 
 **O que foi feito**
 - Ordenação da vitrine por mais recentes, menor preço, maior preço e nome, na API (`?ordem=`) e na tela, com testes (PR #22).
@@ -407,7 +407,7 @@ Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda n
 - Pacotes Symfony com alertas de segurança de 04/11/2026 atualizados para 7.4.23; o `composer audit` voltou a passar (PR #22).
 - `docs/MVP.md` com o resumo batendo com a tabela e a régua N2 (PR #22).
 - Plano do ciclo com pesquisa e fontes em `docs/PLANO-DE-ACAO.md` (PR #22).
-- Medições de LCP e acessibilidade no site publicado (PR #13).
+- Medições de LCP e acessibilidade no site publicado (PR #13) e de novo em 06/11/2026, com a causa da lentidão registrada (PR #25).
 - Acesso de demonstração mantido no README e no login, por decisão do responsável (PR #12, issue #9).
 
 **O que queremos fazer**
@@ -418,6 +418,7 @@ Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda n
 - [#19](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/19) Acessibilidade da administração por teclado e axe.
 - [#20](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/20) Filtro da vitrine por faixa de preço.
 - [#21](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/21) Teste de ponta a ponta de vitrine, login e checkout.
+- [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) Imagens menores na vitrine e LCP móvel de até 2,5 s (hoje 14,82 s).
 
 **Onde está a documentação**
 - Estado e critérios: [`docs/MVP.md`](docs/MVP.md).
