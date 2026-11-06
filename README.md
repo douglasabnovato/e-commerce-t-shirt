@@ -404,6 +404,7 @@ Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda n
 **O que foi feito**
 - Ordenação da vitrine por mais recentes, menor preço, maior preço e nome, na API (`?ordem=`) e na tela, com testes (PR #22).
 - CI também nos PRs e pushes para `developer/**` (PR #22).
+- Pacotes Symfony com alertas de segurança de 04/11/2026 atualizados para 7.4.23; o `composer audit` voltou a passar (PR #22).
 - `docs/MVP.md` com o resumo batendo com a tabela e a régua N2 (PR #22).
 - Plano do ciclo com pesquisa e fontes em `docs/PLANO-DE-ACAO.md` (PR #22).
 - Medições de LCP e acessibilidade no site publicado (PR #13).

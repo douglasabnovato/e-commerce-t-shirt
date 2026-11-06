@@ -52,7 +52,7 @@
 - Testes: 26 do frontend (Vitest) e 24 do backend (PHPUnit), incluindo ordenação, valor inválido e empate entre páginas.
 - CI: agora também em PR e push para `developer/**`.
 - Acessibilidade: o seletor tem rótulo visível ligado por `for`/`id` e é um `select` nativo.
-- Segurança: coluna de ordenação só da lista fixa; a conta de demonstração é de teste, por decisão do responsável (#9).
+- Segurança: o `composer audit` do CI passou a falhar com 7 alertas de 04/11/2026 em `symfony/http-foundation`, `http-kernel`, `routing` e `yaml`. Os quatro foram para 7.4.23, sem trocar de versão maior. Coluna de ordenação só da lista fixa; a conta de demonstração é de teste, por decisão do responsável (#9).
 
 **Definição de pronto.** Lint, Vitest, build e `php artisan test` passam; CI verde no PR; `docs/MVP.md` e README atualizados.
 
@@ -60,8 +60,9 @@
 
 **Este ciclo executa.**
 1. CI nos PRs para a `developer`.
-2. Ordenação da vitrine na API e na tela, com testes.
-3. `docs/MVP.md` com o resumo batendo com a tabela e a régua N2.
-4. README com a seção do ciclo e os próximos passos.
+2. Atualização dos pacotes Symfony com alerta de segurança.
+3. Ordenação da vitrine na API e na tela, com testes.
+4. `docs/MVP.md` com o resumo batendo com a tabela e a régua N2.
+5. README com a seção do ciclo e os próximos passos.
 
 **Vira issue.** #15, #16, #17, #18 (responsável); #19, #20, #21 (agente).
