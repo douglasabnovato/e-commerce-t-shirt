@@ -1,8 +1,8 @@
 <!--
   Vitrine pública (Ex. 10 · "exibir os produtos"). Lista os produtos da API
-  com paginação e filtro por categoria do menu. A categoria e a página ficam
-  na URL (?categoria=…&pagina=…), então o resultado pode ser compartilhado e
-  o botão Voltar do navegador funciona.
+  com paginação, filtro por categoria do menu e ordenação. A categoria, a
+  ordem e a página ficam na URL (?categoria=…&ordem=…&pagina=…), então o
+  resultado pode ser compartilhado e o botão Voltar do navegador funciona.
 -->
 <script setup>
 import { computed, ref, watch } from 'vue'
@@ -13,6 +13,7 @@ import PaginacaoLista from '@/components/ui/PaginacaoLista.vue'
 import { listarProdutos } from '@/services/produtos'
 import { extrairErro } from '@/services/api'
 import { buscarCategoria } from '@/utils/categorias'
+import { ORDENACOES, normalizarOrdenacao, queryComOrdenacao } from '@/utils/ordenacao'
 
 const rota = useRoute()
 const router = useRouter()
@@ -25,6 +26,7 @@ const erro = ref('')
 const categoria = computed(() => buscarCategoria(rota.query.categoria))
 const titulo = computed(() => categoria.value?.rotulo ?? 'Todos os produtos')
 const paginaAtual = computed(() => Math.max(1, Number(rota.query.pagina) || 1))
+const ordem = computed(() => normalizarOrdenacao(rota.query.ordem))
 
 /**
  * Busca a página atual de produtos na API, aplicando o filtro de categoria.
@@ -36,6 +38,7 @@ async function carregar() {
     const resultado = await listarProdutos({
       pagina: paginaAtual.value,
       busca: categoria.value?.busca,
+      ordem: ordem.value,
     })
     produtos.value = resultado.produtos
     paginacao.value = resultado.paginacao
@@ -54,16 +57,39 @@ function mudarPagina(pagina) {
   router.push({ query: { ...rota.query, pagina } })
 }
 
-watch(() => [rota.query.categoria, rota.query.pagina], carregar, { immediate: true })
+/**
+ * Troca a ordenação e volta para a primeira página.
+ */
+function mudarOrdem(evento) {
+  router.push({ query: queryComOrdenacao(rota.query, evento.target.value) })
+}
+
+watch(() => [rota.query.categoria, rota.query.pagina, ordem.value], carregar, { immediate: true })
 </script>
 
 <template>
   <section class="container vitrine" aria-labelledby="titulo-vitrine">
     <header class="vitrine__topo">
       <h1 id="titulo-vitrine">{{ titulo }}</h1>
-      <p v-if="paginacao && !carregando" class="vitrine__total">
-        {{ paginacao.total }} {{ paginacao.total === 1 ? 'produto' : 'produtos' }}
-      </p>
+      <div class="vitrine__acoes">
+        <p v-if="paginacao && !carregando" class="vitrine__total">
+          {{ paginacao.total }} {{ paginacao.total === 1 ? 'produto' : 'produtos' }}
+        </p>
+        <label class="vitrine__ordem" for="ordem-vitrine">
+          <span>Ordenar por</span>
+          <select
+            id="ordem-vitrine"
+            class="campo__entrada"
+            data-testid="ordem-vitrine"
+            :value="ordem"
+            @change="mudarOrdem"
+          >
+            <option v-for="opcao in ORDENACOES" :key="opcao.valor" :value="opcao.valor">
+              {{ opcao.rotulo }}
+            </option>
+          </select>
+        </label>
+      </div>
     </header>
 
     <CarregandoIndicador v-if="carregando" texto="Carregando produtos…" />
@@ -112,9 +138,27 @@ watch(() => [rota.query.categoria, rota.query.pagina], carregar, { immediate: tr
     }
   }
 
+  &__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: @espaco-3 @espaco-5;
+  }
+
   &__total {
     margin: 0;
     color: @cor-texto-suave;
+  }
+
+  &__ordem {
+    display: flex;
+    align-items: center;
+    gap: @espaco-2;
+    font-size: @texto-pequeno;
+
+    select {
+      width: auto;
+    }
   }
 
   &__grade {
