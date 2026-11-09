@@ -184,3 +184,32 @@
 **Vira issue ou segue em issue.** #33 (imagem no HTML e JS inicial menor); #15, #16, #17, #18 e #28 (responsável); #20, #21, #24 e #30 seguem. #29 e #31 recebem a evidência por comentário e só fecham depois do merge na `main`.
 
 **Revisão independente (09/11/2026).** Um subagente que não viu o código leu só o diff e esta seção. Corrigido: a busca inicial passa a ser descartada na primeira chamada da lista, qualquer que seja (antes, uma primeira chamada com filtro a deixava guardada e ela podia voltar como dado velho); o teste da sessão confere que `/api/user` foi pedido uma vez só depois de a navegação terminar; a varredura de foco marca cada elemento em vez de usar o nome, não aceita contorno transparente e exige um mínimo de elementos nos formulários. Conferido sem mudança: o Laravel não manda Content-Security-Policy (nenhuma ocorrência no backend), então o script inline e o `onload` das fontes funcionam; a URL do `index.html` é a mesma que o axios pede para "recentes" (o serviço omite `ordem` nesse caso).
+
+### 2ª rodada (09/11/2026, PR #35)
+
+> Branch `feature/2026-11-09-2`, criada a partir de `developer/sprint-2026-11-12` atualizada (com o PR #34); PR para a sprint. O PR da sprint para a `main` (#32) segue aberto para o responsável. Objetivo: o critério 7, que ainda dependia de código (#33).
+
+**Antes de mudar código (fases do LCP no JSON).** Nas medições da 1ª rodada o JS inicial era servido sem compressão (161 KB). O site publicado responde com `content-encoding: br` (conferido com `curl` em 09/11/2026), então a série nova usa um servidor local com brotli. Com compressão, a sprint fica em 2,64 a 2,89 s. O elemento do LCP é a 1ª imagem ou um texto `<p>`; o FCP simulado fica em cerca de 2,5 s, e as requisições antes dele incluem o CSS do Google Fonts (mesmo com `media="print"`) e três fontes de `fonts.gstatic.com`, dois domínios externos com conexão própria.
+
+**Pesquisa.**
+
+| Ideia | O que levamos para o projeto | Fonte |
+|---|---|---|
+| Um invólucro fino sobre `fetch` substitui o axios quando a aplicação usa poucos recursos dele; o que precisa ser refeito à mão é o cabeçalho de CSRF e os interceptadores | Cliente em `services/api.js` com a mesma interface, CSRF do Sanctum, 419 e tempo limite, com testes de cada comportamento | [Kent C. Dodds: replace axios with a simple custom fetch wrapper](https://kentcdodds.com/blog/replace-axios-with-a-simple-custom-fetch-wrapper), [OpenReplay: migrar de axios para fetch](https://blog.openreplay.com/pt/migrar-app-react-axios-fetch/) |
+| Em SPA, o LCP atrasa quando o recurso só é descoberto depois da renderização no cliente; menos JS inicial e recurso descoberto mais cedo ajudam | Preload da 1ª imagem assim que a lista chega, sem esperar o Vue; o JS inicial perde o axios | [web.dev: reduce JavaScript payloads with code splitting](https://web.dev/articles/reduce-javascript-payloads-with-code-splitting), [web.dev: optimize LCP](https://web.dev/optimize-lcp/) |
+
+**O que foi feito.**
+1. `axios` trocado por um cliente `fetch` (`services/api.js`): mesma interface, cookie CSRF antes de escrita, `X-XSRF-TOKEN`, repetição única no 419, tempo limite de 15 s para a resposta inteira, `extrairErro` igual. JS inicial: 103,85 → 55,31 KB (gzip 39,6 → 22,1 KB). Decisão D22.
+2. CSS do Google Fonts adicionado depois do evento `load` (com `<noscript>` para quem não roda JS). O texto aparece com a fonte de reserva e troca depois, como já acontecia com `display=swap`.
+3. A busca inicial do `index.html`, ao receber a lista, adiciona `<link rel="preload" as="image" fetchpriority="high">` com a imagem do 1º produto. O endereço é o mesmo do `src` do card, então o download é reaproveitado (conferido no Playwright: 1 pedido da imagem, sem aviso de preload sem uso).
+4. Rotas da administração: já eram carregadas sob demanda, e os `modulepreload` do `dist/index.html` só trazem o chunk do Vue. Nada a mudar.
+
+**Avaliado e não feito.** Injeção do preload pelo Laravel na rota `spa` (segue na #33; mudaria o backend, que só roda no CI, e o preload pelo front já tira a espera do JS). Servir as fontes pelo próprio site (issue #37).
+
+**Qualidade.** Vitest 60 (14 do cliente HTTP, 2 do HTML das fontes, 3 casos novos do preload); Playwright 2 (login, lista, exclusão e formulários com o cliente novo); CI verde no PR #35. Os testes do tempo limite do corpo e das fontes falham sem a correção.
+
+**Resultado.** Mediana local de 2,44 e 2,50 s em duas séries (geral 2,47 s), contra 2,80 s da sprint nas mesmas séries. Critério 7: "Parcial" (no ar depende da publicação, #28). Detalhes em `MVP.md`.
+
+**Revisão independente (09/11/2026).** Um subagente que não viu o código leu só o diff e esta seção. Corrigido: o tempo limite de 15 s terminava quando os cabeçalhos chegavam (no axios vale para a resposta inteira), e o teste "sem imagem" não provava a ausência do preload, porque o `try/catch` do script engolia o erro. Conferido sem mudança: CSRF, 419 sem laço, FormData sem `Content-Type`, 204 com `data: null`, preload sem `crossorigin` como o `<img>` e `href` atribuído como propriedade.
+
+**Vira issue.** #36 (deslocamento do rodapé), #37 (fontes no próprio site). Segue: #33 (preload pelo Laravel), #24 e #28 (medir no ar depois da publicação).
