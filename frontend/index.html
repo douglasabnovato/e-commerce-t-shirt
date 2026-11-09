@@ -1,32 +1,21 @@
 <!DOCTYPE html>
 <!--
   Documento base da SPA. Idioma pt-BR (leitores de tela), descrição para
-  buscadores e fontes carregadas com preconnect e display=swap para não
-  bloquear a exibição do texto.
+  buscadores e fontes carregadas com preconnect, display=swap e CSS que não
+  bloqueia a primeira pintura, para não atrasar a exibição do texto.
 -->
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Loja de camisetas, moletons e acessórios desenvolvida para o teste técnico Full Stack (Laravel + Vue.js)."
-    />
-    <meta name="theme-color" content="#111111" />
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@500;600&display=swap"
-    />
-    <title>T-Shirt Store</title>
     <script>
       /*
        * Começa a buscar a primeira página da vitrine enquanto o JavaScript
        * do Vue ainda baixa (#29). Só na vitrine sem filtro (/ sem query); a
        * URL é a mesma que listarProdutos() pede para a página 1. A vitrine
        * consome a promessa uma vez; se ela falhar, pede de novo pelo axios.
+       * Fica antes das folhas de estilo: script depois de <link rel=stylesheet>
+       * espera o CSS terminar de baixar antes de rodar.
        */
       if (location.pathname === '/' && !location.search && window.fetch) {
         window.__vitrineInicial = fetch('/api/produtos?page=1&por_pagina=12', {
@@ -39,6 +28,32 @@
         window.__vitrineInicial.catch(function () {})
       }
     </script>
+    <meta
+      name="description"
+      content="Loja de camisetas, moletons e acessórios desenvolvida para o teste técnico Full Stack (Laravel + Vue.js)."
+    />
+    <meta name="theme-color" content="#111111" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      CSS das fontes sem bloquear a primeira pintura (#29): baixa como
+      "print" e passa a valer para a tela quando termina. Sem JavaScript,
+      o <noscript> carrega do jeito normal.
+    -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@500;600&display=swap"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@500;600&display=swap"
+      />
+    </noscript>
+    <title>T-Shirt Store</title>
   </head>
   <body>
     <noscript>Esta aplicação precisa de JavaScript habilitado.</noscript>
