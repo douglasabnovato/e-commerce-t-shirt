@@ -57,6 +57,42 @@ describe('busca inicial no index.html', () => {
     expect(fetch).not.toHaveBeenCalled()
   })
 
+  it('pré-carrega a imagem do primeiro produto quando a lista chega (#33)', async () => {
+    const comImagem = {
+      ...corpo,
+      data: [{ id: 1, imagem_url: 'http://loja.test/storage/produtos/a.webp' }, { id: 2, imagem_url: 'b.webp' }],
+    }
+    const adicionados = []
+    const document = {
+      createElement: () => ({ setAttribute(nome, valor) { this[nome] = valor } }),
+      head: { appendChild: (el) => adicionados.push(el) },
+    }
+    const fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(comImagem) }))
+    const html = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../index.html'), 'utf8')
+    const script = html.match(/<script>([\s\S]*?)<\/script>/)[1]
+    const janela = { fetch }
+    runInNewContext(script, { window: janela, location: { pathname: '/', search: '' }, fetch, document })
+
+    await expect(janela.__vitrineInicial).resolves.toEqual(comImagem)
+    expect(adicionados).toHaveLength(1)
+    expect(adicionados[0]).toMatchObject({
+      rel: 'preload',
+      as: 'image',
+      href: 'http://loja.test/storage/produtos/a.webp',
+      fetchpriority: 'high',
+    })
+  })
+
+  it('sem imagem no primeiro produto, não pré-carrega nada e devolve a lista', async () => {
+    const janela = rodarScriptDoIndex({
+      pathname: '/',
+      search: '',
+      fetch: vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(corpo) })),
+    })
+    // Sem document no contexto: se o script tentasse criar o <link>, a promessa rejeitaria
+    await expect(janela.__vitrineInicial).resolves.toEqual(corpo)
+  })
+
   it('rejeita quando a API responde com erro', async () => {
     const fetch = vi.fn(() => Promise.resolve({ ok: false, status: 500 }))
     const janela = rodarScriptDoIndex({ pathname: '/', search: '', fetch })
