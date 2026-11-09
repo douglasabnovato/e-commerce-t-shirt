@@ -13,22 +13,30 @@ export const useAutenticacaoStore = defineStore('autenticacao', () => {
   const sessaoVerificada = ref(false)
   const autenticado = computed(() => usuario.value !== null)
 
+  let verificacaoEmAndamento = null
+
   /**
    * Consulta GET /api/user uma vez por carregamento da página para saber
-   * se já existe sessão ativa.
+   * se já existe sessão ativa. Chamadas simultâneas reaproveitam o mesmo
+   * pedido. Nunca rejeita: sem sessão, o usuário fica null.
    */
-  async function verificarSessao() {
+  function verificarSessao() {
     if (sessaoVerificada.value) {
-      return
+      return Promise.resolve()
     }
-    try {
-      const { data } = await api.get('/user')
-      usuario.value = data.usuario
-    } catch {
-      usuario.value = null
-    } finally {
-      sessaoVerificada.value = true
-    }
+    verificacaoEmAndamento ??= api
+      .get('/user')
+      .then(({ data }) => {
+        usuario.value = data.usuario
+      })
+      .catch(() => {
+        usuario.value = null
+      })
+      .finally(() => {
+        sessaoVerificada.value = true
+        verificacaoEmAndamento = null
+      })
+    return verificacaoEmAndamento
   }
 
   /**

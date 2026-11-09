@@ -21,6 +21,24 @@
       href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@500;600&display=swap"
     />
     <title>T-Shirt Store</title>
+    <script>
+      /*
+       * Começa a buscar a primeira página da vitrine enquanto o JavaScript
+       * do Vue ainda baixa (#29). Só na vitrine sem filtro (/ sem query); a
+       * URL é a mesma que listarProdutos() pede para a página 1. A vitrine
+       * consome a promessa uma vez; se ela falhar, pede de novo pelo axios.
+       */
+      if (location.pathname === '/' && !location.search && window.fetch) {
+        window.__vitrineInicial = fetch('/api/produtos?page=1&por_pagina=12', {
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        }).then(function (resposta) {
+          if (!resposta.ok) throw new Error('HTTP ' + resposta.status)
+          return resposta.json()
+        })
+        window.__vitrineInicial.catch(function () {})
+      }
+    </script>
   </head>
   <body>
     <noscript>Esta aplicação precisa de JavaScript habilitado.</noscript>

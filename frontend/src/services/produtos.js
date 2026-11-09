@@ -22,10 +22,37 @@ export function montarFormData({ nome, descricao, preco, imagem }) {
 }
 
 /**
+ * Devolve (uma vez só) a busca da primeira página iniciada pelo index.html
+ * antes de o Vue carregar (#29), ou null se ela não existir.
+ */
+export function consumirVitrineInicial() {
+  const promessa = globalThis.__vitrineInicial ?? null
+  globalThis.__vitrineInicial = undefined
+  return promessa
+}
+
+/**
  * GET /api/produtos · Lista paginada, com busca opcional por nome e
  * ordenação opcional (recentes, menor-preco, maior-preco, nome).
+ * A primeira página sem filtro reaproveita a busca já iniciada pelo
+ * index.html; se ela falhou, a lista é pedida de novo pelo axios, para que
+ * o erro chegue à tela no formato de sempre.
  */
 export async function listarProdutos({ pagina = 1, porPagina = 12, busca, ordem } = {}) {
+  const primeiraPaginaSemFiltro =
+    pagina === 1 && porPagina === 12 && !busca && (!ordem || ordem === 'recentes')
+  const inicial = primeiraPaginaSemFiltro ? consumirVitrineInicial() : null
+  if (inicial) {
+    try {
+      const corpo = await inicial
+      if (Array.isArray(corpo?.data) && corpo.meta) {
+        return { produtos: corpo.data, paginacao: corpo.meta }
+      }
+    } catch {
+      // segue para o pedido normal abaixo
+    }
+  }
+
   const { data } = await api.get('/produtos', {
     params: {
       page: pagina,
