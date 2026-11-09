@@ -121,6 +121,29 @@ describe('leitura', () => {
   })
 })
 
+describe('tempo limite no corpo', () => {
+  it('corpo que trava depois dos cabeçalhos também é abortado em 15 s', async () => {
+    vi.useFakeTimers()
+    fetch.mockImplementation((_url, { signal }) =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        text: () =>
+          new Promise((_resolve, reject) => {
+            signal.addEventListener('abort', () => reject(new DOMException('abortado', 'AbortError')))
+          }),
+      }),
+    )
+
+    const pedido = api.get('/produtos').catch((e) => e)
+    await vi.advanceTimersByTimeAsync(15000)
+    const erro = await pedido
+
+    expect(erro.code).toBe('ECONNABORTED')
+    expect(erro.response).toBeUndefined()
+  })
+})
+
 describe('escrita e CSRF', () => {
   it('sem cookie, busca /sanctum/csrf-cookie antes do POST e envia JSON', async () => {
     fetch.mockImplementation((url) => {

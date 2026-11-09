@@ -79,14 +79,17 @@ async function lerCorpo(resposta) {
 }
 
 /**
- * fetch com tempo limite. Rede fora ou tempo esgotado viram ErroHttp sem
- * `response`, que extrairErro() traduz como falha de conexão.
+ * fetch com tempo limite, que vale para a resposta inteira (cabeçalhos e
+ * corpo), como no axios. Devolve { resposta, data }. Rede fora, corpo
+ * interrompido ou tempo esgotado viram ErroHttp sem `response`, que
+ * extrairErro() traduz como falha de conexão.
  */
 async function buscar(url, opcoes, config) {
   const controle = new AbortController()
   const temporizador = setTimeout(() => controle.abort(), TEMPO_LIMITE_MS)
   try {
-    return await fetch(url, { ...opcoes, credentials: 'include', signal: controle.signal })
+    const resposta = await fetch(url, { ...opcoes, credentials: 'include', signal: controle.signal })
+    return { resposta, data: await lerCorpo(resposta) }
   } catch (causa) {
     const esgotado = controle.signal.aborted
     throw new ErroHttp(esgotado ? 'Tempo esgotado' : 'Falha de rede', {
@@ -105,11 +108,11 @@ async function buscar(url, opcoes, config) {
  */
 export async function garantirCsrf() {
   const config = { method: 'get', url: '/sanctum/csrf-cookie' }
-  const resposta = await buscar('/sanctum/csrf-cookie', { headers: CABECALHOS_PADRAO }, config)
+  const { resposta, data } = await buscar('/sanctum/csrf-cookie', { headers: CABECALHOS_PADRAO }, config)
   if (!resposta.ok) {
     throw new ErroHttp(`Falha ao obter o cookie CSRF (HTTP ${resposta.status})`, {
       config,
-      response: { status: resposta.status, data: await lerCorpo(resposta) },
+      response: { status: resposta.status, data },
     })
   }
 }
@@ -142,12 +145,11 @@ async function requisitar(config) {
     cabecalhos['Content-Type'] = 'application/json'
   }
 
-  const resposta = await buscar(
+  const { resposta, data } = await buscar(
     montarUrl(config.url, config.params),
     { method: metodo.toUpperCase(), headers: cabecalhos, body: corpo },
     config,
   )
-  const data = await lerCorpo(resposta)
 
   if (resposta.ok) {
     return { data, status: resposta.status }

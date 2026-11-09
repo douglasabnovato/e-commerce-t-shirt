@@ -83,14 +83,24 @@ describe('busca inicial no index.html', () => {
     })
   })
 
-  it('sem imagem no primeiro produto, não pré-carrega nada e devolve a lista', async () => {
-    const janela = rodarScriptDoIndex({
-      pathname: '/',
-      search: '',
-      fetch: vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(corpo) })),
-    })
-    // Sem document no contexto: se o script tentasse criar o <link>, a promessa rejeitaria
-    await expect(janela.__vitrineInicial).resolves.toEqual(corpo)
+  it.each([
+    ['sem o campo', corpo],
+    ['com imagem_url null', { ...corpo, data: [{ id: 1, imagem_url: null }] }],
+    ['com lista vazia', { ...corpo, data: [] }],
+  ])('%s, não pré-carrega nada e devolve a lista', async (_caso, resposta) => {
+    const adicionados = []
+    const document = {
+      createElement: () => ({ setAttribute() {} }),
+      head: { appendChild: (el) => adicionados.push(el) },
+    }
+    const fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(resposta) }))
+    const html = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../index.html'), 'utf8')
+    const script = html.match(/<script>([\s\S]*?)<\/script>/)[1]
+    const janela = { fetch }
+    runInNewContext(script, { window: janela, location: { pathname: '/', search: '' }, fetch, document })
+
+    await expect(janela.__vitrineInicial).resolves.toEqual(resposta)
+    expect(adicionados).toHaveLength(0)
   })
 
   it('rejeita quando a API responde com erro', async () => {
