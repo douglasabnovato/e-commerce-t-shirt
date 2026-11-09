@@ -100,7 +100,7 @@ describe('listarProdutos com a busca inicial', () => {
     },
   )
 
-  it('pede de novo pelo axios quando a busca inicial falhou', async () => {
+  it('pede de novo pelo cliente da API quando a busca inicial falhou', async () => {
     globalThis.__vitrineInicial = Promise.reject(new Error('HTTP 500'))
     get.mockResolvedValue({ data: corpo })
 
@@ -110,7 +110,7 @@ describe('listarProdutos com a busca inicial', () => {
     expect(resultado.produtos).toEqual(corpo.data)
   })
 
-  it('deixa o erro do axios chegar à tela se o segundo pedido também falhar', async () => {
+  it('deixa o erro do cliente da API chegar à tela se o segundo pedido também falhar', async () => {
     globalThis.__vitrineInicial = Promise.reject(new Error('HTTP 500'))
     get.mockRejectedValue(new Error('rede'))
 
