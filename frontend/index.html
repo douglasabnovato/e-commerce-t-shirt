@@ -13,9 +13,13 @@
        * Começa a buscar a primeira página da vitrine enquanto o JavaScript
        * do Vue ainda baixa (#29). Só na vitrine sem filtro (/ sem query); a
        * URL é a mesma que listarProdutos() pede para a página 1. A vitrine
-       * consome a promessa uma vez; se ela falhar, pede de novo pelo axios.
+       * consome a promessa uma vez; se ela falhar, pede de novo pelo cliente da API.
        * Fica antes das folhas de estilo: script depois de <link rel=stylesheet>
        * espera o CSS terminar de baixar antes de rodar.
+       * Quando a lista chega, a imagem do primeiro produto (o LCP) começa a
+       * baixar por um <link rel=preload>, sem esperar o Vue montar o card
+       * (#33). O endereço é o mesmo do src do card, então o navegador
+       * reaproveita o download.
        */
       if (location.pathname === '/' && !location.search && window.fetch) {
         window.__vitrineInicial = fetch('/api/produtos?page=1&por_pagina=12', {
@@ -24,6 +28,21 @@
         }).then(function (resposta) {
           if (!resposta.ok) throw new Error('HTTP ' + resposta.status)
           return resposta.json()
+        }).then(function (corpo) {
+          var primeiro = corpo && corpo.data && corpo.data[0]
+          if (primeiro && typeof primeiro.imagem_url === 'string' && primeiro.imagem_url) {
+            try {
+              var imagem = document.createElement('link')
+              imagem.rel = 'preload'
+              imagem.as = 'image'
+              imagem.href = primeiro.imagem_url
+              imagem.setAttribute('fetchpriority', 'high')
+              document.head.appendChild(imagem)
+            } catch (erro) {
+              // sem preload, a imagem baixa quando o card montar, como antes
+            }
+          }
+          return corpo
         })
         window.__vitrineInicial.catch(function () {})
       }
@@ -37,16 +56,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!--
-      CSS das fontes sem bloquear a primeira pintura (#29): baixa como
-      "print" e passa a valer para a tela quando termina. Sem JavaScript,
-      o <noscript> carrega do jeito normal.
+      CSS das fontes depois do evento load (#33): antes, mesmo como "print",
+      ele e as fontes de outros dois domínios (googleapis e gstatic) eram
+      pedidos antes da primeira pintura e entravam no caminho dela. O texto
+      aparece com a fonte de reserva e troca quando a Barlow chega
+      (display=swap, como antes). Sem JavaScript, o <noscript> carrega do
+      jeito normal.
     -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@500;600&display=swap"
-      media="print"
-      onload="this.media = 'all'"
-    />
+    <script>
+      window.addEventListener('load', function () {
+        var fontes = document.createElement('link')
+        fontes.rel = 'stylesheet'
+        fontes.href =
+          'https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@500;600&display=swap'
+        document.head.appendChild(fontes)
+      })
+    </script>
     <noscript>
       <link
         rel="stylesheet"

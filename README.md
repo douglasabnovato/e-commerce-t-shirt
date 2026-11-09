@@ -25,7 +25,7 @@ E-commerce de moda desenvolvido como resposta a um teste técnico Full Stack (La
 - [Plano de ação](#plano-de-ação)
 - [Requisitos do teste técnico](#requisitos-do-teste-técnico)
 - [Decisões técnicas](#decisões-técnicas)
-- [Estado e próximos passos (ciclo de 07/11/2026)](#estado-e-próximos-passos-ciclo-de-07112026)
+- [Estado e próximos passos (ciclo de 09/11/2026)](#estado-e-próximos-passos-ciclo-de-09112026)
 - [Créditos de imagens](#créditos-de-imagens)
 
 ---
@@ -402,10 +402,11 @@ Todas as decisões, com contexto, alternativas e motivo, estão em [`docs/DECISO
 
 ## Estado e próximos passos (ciclo de 09/11/2026)
 
-Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda não está finalizado.
+Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; **finalizado** no que o código resolve. O que falta (publicar, proteger a `main`, medir uso, roteiro com pessoa de fora) é do responsável e tem issue.
 
 **O que foi feito no ciclo de 09/11/2026**
-- A primeira página de produtos é pedida pelo `index.html` enquanto o JavaScript baixa; a vitrine vem no pacote principal e não espera `/api/user`. LCP local de 4,30 s (sprint) para 3,65 s; o que falta está na [#33](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/33).
+- 2ª rodada (PR #35): o axios deu lugar a um cliente `fetch` com os mesmos cuidados de CSRF e erro; o CSS das fontes entra depois do evento `load`; a imagem do 1º produto é pré-carregada assim que a lista chega. LCP local, com o build comprimido como no site: mediana de 2,47 s (sprint: 2,80 s). O número no ar só muda depois da publicação (#28).
+- A primeira página de produtos é pedida pelo `index.html` enquanto o JavaScript baixa; a vitrine vem no pacote principal e não espera `/api/user`. LCP local de 4,30 s (sprint) para 3,65 s, medido sem compressão.
 - Teste de acessibilidade da administração no CI: `cd frontend && npm run test:e2e` (Playwright com axe, API simulada). Site publicado respondendo com HTTP 200 em 09/11/2026: https://douglasabnovato.alwaysdata.net (ainda com a versão de 06/11/2026; a publicação é manual).
 
 **Ciclo de 07/11/2026 (PR #27)**
@@ -422,7 +423,8 @@ Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda n
 - [#16](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/16) Publicar no alwaysdata pelo CI depois do merge (responsável).
 - [#17](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/17) Roteiro de 5 minutos com uma pessoa de fora e meta confirmada (responsável).
 - [#18](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/18) Decidir e ligar a medição de uso (responsável).
-- [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) e [#33](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/33) LCP móvel de até 2,5 s: medir no ar, pré-carregar a imagem no HTML e enxugar o JS inicial.
+- [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) Medir o LCP no site depois da publicação; [#33](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/33) preload da imagem também pelo Laravel.
+- [#36](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/36) Deslocamento do rodapé na vitrine; [#37](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/37) fontes servidas pelo próprio site.
 - [#30](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/30) Imagens da vitrine em dois tamanhos (`srcset`).
 - [#20](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/20) Filtro da vitrine por faixa de preço.
 - [#21](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/21) Teste de ponta a ponta de vitrine, login e checkout.

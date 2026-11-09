@@ -37,7 +37,7 @@ export function consumirVitrineInicial() {
  * A busca já iniciada pelo index.html é descartada na primeira chamada,
  * seja ela qual for, para nunca voltar depois como dado velho; só é usada
  * se essa chamada for a primeira página sem filtro. Se ela falhou, a lista
- * é pedida de novo pelo axios, para que o erro chegue à tela como sempre.
+ * é pedida de novo pelo cliente da API, para que o erro chegue à tela como sempre.
  */
 export async function listarProdutos({ pagina = 1, porPagina = 12, busca, ordem } = {}) {
   const primeiraPaginaSemFiltro =

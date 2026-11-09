@@ -57,6 +57,52 @@ describe('busca inicial no index.html', () => {
     expect(fetch).not.toHaveBeenCalled()
   })
 
+  it('pré-carrega a imagem do primeiro produto quando a lista chega (#33)', async () => {
+    const comImagem = {
+      ...corpo,
+      data: [{ id: 1, imagem_url: 'http://loja.test/storage/produtos/a.webp' }, { id: 2, imagem_url: 'b.webp' }],
+    }
+    const adicionados = []
+    const document = {
+      createElement: () => ({ setAttribute(nome, valor) { this[nome] = valor } }),
+      head: { appendChild: (el) => adicionados.push(el) },
+    }
+    const fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(comImagem) }))
+    const html = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../index.html'), 'utf8')
+    const script = html.match(/<script>([\s\S]*?)<\/script>/)[1]
+    const janela = { fetch }
+    runInNewContext(script, { window: janela, location: { pathname: '/', search: '' }, fetch, document })
+
+    await expect(janela.__vitrineInicial).resolves.toEqual(comImagem)
+    expect(adicionados).toHaveLength(1)
+    expect(adicionados[0]).toMatchObject({
+      rel: 'preload',
+      as: 'image',
+      href: 'http://loja.test/storage/produtos/a.webp',
+      fetchpriority: 'high',
+    })
+  })
+
+  it.each([
+    ['sem o campo', corpo],
+    ['com imagem_url null', { ...corpo, data: [{ id: 1, imagem_url: null }] }],
+    ['com lista vazia', { ...corpo, data: [] }],
+  ])('%s, não pré-carrega nada e devolve a lista', async (_caso, resposta) => {
+    const adicionados = []
+    const document = {
+      createElement: () => ({ setAttribute() {} }),
+      head: { appendChild: (el) => adicionados.push(el) },
+    }
+    const fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(resposta) }))
+    const html = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../index.html'), 'utf8')
+    const script = html.match(/<script>([\s\S]*?)<\/script>/)[1]
+    const janela = { fetch }
+    runInNewContext(script, { window: janela, location: { pathname: '/', search: '' }, fetch, document })
+
+    await expect(janela.__vitrineInicial).resolves.toEqual(resposta)
+    expect(adicionados).toHaveLength(0)
+  })
+
   it('rejeita quando a API responde com erro', async () => {
     const fetch = vi.fn(() => Promise.resolve({ ok: false, status: 500 }))
     const janela = rodarScriptDoIndex({ pathname: '/', search: '', fetch })
@@ -100,7 +146,7 @@ describe('listarProdutos com a busca inicial', () => {
     },
   )
 
-  it('pede de novo pelo axios quando a busca inicial falhou', async () => {
+  it('pede de novo pelo cliente da API quando a busca inicial falhou', async () => {
     globalThis.__vitrineInicial = Promise.reject(new Error('HTTP 500'))
     get.mockResolvedValue({ data: corpo })
 
@@ -110,7 +156,7 @@ describe('listarProdutos com a busca inicial', () => {
     expect(resultado.produtos).toEqual(corpo.data)
   })
 
-  it('deixa o erro do axios chegar à tela se o segundo pedido também falhar', async () => {
+  it('deixa o erro do cliente da API chegar à tela se o segundo pedido também falhar', async () => {
     globalThis.__vitrineInicial = Promise.reject(new Error('HTTP 500'))
     get.mockRejectedValue(new Error('rede'))
 
