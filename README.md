@@ -25,7 +25,7 @@ E-commerce de moda desenvolvido como resposta a um teste técnico Full Stack (La
 - [Plano de ação](#plano-de-ação)
 - [Requisitos do teste técnico](#requisitos-do-teste-técnico)
 - [Decisões técnicas](#decisões-técnicas)
-- [Estado e próximos passos (ciclo de 03/11/2026)](#estado-e-próximos-passos-ciclo-de-03112026)
+- [Estado e próximos passos (ciclo de 07/11/2026)](#estado-e-próximos-passos-ciclo-de-07112026)
 - [Créditos de imagens](#créditos-de-imagens)
 
 ---
@@ -185,6 +185,8 @@ composer install --no-dev --optimize-autoloader
 php artisan migrate --force
 php artisan optimize
 ```
+
+**Uma vez, na publicação do ciclo de 07/11/2026 (#24):** os uploads novos já viram WebP de até 600 px. Para converter as imagens que já estão no servidor, rode `php artisan produtos:reduzir-imagens` em `backend/`. O comando mantém os arquivos originais; `--apagar-originais` os remove depois da conversão. Sem a extensão GD com WebP no PHP do servidor, ele avisa e não altera nada.
 
 O `.env` de produção nunca é versionado; a `APP_KEY` de produção é gerada no próprio servidor.
 
@@ -397,28 +399,29 @@ Todas as decisões, com contexto, alternativas e motivo, estão em [`docs/DECISO
 
 --- 
 
-## Estado e próximos passos (ciclo de 03/11/2026)
+## Estado e próximos passos (ciclo de 07/11/2026)
 
-Nível: Vitrine (N2). **6 de 12** critérios do MVP atendidos; o projeto ainda não está finalizado. Site publicado respondendo com HTTP 200 em 06/11/2026: https://douglasabnovato.alwaysdata.net
+Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda não está finalizado. Site publicado respondendo com HTTP 200 em 09/11/2026: https://douglasabnovato.alwaysdata.net (ainda com a versão de 06/11/2026; a publicação é manual).
 
-**O que foi feito**
-- Ordenação da vitrine por mais recentes, menor preço, maior preço e nome, na API (`?ordem=`) e na tela, com testes (PR #22).
-- CI também nos PRs e pushes para `developer/**` (PR #22).
-- Pacotes Symfony com alertas de segurança de 04/11/2026 atualizados para 7.4.23; o `composer audit` voltou a passar (PR #22).
-- `docs/MVP.md` com o resumo batendo com a tabela e a régua N2 (PR #22).
-- Plano do ciclo com pesquisa e fontes em `docs/PLANO-DE-ACAO.md` (PR #22).
-- Medições de LCP e acessibilidade no site publicado (PR #13) e de novo em 06/11/2026, com a causa da lentidão registrada (PR #25).
-- Acesso de demonstração mantido no README e no login, por decisão do responsável (PR #12, issue #9).
+**O que foi feito no ciclo de 07/11/2026 (PR #27)**
+- Upload de imagem grava WebP de até 600 px; o comando `php artisan produtos:reduzir-imagens` converte as imagens já salvas (veja "Deploy em produção").
+- Os 4 primeiros cards da vitrine carregam sem lazy loading, e o primeiro com `fetchpriority="high"`.
+- Depois de excluir um produto, o foco volta ao título da administração; administração testada com teclado e axe (0 violações).
+- LCP local com o build de produção: mediana de 10,00 s antes e 3,94 s depois. O número no ar só muda depois da publicação (#28).
+
+**Ciclo de 03/11/2026:** ordenação da vitrine, CI nos PRs para `developer/**`, Symfony atualizado (PR #22); medições do LCP (PR #25).
 
 **O que queremos fazer**
+- [#28](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/28) Publicar esta versão e converter as imagens do servidor (responsável).
 - [#15](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/15) Proteger a `main` com PR e CI obrigatórios (responsável).
 - [#16](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/16) Publicar no alwaysdata pelo CI depois do merge (responsável).
 - [#17](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/17) Roteiro de 5 minutos com uma pessoa de fora e meta confirmada (responsável).
 - [#18](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/18) Decidir e ligar a medição de uso (responsável).
-- [#19](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/19) Acessibilidade da administração por teclado e axe.
+- [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) e [#29](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/29) LCP móvel de até 2,5 s: medir no ar e encurtar a cadeia até a primeira imagem.
+- [#30](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/30) Imagens da vitrine em dois tamanhos (`srcset`).
+- [#31](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/31) Teste de acessibilidade da administração no CI.
 - [#20](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/20) Filtro da vitrine por faixa de preço.
 - [#21](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/21) Teste de ponta a ponta de vitrine, login e checkout.
-- [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) Imagens menores na vitrine e LCP móvel de até 2,5 s (hoje 14,82 s).
 
 **Onde está a documentação**
 - Estado e critérios: [`docs/MVP.md`](docs/MVP.md).
