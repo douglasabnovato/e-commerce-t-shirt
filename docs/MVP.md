@@ -30,7 +30,7 @@ O critério 7 ainda depende de código: com as imagens novas, o LCP local caiu, 
 | 8 | Acessibilidade básica | Lighthouse e teclado | Atende: vitrine com Lighthouse 100 (06/11/2026 no ar; 1,00 nas execuções locais de 09/11/2026). Administração em 09/11/2026 com Playwright 1.56 e axe-core 4.14 (WCAG 2.1 A e AA), API simulada, modo claro e escuro: login, lista, formulário novo e edição sem violações; 4 elementos por Tab no login e 8 na lista e no formulário, todos com foco visível; exclusão por teclado devolve o foco ao título "Produtos" (#19). Leitor de tela não testado |
 | 9 | Segurança e conformidade | Riscos decididos; termos de terceiros cumpridos | Atende: a conta de demonstração é de teste e fica pública por decisão do responsável (#9); `composer audit` sem alertas no CI do PR #27 (09/11/2026) |
 | 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: `main` sem proteção (#15) e deploy manual, sem ligação com o CI (#16) |
-| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: `npx vitest run` com 30 testes e `php artisan test` com 27 testes (119 asserções), nenhum pulado, no CI do PR #27 em 09/11/2026 |
+| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: `npx vitest run` com 30 testes e `php artisan test` com 29 testes (123 asserções), nenhum pulado, no CI do PR #27 em 09/11/2026 |
 | 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
 
 ## 2. Tarefas

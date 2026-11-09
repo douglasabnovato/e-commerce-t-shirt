@@ -111,7 +111,7 @@
 - O número no ar só muda depois da publicação manual e do comando no servidor, feitos pelo responsável.
 
 **Qualidade.**
-- Testes: 30 do frontend (4 novos do card) e 27 do backend (3 novos: upload em WebP de 600 × 840 px a partir de 1200 × 1680, comando que mantém o original e comando com `--apagar-originais`), sem testes pulados no log do CI.
+- Testes: 30 do frontend (4 novos do card) e 29 do backend (5 novos: upload em WebP de 600 × 840 px a partir de 1200 × 1680, comando que mantém o original, comando com `--apagar-originais`, imagem acima de 16 megapixels e conteúdo que não é imagem ficam no original), sem testes pulados no log do CI.
 - Desempenho: LCP local com o build de produção e API simulada, mediana de 10,00 s antes e 3,94 s depois (ver `MVP.md`); a imagem deixou de ser o gargalo, que passou a ser a cadeia JS → API (#29).
 - Acessibilidade: administração testada com Playwright 1.56 e axe-core 4.14, API simulada, modos claro e escuro: 0 violações e foco visível em todos os elementos alcançados por Tab (ver `MVP.md`; levar ao CI é a #31).
 
@@ -127,3 +127,5 @@
 5. `docs/MVP.md` com uma tabela só e README com o ciclo.
 
 **Vira issue ou segue em issue.** #15, #16, #17, #18 e #28 (responsável, com o passo a passo na #28); #20, #21, #29 (cadeia JS → API), #30 (`srcset`) e #31 (acessibilidade da administração no CI) (agente); #24 fica aberta até a medição no site publicado.
+
+**Revisão independente (09/11/2026).** Um subagente que não viu o código leu só o diff e esta seção. Corrigido: rotação EXIF das fotos JPEG, limite de 16 megapixels antes de decodificar (o erro de memória do PHP é fatal e não cai no original) e remoção do WebP órfão se a gravação no banco falhar. Registrado sem mudança: `--apagar-originais` só vale para as imagens convertidas na mesma execução (documentado no README); WebP animado perde a animação (GIF não é aceito no upload). A rotação EXIF não tem teste automático, porque montar um JPEG com EXIF no teste exige um arquivo de exemplo.
