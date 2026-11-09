@@ -30,6 +30,9 @@ jobs:
       - run: npm run lint
       - run: npx vitest run
       - run: npx vite build --outDir ../.build-ci --emptyOutDir
+      # Acessibilidade da administração no navegador, com a API simulada (#31)
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
 
   backend:
     runs-on: ubuntu-latest

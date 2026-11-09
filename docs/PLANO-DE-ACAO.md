@@ -129,3 +129,58 @@
 **Vira issue ou segue em issue.** #15, #16, #17, #18 e #28 (responsável, com o passo a passo na #28); #20, #21, #29 (cadeia JS → API), #30 (`srcset`) e #31 (acessibilidade da administração no CI) (agente); #24 fica aberta até a medição no site publicado.
 
 **Revisão independente (09/11/2026).** Um subagente que não viu o código leu só o diff e esta seção. Corrigido: rotação EXIF das fotos JPEG, limite de 16 megapixels antes de decodificar (o erro de memória do PHP é fatal e não cai no original) e remoção do WebP órfão se a gravação no banco falhar. Registrado sem mudança: `--apagar-originais` só vale para as imagens convertidas na mesma execução (documentado no README); WebP animado perde a animação (GIF não é aceito no upload). A rotação EXIF não tem teste automático, porque montar um JPEG com EXIF no teste exige um arquivo de exemplo.
+
+## Ciclo de 09/11/2026
+
+> Branch `feature/2026-11-09` criada a partir de `developer/sprint-2026-11-12`; PR para a sprint. O PR da sprint para a `main` (#32) fica aberto para revisão do responsável. Nível: Vitrine (N2), 12 critérios. Objetivo do ciclo: resolver só o que o código resolve.
+
+### Produto
+
+**Problema e público.** Os mesmos: quem avalia o teste técnico abre a vitrine no celular. Depois do PR #27 o LCP local ficou em 3,94 s, preso na cadeia JS → API (#29).
+
+**O que a pesquisa trouxe.**
+
+| Ideia | O que levamos para o projeto | Fonte |
+|---|---|---|
+| Script inline depois de `<link rel="stylesheet">` só roda quando o CSS chega | O script que inicia a busca da vitrine fica antes das folhas de estilo; a primeira medição mostrou a busca saindo só quando o CSS do Google Fonts terminava | [web.dev: optimize resource loading](https://web.dev/learn/performance/optimize-resource-loading), [Stefan Judis: stylesheets block JavaScript execution](https://dev.to/stefanjudis/til-stylesheets-do-not-only-block-rendering-but-also-javascript-execution-3dlm) |
+| O recurso do LCP deve começar a baixar o mais cedo possível; a espera para começar costuma ser a maior fase em SPA | A primeira página de produtos sai do `index.html`, em paralelo com o JS; a vitrine entra no pacote principal e o `/api/user` não bloqueia páginas públicas | [web.dev: optimize LCP](https://web.dev/optimize-lcp/), [corewebvitals.io: resource load delay](https://www.corewebvitals.io/core-web-vitals/largest-contentful-paint/resource-load-delay) |
+| Em diálogo modal, o foco volta para quem o abriu ou para um lugar lógico | Já aplicado na exclusão (#19); agora coberto pelo teste no CI | [W3C APG: dialog (modal) pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialogmodal/) |
+
+**Backlog priorizado (impacto × esforço).**
+
+| Prioridade | Item | Impacto | Esforço | Destino |
+|---|---|---|---|---|
+| 1 | Encurtar a cadeia até a primeira imagem | Alto | Baixo | Este ciclo (#29) |
+| 2 | Teste de acessibilidade da administração no CI | Médio | Médio | Este ciclo (#31) |
+| 3 | Pré-carregar a imagem no HTML (Laravel) e tirar o `axios` do pacote inicial | Alto | Médio | Issue (#33) |
+| 4 | Dados iniciais da vitrine escritos no HTML pelo Laravel | Baixo depois deste ciclo | Médio | Avaliado e não feito: a API já sai em paralelo ao JS; o gargalo é o JS. Mudaria o backend, que só roda no CI |
+
+**Fora do escopo.** SSR, publicação (#28), `srcset` (#30).
+
+### Engenharia
+
+**Arquitetura.** O `index.html` tem um script inline, antes das folhas de estilo, que em `/` sem query chama `fetch('/api/produtos?page=1&por_pagina=12')` e guarda a promessa em `window.__vitrineInicial`. `listarProdutos()` consome essa promessa uma vez, só na primeira página sem filtro; se ela falhar, pede de novo pelo axios, e o erro chega à tela como antes. A `VitrineView` é importada direto no router. O guarda de rotas só espera `/api/user` em rotas com `exigeLogin` ou `somenteVisitante`; a store reaproveita o pedido em andamento. O CSS do Google Fonts carrega com `media="print"` e troca para `all` ao terminar.
+
+**Riscos.**
+- Se o formato de `/api/produtos` mudar, a busca inicial deixa de ser usada (a função confere `data` e `meta`) e a vitrine volta ao pedido normal.
+- O backend não roda localmente (PHP 8.1, Laravel 12): nada do backend mudou neste ciclo.
+- Sem o CSS das fontes no primeiro quadro, o texto aparece com a fonte de reserva e troca depois (já acontecia com `display=swap`).
+
+**Qualidade.**
+- Testes: Vitest 40 (10 novos em `vitrine-inicial.spec.js`: o script do `index.html` executado com `fetch` simulado, o reaproveitamento único da busca, o descarte da busca quando a primeira chamada tem filtro, ordem ou outra página, o pedido de reserva quando a busca falha e a navegação pública sem esperar `/api/user`); Playwright 2 (claro e escuro).
+- Desempenho: mediana local de 4,30 s (sprint) para 3,65 s; detalhes em `MVP.md`.
+- Acessibilidade: `npm run test:e2e` no CI.
+
+**Definição de pronto.** Lint, Vitest, Playwright e build passam; CI verde no PR para a sprint; `MVP.md`, plano e README atualizados; comentário no PR #32.
+
+### Plano de ação
+
+**Este ciclo executa.**
+1. Busca da primeira página no `index.html`, vitrine no pacote principal e `/api/user` sem bloquear páginas públicas, com testes (#29).
+2. Script antes do CSS e CSS das fontes sem bloquear a pintura.
+3. Teste de acessibilidade da administração no CI (#31).
+4. Medição local com 3 execuções válidas de cada versão.
+
+**Vira issue ou segue em issue.** #33 (imagem no HTML e JS inicial menor); #15, #16, #17, #18 e #28 (responsável); #20, #21, #24 e #30 seguem. #29 e #31 recebem a evidência por comentário e só fecham depois do merge na `main`.
+
+**Revisão independente (09/11/2026).** Um subagente que não viu o código leu só o diff e esta seção. Corrigido: a busca inicial passa a ser descartada na primeira chamada da lista, qualquer que seja (antes, uma primeira chamada com filtro a deixava guardada e ela podia voltar como dado velho); o teste da sessão confere que `/api/user` foi pedido uma vez só depois de a navegação terminar; a varredura de foco marca cada elemento em vez de usar o nome, não aceita contorno transparente e exige um mínimo de elementos nos formulários. Conferido sem mudança: o Laravel não manda Content-Security-Policy (nenhuma ocorrência no backend), então o script inline e o `onload` das fontes funcionam; a URL do `index.html` é a mesma que o axios pede para "recentes" (o serviço omite `ordem` nesse caso).
