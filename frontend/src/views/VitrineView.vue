@@ -107,8 +107,8 @@ watch(() => [rota.query.categoria, rota.query.pagina, ordem.value], carregar, { 
 
     <template v-else>
       <ul class="vitrine__grade">
-        <li v-for="produto in produtos" :key="produto.id">
-          <ProdutoCard :produto="produto" />
+        <li v-for="(produto, indice) in produtos" :key="produto.id">
+          <ProdutoCard :produto="produto" :posicao="indice" />
         </li>
       </ul>
       <PaginacaoLista
