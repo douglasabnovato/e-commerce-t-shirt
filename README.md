@@ -155,8 +155,9 @@ Com o `php artisan serve` rodando, abra `http://localhost:8000`: o Laravel entre
 
 ### Testes
 ```bash
-cd backend && php artisan test        # 21 testes de feature (API, autenticação e rota da SPA)
-cd frontend && npm run test:unit      # 21 testes unitários (sacola, validações e máscaras do checkout, respostas)
+cd backend && php artisan test        # 29 testes de feature (API, autenticação, imagens e rota da SPA)
+cd frontend && npx vitest run         # 38 testes unitários (sacola, checkout, vitrine, respostas)
+cd frontend && npm run test:e2e       # acessibilidade da administração (Playwright + axe, API simulada)
 ```
 
 ---
@@ -399,11 +400,15 @@ Todas as decisões, com contexto, alternativas e motivo, estão em [`docs/DECISO
 
 --- 
 
-## Estado e próximos passos (ciclo de 07/11/2026)
+## Estado e próximos passos (ciclo de 09/11/2026)
 
-Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda não está finalizado. Site publicado respondendo com HTTP 200 em 09/11/2026: https://douglasabnovato.alwaysdata.net (ainda com a versão de 06/11/2026; a publicação é manual).
+Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda não está finalizado.
 
-**O que foi feito no ciclo de 07/11/2026 (PR #27)**
+**O que foi feito no ciclo de 09/11/2026**
+- A primeira página de produtos é pedida pelo `index.html` enquanto o JavaScript baixa; a vitrine vem no pacote principal e não espera `/api/user`. LCP local de 4,30 s (sprint) para 3,65 s; o que falta está na [#33](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/33).
+- Teste de acessibilidade da administração no CI: `cd frontend && npm run test:e2e` (Playwright com axe, API simulada). Site publicado respondendo com HTTP 200 em 09/11/2026: https://douglasabnovato.alwaysdata.net (ainda com a versão de 06/11/2026; a publicação é manual).
+
+**Ciclo de 07/11/2026 (PR #27)**
 - Upload de imagem grava WebP de até 600 px; o comando `php artisan produtos:reduzir-imagens` converte as imagens já salvas (veja "Deploy em produção").
 - Os 4 primeiros cards da vitrine carregam sem lazy loading, e o primeiro com `fetchpriority="high"`.
 - Depois de excluir um produto, o foco volta ao título da administração; administração testada com teclado e axe (0 violações).
@@ -417,9 +422,8 @@ Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; o projeto ainda n
 - [#16](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/16) Publicar no alwaysdata pelo CI depois do merge (responsável).
 - [#17](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/17) Roteiro de 5 minutos com uma pessoa de fora e meta confirmada (responsável).
 - [#18](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/18) Decidir e ligar a medição de uso (responsável).
-- [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) e [#29](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/29) LCP móvel de até 2,5 s: medir no ar e encurtar a cadeia até a primeira imagem.
+- [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) e [#33](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/33) LCP móvel de até 2,5 s: medir no ar, pré-carregar a imagem no HTML e enxugar o JS inicial.
 - [#30](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/30) Imagens da vitrine em dois tamanhos (`srcset`).
-- [#31](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/31) Teste de acessibilidade da administração no CI.
 - [#20](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/20) Filtro da vitrine por faixa de preço.
 - [#21](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/21) Teste de ponta a ponta de vitrine, login e checkout.
 

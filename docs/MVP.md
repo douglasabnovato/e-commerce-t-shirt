@@ -1,6 +1,6 @@
 # MVP — E-commerce T-Shirt
 
-> Fonte única do estado. Criado em 31/10/2026; revisto em 09/11/2026 (ciclo de 07/11/2026, plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
+> Fonte única do estado. Criado em 31/10/2026; revisto em 09/11/2026 (ciclos de 07/11 e de 09/11/2026, plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
 
 **Nível:** Vitrine (N2). Valem os 12 critérios.
 
@@ -8,7 +8,7 @@
 
 **Finalizado:** não
 
-O critério 7 ainda depende de código: com as imagens novas, o LCP local caiu, mas a mediana ficou acima de 2,5 s (#29). Os critérios 2, 3, 5 e 10 dependem do responsável e têm issue com `depende-do-responsavel` (#17, #18, #15, #16); a publicação desta versão e a conversão das imagens do servidor também (#28).
+O critério 7 ainda depende de código: no ciclo de 09/11/2026 a lista de produtos passou a sair do `index.html` e a mediana local caiu para 3,65 s, ainda acima de 2,5 s; o que falta (pré-carregar a imagem no HTML e enxugar o JS inicial) está na #33. Os critérios 2, 3, 5 e 10 dependem do responsável e têm issue com `depende-do-responsavel` (#17, #18, #15, #16); a publicação desta versão e a conversão das imagens do servidor também (#28).
 
 ## Problema e hipótese
 
@@ -17,6 +17,56 @@ O critério 7 ainda depende de código: com as imagens novas, o LCP local caiu, 
 **Hipótese:** Um avaliador completa o roteiro de 5 minutos do README sem precisar de ajuda. Proposta inicial, para o responsável confirmar ou trocar (#17).
 
 ## 1. Critérios
+
+| # | Critério | Como verificar | Situação em 09/11/2026 (ciclo de 09/11) |
+|---|---|---|---|
+| 1 | Problema e público claros | Dá para explicar em uma frase | Atende |
+| 2 | Hipótese a validar | Existe uma aposta escrita, com meta | Parcial: meta proposta; confirmar é do responsável (#17) |
+| 3 | Fluxo principal completo | Uma pessoa conclui sem ajuda | Parcial: vitrine e API respondem (`curl` em 09/11/2026: HTTP 200); roteiro com pessoa de fora com o responsável (#17) |
+| 4 | Escopo enxuto | O que não entra está registrado | Atende: loja de demonstração, sem pedido real |
+| 5 | Medição de uso | A métrica principal é coletada | Não atende: não coleta uso; decidir e criar a conta é do responsável (#18) |
+| 6 | Falhas tratadas | Erro, vazio e carregamento têm resposta clara | Atende: vitrine, login, administração e checkout têm carregamento, vazio e erro com nova tentativa; upload sem GD com WebP grava o original (teste no CI) |
+| 7 | Desempenho aceitável | LCP de até 2,5 s no celular | Não atende. No ar: 14,82 s (06/11/2026), muda só depois da publicação pelo responsável (#28). Local, build de produção, 09/11/2026 (ciclo de 09/11): 4,17, 3,41 e 3,65 s (mediana 3,65 s), contra 4,47, 4,30 e 2,74 s da sprint na mesma sessão. A lista agora sai do `index.html` junto com o JS; o limite passou a ser baixar e executar o JS (primeira pintura entre 1,9 e 3,0 s) (#33). Detalhes em "Medições de 09/11/2026 (ciclo de 09/11)" |
+| 8 | Acessibilidade básica | Lighthouse e teclado | Atende: vitrine com acessibilidade 1,00 no Lighthouse local (6 execuções de 09/11/2026). Administração no CI desde o ciclo de 09/11: `npm run test:e2e` (Playwright 1.64.1 e axe-core 4.14, WCAG 2.1 A e AA, API simulada, modos claro e escuro) percorre login, lista, exclusão por teclado e formulários, sem violação séria ou crítica, com foco visível em todo elemento alcançado por Tab e foco no título "Produtos" depois de excluir; 2 de 2 passaram localmente em 09/11/2026 (#31). Leitor de tela não testado |
+| 9 | Segurança e conformidade | Riscos decididos; termos de terceiros cumpridos | Atende: a conta de demonstração é de teste e fica pública por decisão do responsável (#9); `composer audit` sem alertas no CI do PR #27 (09/11/2026) |
+| 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: `main` sem proteção (#15) e deploy manual, sem ligação com o CI (#16) |
+| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: `npx vitest run` com 38 testes (8 novos da busca inicial da vitrine e da sessão), `npm run test:e2e` com 2 e `php artisan test` com 29 (123 asserções), nenhum pulado, em 09/11/2026 |
+| 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
+
+## 2. Tarefas
+
+| # | Tarefa | Situação |
+|---|---|---|
+| 1 | Primeiros cards sem lazy loading e o primeiro com prioridade alta | Feito (PR #27) |
+| 2 | Upload em WebP de até 600 px e comando para as imagens antigas | Feito (PR #27) |
+| 3 | Acessibilidade da administração | Feito (PR #27, #19) |
+| 4 | Publicar e converter as imagens do servidor | Com o responsável (#28) |
+| 5 | Encurtar a cadeia até a primeira imagem | Feito no ciclo de 09/11 (#29) |
+| 6 | Imagens em dois tamanhos | Issue #30 |
+| 7 | Teste de acessibilidade da administração no CI | Feito no ciclo de 09/11 (#31) |
+| 8 | Filtro por faixa de preço | Issue #20 |
+| 9 | Teste de ponta a ponta | Issue #21 |
+| 10 | Pré-carregar a imagem do LCP no HTML e enxugar o JS inicial | Issue #33 |
+
+## 3. Fora do MVP
+
+Pagamento, pedidos reais, filtros por cor e tamanho, CDN.
+
+## Medições de 09/11/2026 (ciclo de 09/11)
+
+Lighthouse 12.8.2 local, perfil móvel simulado, `--headless --no-sandbox`, `timeout 150` por execução, mesmo servidor local que imita a produção (SPA em `/spa`, `/api/produtos` com 12 produtos em WebP e 300 ms de atraso, `/api/user` com 401 imediato). Portas próprias (4191, 4192 e 4195).
+
+| Versão | Execuções (LCP · TBT) | Mediana | Elemento do LCP | Fases do LCP |
+|---|---|---|---|---|
+| Sprint (PR #27) | 4,47 s · 251 ms; 4,30 s · 281 ms; 2,74 s · 9.176 ms | 4,30 s | 1ª imagem nas duas primeiras; texto `<p>` na terceira (CPU em 100%) | Espera para a imagem começar a baixar de 1,03 s: HTML → JS → `/api/user` → pedaço da vitrine → `/api/produtos` → imagem |
+| Busca no `index.html` (1º commit) | 4,07 s · 174 ms; 4,15 s · 9.191 ms; 3,71 s · 219 ms | 4,07 s | 1ª imagem | O script inline esperava o CSS do Google Fonts (a busca só saía quando o CSS terminava) |
+| Ciclo de 09/11 (script antes do CSS e fontes sem bloquear) | 4,17 s · 272 ms; 3,41 s · 181 ms; 3,65 s · 9.081 ms | 3,65 s | 1ª ou 2ª imagem | `/api/produtos` sai junto com o JS; espera da imagem de 0,48 a 1,05 s; primeira pintura entre 1,9 e 3,0 s, pelo JS de cerca de 160 KB (#33) |
+
+Leitura: a cadeia até a imagem ficou com três idas (HTML → JS e API em paralelo → imagem) em vez de cinco. O que sobra é o tempo de baixar e executar o JS antes de qualquer pintura. Execuções com TBT acima de 9 s tiveram a CPU disputada por outros processos.
+
+## Histórico
+
+### Tabela de 09/11/2026 (ciclo de 07/11/2026)
 
 | # | Critério | Como verificar | Situação em 09/11/2026 |
 |---|---|---|---|
@@ -33,25 +83,7 @@ O critério 7 ainda depende de código: com as imagens novas, o LCP local caiu, 
 | 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: `npx vitest run` com 30 testes e `php artisan test` com 29 testes (123 asserções), nenhum pulado, no CI do PR #27 em 09/11/2026 |
 | 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
 
-## 2. Tarefas
-
-| # | Tarefa | Situação |
-|---|---|---|
-| 1 | Primeiros cards sem lazy loading e o primeiro com prioridade alta | Feito (PR #27) |
-| 2 | Upload em WebP de até 600 px e comando para as imagens antigas | Feito (PR #27) |
-| 3 | Acessibilidade da administração | Feito (PR #27, #19) |
-| 4 | Publicar e converter as imagens do servidor | Com o responsável (#28) |
-| 5 | Encurtar a cadeia até a primeira imagem | Issue #29 |
-| 6 | Imagens em dois tamanhos | Issue #30 |
-| 7 | Teste de acessibilidade da administração no CI | Issue #31 |
-| 8 | Filtro por faixa de preço | Issue #20 |
-| 9 | Teste de ponta a ponta | Issue #21 |
-
-## 3. Fora do MVP
-
-Pagamento, pedidos reais, filtros por cor e tamanho, CDN.
-
-## Medições de 09/11/2026
+### Medições de 09/11/2026 (ciclo de 07/11/2026)
 
 Lighthouse 12.8.2 local, perfil móvel simulado, `--headless --no-sandbox`, com o build de produção do Vue servido por um servidor local que imita a produção (SPA em `/spa`, `/api/produtos` com 12 produtos e 300 ms de atraso, imagens em `/storage`). O computador estava com a CPU em 100% por outros processos; o bloqueio total (TBT) chegou a 8,8 s em algumas execuções, o que aumenta a variação.
 
@@ -61,8 +93,6 @@ Lighthouse 12.8.2 local, perfil móvel simulado, `--headless --no-sandbox`, com 
 | Depois (PR #27) | Todas em WebP de 600 px (13 a 23 KB), como depois do `produtos:reduzir-imagens` | 2,85, 3,94 e 4,49 s | 3,94 s | Imagem com `fetchpriority="high"` baixa em 0,13 s; espera até 3,8 s pela cadeia JS → vitrine → API |
 
 Duas execuções do "depois" travaram sem gravar resultado e foram descartadas. O número no ar só muda depois da publicação pelo responsável (#28).
-
-## Histórico
 
 ### Tabela de 06/11/2026 (ciclo de 03/11/2026)
 
