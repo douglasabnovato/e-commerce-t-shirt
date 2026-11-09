@@ -16,7 +16,9 @@ Artisan::command('inspire', function () {
  * 600 px, #24). Uso no servidor, depois da publicação:
  *   php artisan produtos:reduzir-imagens
  * Por segurança, o arquivo original fica no disco; --apagar-originais o
- * remove depois que o produto passa a apontar para o WebP.
+ * remove depois que o produto passa a apontar para o WebP. A opção vale só
+ * para as imagens convertidas na mesma execução: o comando não guarda o
+ * caminho antigo, então uma segunda execução não acha os originais.
  */
 Artisan::command('produtos:reduzir-imagens {--apagar-originais : Apaga o arquivo original depois da conversão}', function () {
     if (! ImagemVitrine::disponivel()) {
@@ -49,7 +51,13 @@ Artisan::command('produtos:reduzir-imagens {--apagar-originais : Apaga o arquivo
 
         $novo = 'produtos/'.Str::random(40).'.webp';
         $disco->put($novo, $webp);
-        $produto->update(['imagem' => $novo]);
+
+        try {
+            $produto->update(['imagem' => $novo]);
+        } catch (Throwable $erro) {
+            $disco->delete($novo);
+            throw $erro;
+        }
 
         if ($this->option('apagar-originais')) {
             $disco->delete($original);

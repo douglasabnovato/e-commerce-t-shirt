@@ -186,7 +186,7 @@ php artisan migrate --force
 php artisan optimize
 ```
 
-**Uma vez, na publicação do ciclo de 07/11/2026 (#24):** os uploads novos já viram WebP de até 600 px. Para converter as imagens que já estão no servidor, rode `php artisan produtos:reduzir-imagens` em `backend/`. O comando mantém os arquivos originais; `--apagar-originais` os remove depois da conversão. Sem a extensão GD com WebP no PHP do servidor, ele avisa e não altera nada.
+**Uma vez, na publicação do ciclo de 07/11/2026 (#24):** os uploads novos já viram WebP de até 600 px. Para converter as imagens que já estão no servidor, rode `php artisan produtos:reduzir-imagens` em `backend/`. O comando mantém os arquivos originais; `--apagar-originais` remove os originais das imagens convertidas naquela mesma execução (numa segunda execução, eles já não são encontrados). Fotos JPEG com rotação EXIF são giradas; imagens acima de 16 megapixels ficam no original. Sem a extensão GD com WebP no PHP do servidor, ele avisa e não altera nada.
 
 O `.env` de produção nunca é versionado; a `APP_KEY` de produção é gerada no próprio servidor.
 
