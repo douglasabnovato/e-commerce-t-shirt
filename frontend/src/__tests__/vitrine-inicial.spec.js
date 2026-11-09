@@ -85,16 +85,20 @@ describe('listarProdutos com a busca inicial', () => {
     expect(get).toHaveBeenCalledTimes(1)
   })
 
-  it('ignora a busca inicial com filtro, ordem ou outra página', async () => {
-    globalThis.__vitrineInicial = Promise.resolve(corpo)
+  it.each([{ pagina: 2 }, { pagina: 1, busca: 'Camiseta' }, { pagina: 1, ordem: 'menor-preco' }])(
+    'ignora e descarta a busca inicial quando a primeira chamada é %o',
+    async (parametros) => {
+      globalThis.__vitrineInicial = Promise.resolve(corpo)
 
-    await listarProdutos({ pagina: 2 })
-    await listarProdutos({ pagina: 1, busca: 'Camiseta' })
-    await listarProdutos({ pagina: 1, ordem: 'menor-preco' })
+      await listarProdutos(parametros)
+      expect(get).toHaveBeenCalledTimes(1)
+      expect(globalThis.__vitrineInicial).toBeUndefined()
 
-    expect(get).toHaveBeenCalledTimes(3)
-    expect(globalThis.__vitrineInicial).toBeInstanceOf(Promise)
-  })
+      // Voltar depois à primeira página sem filtro pede a lista de novo
+      await listarProdutos({ pagina: 1 })
+      expect(get).toHaveBeenCalledTimes(2)
+    },
+  )
 
   it('pede de novo pelo axios quando a busca inicial falhou', async () => {
     globalThis.__vitrineInicial = Promise.reject(new Error('HTTP 500'))
@@ -141,6 +145,8 @@ describe('navegação e sessão', () => {
 
     responderSessao()
     await destino
+    // Se a verificação não fosse reaproveitada, o guarda teria feito um 2º pedido
+    expect(get.mock.calls.filter(([url]) => url === '/user')).toHaveLength(1)
     expect(router.currentRoute.value.name).toBe('login')
     expect(useAutenticacaoStore().sessaoVerificada).toBe(true)
   })

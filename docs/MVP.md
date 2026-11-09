@@ -30,7 +30,7 @@ O critério 7 ainda depende de código: no ciclo de 09/11/2026 a lista de produt
 | 8 | Acessibilidade básica | Lighthouse e teclado | Atende: vitrine com acessibilidade 1,00 no Lighthouse local (6 execuções de 09/11/2026). Administração no CI desde o ciclo de 09/11: `npm run test:e2e` (Playwright 1.64.1 e axe-core 4.14, WCAG 2.1 A e AA, API simulada, modos claro e escuro) percorre login, lista, exclusão por teclado e formulários, sem violação séria ou crítica, com foco visível em todo elemento alcançado por Tab e foco no título "Produtos" depois de excluir; 2 de 2 passaram localmente em 09/11/2026 (#31). Leitor de tela não testado |
 | 9 | Segurança e conformidade | Riscos decididos; termos de terceiros cumpridos | Atende: a conta de demonstração é de teste e fica pública por decisão do responsável (#9); `composer audit` sem alertas no CI do PR #27 (09/11/2026) |
 | 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: `main` sem proteção (#15) e deploy manual, sem ligação com o CI (#16) |
-| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: `npx vitest run` com 38 testes (8 novos da busca inicial da vitrine e da sessão), `npm run test:e2e` com 2 e `php artisan test` com 29 (123 asserções), nenhum pulado, em 09/11/2026 |
+| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: `npx vitest run` com 40 testes (10 novos da busca inicial da vitrine e da sessão), `npm run test:e2e` com 2 e `php artisan test` com 29 (123 asserções), nenhum pulado, em 09/11/2026 |
 | 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
 
 ## 2. Tarefas

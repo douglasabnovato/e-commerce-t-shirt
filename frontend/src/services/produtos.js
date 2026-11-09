@@ -34,15 +34,16 @@ export function consumirVitrineInicial() {
 /**
  * GET /api/produtos · Lista paginada, com busca opcional por nome e
  * ordenação opcional (recentes, menor-preco, maior-preco, nome).
- * A primeira página sem filtro reaproveita a busca já iniciada pelo
- * index.html; se ela falhou, a lista é pedida de novo pelo axios, para que
- * o erro chegue à tela no formato de sempre.
+ * A busca já iniciada pelo index.html é descartada na primeira chamada,
+ * seja ela qual for, para nunca voltar depois como dado velho; só é usada
+ * se essa chamada for a primeira página sem filtro. Se ela falhou, a lista
+ * é pedida de novo pelo axios, para que o erro chegue à tela como sempre.
  */
 export async function listarProdutos({ pagina = 1, porPagina = 12, busca, ordem } = {}) {
   const primeiraPaginaSemFiltro =
     pagina === 1 && porPagina === 12 && !busca && (!ordem || ordem === 'recentes')
-  const inicial = primeiraPaginaSemFiltro ? consumirVitrineInicial() : null
-  if (inicial) {
+  const inicial = consumirVitrineInicial()
+  if (inicial && primeiraPaginaSemFiltro) {
     try {
       const corpo = await inicial
       if (Array.isArray(corpo?.data) && corpo.meta) {

@@ -167,7 +167,7 @@
 - Sem o CSS das fontes no primeiro quadro, o texto aparece com a fonte de reserva e troca depois (já acontecia com `display=swap`).
 
 **Qualidade.**
-- Testes: Vitest 38 (8 novos em `vitrine-inicial.spec.js`: o script do `index.html` executado com `fetch` simulado, o reaproveitamento único da busca, a recusa com filtro, o pedido de reserva quando a busca falha e a navegação pública sem esperar `/api/user`); Playwright 2 (claro e escuro).
+- Testes: Vitest 40 (10 novos em `vitrine-inicial.spec.js`: o script do `index.html` executado com `fetch` simulado, o reaproveitamento único da busca, o descarte da busca quando a primeira chamada tem filtro, ordem ou outra página, o pedido de reserva quando a busca falha e a navegação pública sem esperar `/api/user`); Playwright 2 (claro e escuro).
 - Desempenho: mediana local de 4,30 s (sprint) para 3,65 s; detalhes em `MVP.md`.
 - Acessibilidade: `npm run test:e2e` no CI.
 
@@ -182,3 +182,5 @@
 4. Medição local com 3 execuções válidas de cada versão.
 
 **Vira issue ou segue em issue.** #33 (imagem no HTML e JS inicial menor); #15, #16, #17, #18 e #28 (responsável); #20, #21, #24 e #30 seguem. #29 e #31 recebem a evidência por comentário e só fecham depois do merge na `main`.
+
+**Revisão independente (09/11/2026).** Um subagente que não viu o código leu só o diff e esta seção. Corrigido: a busca inicial passa a ser descartada na primeira chamada da lista, qualquer que seja (antes, uma primeira chamada com filtro a deixava guardada e ela podia voltar como dado velho); o teste da sessão confere que `/api/user` foi pedido uma vez só depois de a navegação terminar; a varredura de foco marca cada elemento em vez de usar o nome, não aceita contorno transparente e exige um mínimo de elementos nos formulários. Conferido sem mudança: o Laravel não manda Content-Security-Policy (nenhuma ocorrência no backend), então o script inline e o `onload` das fontes funcionam; a URL do `index.html` é a mesma que o axios pede para "recentes" (o serviço omite `ordem` nesse caso).

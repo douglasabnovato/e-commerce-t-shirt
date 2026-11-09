@@ -86,29 +86,39 @@ async function violacoesGraves(page) {
 
 /**
  * Percorre a página com Tab a partir do início e devolve os elementos
- * alcançados sem contorno nem sombra de foco.
+ * alcançados sem contorno nem sombra de foco. Cada elemento é marcado com
+ * data-e2e-visto, para que dois controles com o mesmo nome não encerrem a
+ * volta antes do fim; contorno transparente não conta como visível.
  */
-async function semFocoVisivel(page, maximo = 40) {
-  await page.evaluate(() => document.activeElement?.blur())
+async function semFocoVisivel(page, maximo = 60) {
+  await page.evaluate(() => {
+    document.querySelectorAll('[data-e2e-visto]').forEach((el) => el.removeAttribute('data-e2e-visto'))
+    document.activeElement?.blur()
+  })
   await page.locator('body').focus()
-  const vistos = new Set()
+  let alcancados = 0
   const falhas = []
   for (let i = 0; i < maximo; i += 1) {
     await page.keyboard.press('Tab')
     const info = await page.evaluate(() => {
       const el = document.activeElement
-      if (!el || el === document.body) return null
+      if (!el || el === document.body || el.hasAttribute('data-e2e-visto')) return null
+      el.setAttribute('data-e2e-visto', '')
       const estilo = getComputedStyle(el)
-      const contorno = estilo.outlineStyle !== 'none' && parseFloat(estilo.outlineWidth) > 0
+      const transparente = (cor) => cor === 'transparent' || /rgba\(.*,\s*0\)$/.test(cor)
+      const contorno =
+        estilo.outlineStyle !== 'none' &&
+        parseFloat(estilo.outlineWidth) > 0 &&
+        !transparente(estilo.outlineColor)
       const sombra = estilo.boxShadow && estilo.boxShadow !== 'none'
       const nome = `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''} "${(el.getAttribute('aria-label') ?? el.textContent ?? '').trim().slice(0, 40)}"`
       return { nome, visivel: contorno || sombra }
     })
-    if (!info || vistos.has(info.nome)) break
-    vistos.add(info.nome)
+    if (!info) break
+    alcancados += 1
     if (!info.visivel) falhas.push(info.nome)
   }
-  return { alcancados: vistos.size, falhas }
+  return { alcancados, falhas }
 }
 
 test.beforeEach(async ({ page }) => {
@@ -146,6 +156,7 @@ test('login, lista, exclusão e formulários sem violações e com foco visível
   await expect(page.getByRole('heading', { name: 'Novo produto' })).toBeVisible()
   expect(await violacoesGraves(page)).toEqual([])
   const novo = await semFocoVisivel(page)
+  expect(novo.alcancados).toBeGreaterThan(4)
   expect(novo.falhas).toEqual([])
 
   await page.goto('/admin/produtos/2/editar')
@@ -153,6 +164,7 @@ test('login, lista, exclusão e formulários sem violações e com foco visível
   await expect(page.getByLabel('Nome')).toHaveValue('Camiseta de teste 2')
   expect(await violacoesGraves(page)).toEqual([])
   const edicao = await semFocoVisivel(page)
+  expect(edicao.alcancados).toBeGreaterThan(4)
   expect(edicao.falhas).toEqual([])
 })
 

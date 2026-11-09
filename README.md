@@ -156,7 +156,7 @@ Com o `php artisan serve` rodando, abra `http://localhost:8000`: o Laravel entre
 ### Testes
 ```bash
 cd backend && php artisan test        # 29 testes de feature (API, autenticação, imagens e rota da SPA)
-cd frontend && npx vitest run         # 38 testes unitários (sacola, checkout, vitrine, respostas)
+cd frontend && npx vitest run         # 40 testes unitários (sacola, checkout, vitrine, respostas)
 cd frontend && npm run test:e2e       # acessibilidade da administração (Playwright + axe, API simulada)
 ```
 
