@@ -57,11 +57,10 @@ jobs:
         env:
           HOST: ${{ secrets.ALWAYSDATA_SSH_HOST }}
           USUARIO: ${{ secrets.ALWAYSDATA_SSH_USER }}
-          SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           scp -i ~/.ssh/id_deploy -r backend/public/spa/* "$USUARIO@$HOST:~/e-commerce-t-shirt/backend/public/spa/"
           ssh -i ~/.ssh/id_deploy "$USUARIO@$HOST" "set -e
-            cd ~/e-commerce-t-shirt && git fetch origin main && git checkout --detach $SHA
+            cd ~/e-commerce-t-shirt && git checkout main && git pull --ff-only origin main
             cd backend
             composer install --no-dev --optimize-autoloader --no-interaction
             php artisan migrate --force
