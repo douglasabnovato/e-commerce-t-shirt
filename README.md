@@ -402,7 +402,7 @@ Todas as decisões, com contexto, alternativas e motivo, estão em [`docs/DECISO
 
 ## Estado e próximos passos (ciclo de 09/11/2026)
 
-Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; **finalizado** no que o código resolve. O que falta (publicar, proteger a `main`, medir uso, roteiro com pessoa de fora) é do responsável e tem issue.
+Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; **finalizado** no que o código resolve. O que falta (publicar, deploy pelo CI, medir uso, roteiro com pessoa de fora) é do responsável e tem issue. A `main` está protegida desde 10/11/2026 (ruleset `principal-protegida`).
 
 **O que foi feito no ciclo de 09/11/2026**
 - 2ª rodada (PR #35): o axios deu lugar a um cliente `fetch` com os mesmos cuidados de CSRF e erro; o CSS das fontes entra depois do evento `load`; a imagem do 1º produto é pré-carregada assim que a lista chega. LCP local, com o build comprimido como no site: mediana de 2,47 s (sprint: 2,80 s). O número no ar só muda depois da publicação (#28).
@@ -419,7 +419,7 @@ Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; **finalizado** no
 
 **O que queremos fazer**
 - [#28](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/28) Publicar esta versão e converter as imagens do servidor (responsável).
-- [#15](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/15) Proteger a `main` com PR e CI obrigatórios (responsável).
+- [#15](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/15) Proteger a `main`: feito em 10/11/2026; a issue fecha no merge da `main`.
 - [#16](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/16) Publicar no alwaysdata pelo CI depois do merge (responsável).
 - [#17](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/17) Roteiro de 5 minutos com uma pessoa de fora e meta confirmada (responsável).
 - [#18](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/18) Decidir e ligar a medição de uso (responsável).
