@@ -1,6 +1,8 @@
 /*
  * Rotas da aplicação.
- * Todas as páginas são carregadas sob demanda (lazy loading), o que reduz o
+ * A vitrine, que é a página de entrada, vem no pacote principal: assim a
+ * lista começa a ser montada sem esperar mais um arquivo (#29). As demais
+ * páginas são carregadas sob demanda (lazy loading), o que reduz o
  * JavaScript baixado na primeira visita. As rotas de administração exigem
  * login (meta.exigeLogin) e redirecionam para /login quando não há sessão.
  * O histórico usa a raiz do site ('/'): os arquivos do build ficam em
@@ -9,6 +11,7 @@
 
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAutenticacaoStore } from '@/stores/autenticacao'
+import VitrineView from '@/views/VitrineView.vue'
 
 const NOME_DO_SITE = 'T-Shirt Store'
 
@@ -16,7 +19,7 @@ const routes = [
   {
     path: '/',
     name: 'vitrine',
-    component: () => import('@/views/VitrineView.vue'),
+    component: VitrineView,
     meta: { titulo: 'Vitrine' },
   },
   {
@@ -81,10 +84,16 @@ const router = createRouter({
 /**
  * Antes de cada navegação, verifica a sessão (uma vez) e aplica as regras
  * de acesso: páginas de administração exigem login e a página de login não
- * faz sentido para quem já entrou.
+ * faz sentido para quem já entrou. Páginas públicas não esperam a resposta
+ * de /api/user: a verificação segue em paralelo e o cabeçalho se atualiza
+ * quando ela chega (#29).
  */
 router.beforeEach(async (destino) => {
   const autenticacao = useAutenticacaoStore()
+  if (!destino.meta.exigeLogin && !destino.meta.somenteVisitante) {
+    autenticacao.verificarSessao()
+    return true
+  }
   await autenticacao.verificarSessao()
 
   if (destino.meta.exigeLogin && !autenticacao.autenticado) {

@@ -1,0 +1,73 @@
+# Publicação no alwaysdata pelo Actions (#16, critério 10): roda só depois do
+# CI verde num push na main e só com a Variable PUBLICAR_ALWAYSDATA = "sim".
+# Sem a Variable, o job é pulado e nada muda (o deploy segue manual, como no
+# README). Faz os mesmos passos da seção "Atualização" do README: build do
+# front e envio de backend/public/spa; no servidor, git pull, composer,
+# migrate e optimize. Depois confere /api/saude, que consulta o banco.
+# Segredos (só o responsável cria; os valores nunca aparecem no log):
+#   ALWAYSDATA_SSH_HOST, ALWAYSDATA_SSH_USER, ALWAYSDATA_SSH_KEY (chave
+#   privada só para este deploy) e ALWAYSDATA_KNOWN_HOSTS.
+name: Publicar no alwaysdata
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publicar-alwaysdata
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    if: >-
+      vars.PUBLICAR_ALWAYSDATA == 'sim' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build do front
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+      - name: Preparar o SSH
+        env:
+          CHAVE: ${{ secrets.ALWAYSDATA_SSH_KEY }}
+          CONHECIDOS: ${{ secrets.ALWAYSDATA_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$CHAVE" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          printf '%s\n' "$CONHECIDOS" > ~/.ssh/known_hosts
+      - name: Enviar o build e atualizar o servidor
+        env:
+          HOST: ${{ secrets.ALWAYSDATA_SSH_HOST }}
+          USUARIO: ${{ secrets.ALWAYSDATA_SSH_USER }}
+        run: |
+          scp -i ~/.ssh/id_deploy -r backend/public/spa/* "$USUARIO@$HOST:~/e-commerce-t-shirt/backend/public/spa/"
+          ssh -i ~/.ssh/id_deploy "$USUARIO@$HOST" "set -e
+            cd ~/e-commerce-t-shirt && git checkout main && git pull --ff-only origin main
+            cd backend
+            composer install --no-dev --optimize-autoloader --no-interaction
+            php artisan migrate --force
+            php artisan optimize"
+      - name: Conferir o site publicado
+        run: |
+          curl -fsS --retry 5 --retry-delay 10 https://douglasabnovato.alwaysdata.net/api/saude
+          curl -fsS -o /dev/null https://douglasabnovato.alwaysdata.net/
+
+# Fim de publicar.yml

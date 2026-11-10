@@ -8,6 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:unit": "vitest",
+    "test:e2e": "playwright test",
+    "test:fluxo": "playwright test -c playwright.fluxo.config.js",
     "lint": "run-s \"lint:*\"",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
@@ -15,7 +17,6 @@
   },
   "dependencies": {
     "@faker-js/faker": "^10.6.0",
-    "axios": "^1.20.0",
     "cep-promise": "^4.4.1",
     "markdown-it": "^15.0.2",
     "pinia": "^4.0.3",
@@ -23,7 +24,9 @@
     "vue-router": "^5.3.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vitest/eslint-plugin": "^1.6.27",
     "@vue/test-utils": "^2.5.0",

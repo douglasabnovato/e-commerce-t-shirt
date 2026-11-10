@@ -69,7 +69,7 @@
 - **Notas de implementação:**
   - O trait `HasApiTokens` sugerido pelo `install:api` não é adicionado ao `User`: ele serve à autenticação por token Bearer. A tabela `personal_access_tokens` fica sem uso.
   - Ativar `statefulApi()` em `bootstrap/app.php` e incluir `localhost:5173` em `SANCTUM_STATEFUL_DOMAINS`.
-  - Com o proxy do Vite em desenvolvimento e a origem única em produção (D15), o navegador vê uma origem só: não há CORS a configurar. O cliente axios mantém `withCredentials` e `withXSRFToken` ativos para enviar o cookie de sessão e o cabeçalho `X-XSRF-TOKEN` de forma explícita.
+  - Com o proxy do Vite em desenvolvimento e a origem única em produção (D15), o navegador vê uma origem só: não há CORS a configurar. O cliente HTTP (`fetch` com `credentials: include`, em `services/api.js`, desde 09/11/2026 no lugar do axios, #33) envia o cookie de sessão e copia o cookie `XSRF-TOKEN` para o cabeçalho `X-XSRF-TOKEN`.
   - `SANCTUM_STATEFUL_DOMAINS`: `localhost:5173` e `localhost:8000` no ambiente local; `douglasabnovato.alwaysdata.net` em produção.
 - **Status:** ✅ aprovada · 25/09/2026
 
@@ -167,3 +167,10 @@
 - **Alternativas:** coluna `categoria` na tabela de produtos, com campo no formulário do admin.
 - **Motivo:** mantém o produto exatamente como o enunciado pede e entrega o extra da camada 1 sem migration nova. Se a categoria virar requisito, a troca fica restrita à API e ao `categorias.js`.
 - **Status:** ✅ implementada · 25/09/2026 (registrada após a implementação)
+
+## D22 — Cliente HTTP com fetch
+- **Contexto:** o axios era o maior pacote do JavaScript baixado antes da primeira pintura da vitrine (#33), e o LCP local seguia acima de 2,5 s.
+- **Decisão:** trocar o axios por um cliente fino com `fetch` em `frontend/src/services/api.js`, com a mesma interface (`api.get(url, { params })`, `api.post(url, dados)`, `api.delete(url)`, resposta `{ data, status }`, erro com `erro.response`) e os mesmos comportamentos: cookie CSRF antes de escrita, `X-XSRF-TOKEN`, repetição única no 419, tempo limite de 15 s e `extrairErro()`.
+- **Alternativas:** manter o axios e só dividir pacotes; `ky` ou `ofetch` (outra dependência para o mesmo papel).
+- **Motivo:** o navegador já tem `fetch`; a troca tira uma dependência e cerca de 13 KB comprimidos do pacote inicial, sem mudar as telas. Testes em `src/__tests__/api.spec.js`.
+- **Status:** ✅ implementada · 09/11/2026
