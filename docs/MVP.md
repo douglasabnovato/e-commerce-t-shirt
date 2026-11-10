@@ -1,6 +1,6 @@
 # MVP — E-commerce T-Shirt
 
-> Fonte única do estado. Criado em 31/10/2026; revisto em 09/11/2026 (ciclos de 07/11 e de 09/11/2026, 2ª rodada no PR #35, plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
+> Fonte única do estado. Criado em 31/10/2026; revisto em 09/11/2026 (ciclos de 07/11 e de 09/11/2026, 2ª rodada no PR #35; critério 10 em 10/11/2026; plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
 
 **Nível:** Vitrine (N2). Valem os 12 critérios.
 
@@ -8,7 +8,7 @@
 
 **Finalizado:** sim
 
-Tudo o que o código resolve está feito (decisão 4 do processo de 03/11). O critério 7 atinge a meta localmente (mediana de 2,47 s em 6 execuções, PR #35) e fica "Parcial" até a medição no site, que só muda depois da publicação (#28). Os critérios 2, 3, 5, 7 e 10 dependem do responsável e têm issue com `depende-do-responsavel` (#17, #18, #28, #15 e #16).
+Tudo o que o código resolve está feito (decisão 4 do processo de 03/11). O critério 7 atinge a meta localmente (mediana de 2,47 s em 6 execuções, PR #35) e fica "Parcial" até a medição no site, que só muda depois da publicação (#28). Os critérios 2, 3, 5, 7 e 10 dependem do responsável e têm issue com `depende-do-responsavel` (#17, #18, #28 e #16). A `main` está protegida desde 10/11/2026 (#15); no 10 falta só o deploy pelo CI (#16).
 
 ## Problema e hipótese
 
@@ -29,7 +29,7 @@ Tudo o que o código resolve está feito (decisão 4 do processo de 03/11). O cr
 | 7 | Desempenho aceitável | LCP de até 2,5 s no celular | Parcial: atinge a meta localmente; no ar depende da publicação. Local, build de produção servido com compressão como a produção (brotli), Lighthouse móvel, 09/11/2026 (PR #35): mediana de 2,44 s e 2,50 s em duas séries (6 execuções: 2,71, 2,14, 2,44, 2,50, 2,02 e 2,60 s; mediana geral 2,47 s; TBT de 194 a 504 ms), contra 2,85 e 2,75 s da sprint nas mesmas séries (mediana geral 2,80 s). Elemento do LCP: imagem do 1º produto. Margem pequena: o número no ar decide, depois da publicação pelo responsável (#28) e da medição na #24. No ar, ainda com a versão de 06/11/2026: 14,82 s. Detalhes em "Medições de 09/11/2026 (2ª rodada)" |
 | 8 | Acessibilidade básica | Lighthouse e teclado | Atende: vitrine com acessibilidade 1,00 no Lighthouse local (6 execuções de 09/11/2026). Administração no CI desde o ciclo de 09/11: `npm run test:e2e` (Playwright 1.64.1 e axe-core 4.14, WCAG 2.1 A e AA, API simulada, modos claro e escuro) percorre login, lista, exclusão por teclado e formulários, sem violação séria ou crítica, com foco visível em todo elemento alcançado por Tab e foco no título "Produtos" depois de excluir; 2 de 2 passaram localmente em 09/11/2026 (#31). Leitor de tela não testado |
 | 9 | Segurança e conformidade | Riscos decididos; termos de terceiros cumpridos | Atende: a conta de demonstração é de teste e fica pública por decisão do responsável (#9); `composer audit` sem alertas no CI do PR #27 (09/11/2026) |
-| 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: `main` sem proteção (#15) e deploy manual, sem ligação com o CI (#16) |
+| 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: a `main` está protegida — `gh api repos/douglasabnovato/e-commerce-t-shirt/rulesets`, 10/11/2026: ruleset `principal-protegida` ativo (exige PR, bloqueia force push e exclusão), e o workflow `CI` (jobs `frontend` e `backend`) roda nos PRs para `main` e `developer/**` (#15). Falta: o deploy no alwaysdata é manual, sem ligação com o CI (#16) |
 | 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: `npx vitest run` com 60 testes (14 do cliente HTTP com fetch, 2 do HTML das fontes e 3 casos novos do preload), `npm run test:e2e` com 2 e `php artisan test` com 29 (123 asserções), nenhum pulado, no CI do PR #35 em 09/11/2026 |
 | 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
 
