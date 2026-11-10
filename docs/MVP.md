@@ -1,36 +1,36 @@
 # MVP — E-commerce T-Shirt
 
-> Fonte única do estado. Criado em 31/10/2026; revisto em 09/11/2026 (ciclos de 07/11 e de 09/11/2026, 2ª rodada no PR #35; critério 10 em 10/11/2026; plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
+> Fonte única do estado. Criado em 31/10/2026; revisto em 10/11/2026 (ciclo da faixa de 90%, PR #39, decisões D1 a D7 de `engenharia/decisoes/2026-11-10-ciclo-faixa-90.md`; plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
 
 **Nível:** Vitrine (N2). Valem os 12 critérios.
 
-**Resumo:** 7 de 12 aplicáveis atendidos
+**Resumo:** 9 de 12 aplicáveis atendidos
 
 **Finalizado:** sim
 
-Tudo o que o código resolve está feito (decisão 4 do processo de 03/11). O critério 7 atinge a meta localmente (mediana de 2,47 s em 6 execuções, PR #35) e fica "Parcial" até a medição no site, que só muda depois da publicação (#28). Os critérios 2, 3, 5, 7 e 10 dependem do responsável e têm issue com `depende-do-responsavel` (#17, #18, #28 e #16). A `main` está protegida desde 10/11/2026 (#15); no 10 falta só o deploy pelo CI (#16).
+Tudo o que o código resolve está feito (decisão 4 do processo de 03/11). O critério 7 atinge a meta localmente (mediana de 2,47 s em 6 execuções, PR #35) e fica "Parcial" até a medição no site, que só muda depois da publicação (#28). Os critérios 5, 7 e 10 dependem do responsável e têm issue com `depende-do-responsavel` (#18, #28 e #16). A `main` está protegida desde 10/11/2026 (#15); no 10 falta só ligar o deploy pelo CI, que já está escrito (`publicar.yml`, #16).
 
 ## Problema e hipótese
 
 **Problema e público:** Responde a um teste técnico: quem avalia confere a vitrine, a administração e as respostas pelo link publicado, sem instalar nada.
 
-**Hipótese:** Um avaliador completa o roteiro de 5 minutos do README sem precisar de ajuda. Proposta inicial, para o responsável confirmar ou trocar (#17).
+**Hipótese:** Um avaliador completa o roteiro de 5 minutos do README sem precisar de ajuda. Meta decidida pelo coordenador em 10/11/2026 (decisão D1), revisável pelo responsável.
 
 ## 1. Critérios
 
-| # | Critério | Como verificar | Situação em 09/11/2026 (ciclo de 09/11, 2ª rodada) |
+| # | Critério | Como verificar | Situação em 10/11/2026 (ciclo da faixa de 90%) |
 |---|---|---|---|
 | 1 | Problema e público claros | Dá para explicar em uma frase | Atende |
-| 2 | Hipótese a validar | Existe uma aposta escrita, com meta | Parcial: meta proposta; confirmar é do responsável (#17) |
-| 3 | Fluxo principal completo | Uma pessoa conclui sem ajuda | Parcial: vitrine e API respondem (`curl` em 09/11/2026: HTTP 200); roteiro com pessoa de fora com o responsável (#17) |
+| 2 | Hipótese a validar | Existe uma aposta escrita, com meta | Atende: meta decidida pelo coordenador em 10/11/2026 (decisão D1), revisável pelo responsável |
+| 3 | Fluxo principal completo | Uma pessoa conclui sem ajuda | Atende (decisão D2): job `fluxo` do CI percorre no navegador, contra o Laravel de verdade (SQLite com o seed e o build em `/spa/`, mesma origem), vitrine com ordenação, login com a conta de demonstração, lista da administração e checkout até "Pedido realizado com sucesso!": 2 de 2 no run 42813288507 (PR #39, 10/11/2026). Site publicado, 10/11/2026: `/`, `/checkout` e `/api/produtos` com HTTP 200, `/sanctum/csrf-cookie` 204 e `/api/user` 401 sem sessão (o agente não entra com senha no site publicado). A pessoa de fora virou validação (#17) |
 | 4 | Escopo enxuto | O que não entra está registrado | Atende: loja de demonstração, sem pedido real |
-| 5 | Medição de uso | A métrica principal é coletada | Não atende: não coleta uso; decidir e criar a conta é do responsável (#18) |
+| 5 | Medição de uso | A métrica principal é coletada | Parcial: código pronto; falta a conta (decisão D5). GoatCounter (`https://douglasabnovato.goatcounter.com/count`, sem cookie) só no build de produção e fora do Playwright, com as páginas do Vue Router e o evento `pedido-fechado`; `npx vitest run` em `frontend`, 10/11/2026: 64 testes, 4 deles da medição. Chega ao site com a publicação (#28 ou #16) |
 | 6 | Falhas tratadas | Erro, vazio e carregamento têm resposta clara | Atende: vitrine, login, administração e checkout têm carregamento, vazio e erro com nova tentativa; upload sem GD com WebP grava o original (teste no CI) |
 | 7 | Desempenho aceitável | LCP de até 2,5 s no celular | Parcial: atinge a meta localmente; no ar depende da publicação. Local, build de produção servido com compressão como a produção (brotli), Lighthouse móvel, 09/11/2026 (PR #35): mediana de 2,44 s e 2,50 s em duas séries (6 execuções: 2,71, 2,14, 2,44, 2,50, 2,02 e 2,60 s; mediana geral 2,47 s; TBT de 194 a 504 ms), contra 2,85 e 2,75 s da sprint nas mesmas séries (mediana geral 2,80 s). Elemento do LCP: imagem do 1º produto. Margem pequena: o número no ar decide, depois da publicação pelo responsável (#28) e da medição na #24. No ar, ainda com a versão de 06/11/2026: 14,82 s. Detalhes em "Medições de 09/11/2026 (2ª rodada)" |
 | 8 | Acessibilidade básica | Lighthouse e teclado | Atende: vitrine com acessibilidade 1,00 no Lighthouse local (6 execuções de 09/11/2026). Administração no CI desde o ciclo de 09/11: `npm run test:e2e` (Playwright 1.64.1 e axe-core 4.14, WCAG 2.1 A e AA, API simulada, modos claro e escuro) percorre login, lista, exclusão por teclado e formulários, sem violação séria ou crítica, com foco visível em todo elemento alcançado por Tab e foco no título "Produtos" depois de excluir; 2 de 2 passaram localmente em 09/11/2026 (#31). Leitor de tela não testado |
 | 9 | Segurança e conformidade | Riscos decididos; termos de terceiros cumpridos | Atende: a conta de demonstração é de teste e fica pública por decisão do responsável (#9); `composer audit` sem alertas no CI do PR #27 (09/11/2026) |
-| 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: a `main` está protegida — `gh api repos/douglasabnovato/e-commerce-t-shirt/rulesets`, 10/11/2026: ruleset `principal-protegida` ativo (exige PR, bloqueia force push e exclusão), e o workflow `CI` (jobs `frontend` e `backend`) roda nos PRs para `main` e `developer/**` (#15). Falta: o deploy no alwaysdata é manual, sem ligação com o CI (#16) |
-| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: `npx vitest run` com 60 testes (14 do cliente HTTP com fetch, 2 do HTML das fontes e 3 casos novos do preload), `npm run test:e2e` com 2 e `php artisan test` com 29 (123 asserções), nenhum pulado, no CI do PR #35 em 09/11/2026 |
+| 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: a `main` está protegida — `gh api repos/douglasabnovato/e-commerce-t-shirt/rulesets`, 10/11/2026: ruleset `principal-protegida` ativo (exige PR, bloqueia force push e exclusão), e o workflow `CI` (jobs `frontend` e `backend`) roda nos PRs para `main` e `developer/**` (#15). Desde 10/11/2026 a regra exige os jobs `backend` e `frontend` verdes (`required_status_checks`). Falta: o deploy no alwaysdata é manual. O workflow `publicar.yml` (PR #39) publica depois do CI verde na `main`, mas fica pulado até o responsável criar os segredos SSH e a Variable `PUBLICAR_ALWAYSDATA` (#16) |
+| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: no CI do PR #39 (run 42813288507, 10/11/2026), nenhum pulado: `npx vitest run` com 64 testes, `npm run test:e2e` (administração com axe), `npm run test:fluxo` com 2 (fluxo principal com o backend) e `php artisan test` com 31 (127 asserções; 2 novos da rota `/api/saude`, que consulta o banco e responde 503 sem ele) |
 | 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
 
 ## 2. Tarefas
@@ -72,6 +72,19 @@ Leitura: tirar o axios reduziu o JS inicial de 56,7 para 40,5 KB transferidos (1
 Deslocamento de layout: o rodapé se desloca (CLS de 0,28 a 0,29) em 10 de 14 execuções da sprint e em 1 de 7 da versão final. Não é efeito das fontes (a troca de fonte deu 0,0005); fica na issue #36.
 
 ## Histórico
+
+### Tabela de 09/11/2026 (ciclo de 09/11/2026, 2ª rodada, PR #35)
+
+**Resumo:** 7 de 12 aplicáveis atendidos (1, 4, 6, 8, 9, 11 e 12). **Finalizado:** sim.
+
+| # | Critério | Situação |
+|---|---|---|
+| 2 | Hipótese a validar | Parcial: meta proposta; confirmar era do responsável (#17) |
+| 3 | Fluxo principal completo | Parcial: vitrine e API respondiam; sem teste do fluxo no navegador com o backend; roteiro com pessoa de fora (#17) |
+| 5 | Medição de uso | Não atende: não coletava uso (#18) |
+| 10 | Entrega confiável | Parcial: deploy manual, sem ligação com o CI (#16) |
+
+Os demais seguiam como na tabela atual.
 
 ### Tabela de 09/11/2026 (ciclo de 09/11/2026, 1ª rodada, PR #34)
 
