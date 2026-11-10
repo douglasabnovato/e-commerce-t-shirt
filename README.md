@@ -25,7 +25,7 @@ E-commerce de moda desenvolvido como resposta a um teste técnico Full Stack (La
 - [Plano de ação](#plano-de-ação)
 - [Requisitos do teste técnico](#requisitos-do-teste-técnico)
 - [Decisões técnicas](#decisões-técnicas)
-- [Estado e próximos passos (ciclo de 09/11/2026)](#estado-e-próximos-passos-ciclo-de-09112026)
+- [Estado e próximos passos (ciclo de 10/11/2026)](#estado-e-próximos-passos-ciclo-de-10112026)
 - [Créditos de imagens](#créditos-de-imagens)
 
 ---
@@ -400,9 +400,15 @@ Todas as decisões, com contexto, alternativas e motivo, estão em [`docs/DECISO
 
 --- 
 
-## Estado e próximos passos (ciclo de 09/11/2026)
+## Estado e próximos passos (ciclo de 10/11/2026)
 
-Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; **finalizado** no que o código resolve. O que falta (publicar, deploy pelo CI, medir uso, roteiro com pessoa de fora) é do responsável e tem issue. A `main` está protegida desde 10/11/2026 (ruleset `principal-protegida`).
+Nível: Vitrine (N2). **9 de 12** critérios do MVP atendidos; **finalizado** no que o código resolve. O que falta (publicar, ligar o deploy pelo CI, criar a conta de medição) é do responsável e tem issue. A `main` está protegida desde 10/11/2026 (ruleset `principal-protegida`).
+
+**O que foi feito em 10/11/2026** (PR #39)
+- Fluxo principal no navegador contra o Laravel de verdade, no CI: `cd frontend && npm run test:fluxo` (job `fluxo`; antes, backend com SQLite e o seed e `npm run build`).
+- `GET /api/saude` consulta o banco (503 sem banco).
+- Medição de uso pronta: GoatCounter sem cookie, só em produção, com o evento `pedido-fechado`. Falta a conta (#18).
+- Workflow `publicar.yml`: publica no alwaysdata depois do CI verde na `main`, travado pela Variable `PUBLICAR_ALWAYSDATA` até o responsável criar os segredos (#16).
 
 **O que foi feito no ciclo de 09/11/2026**
 - 2ª rodada (PR #35): o axios deu lugar a um cliente `fetch` com os mesmos cuidados de CSRF e erro; o CSS das fontes entra depois do evento `load`; a imagem do 1º produto é pré-carregada assim que a lista chega. LCP local, com o build comprimido como no site: mediana de 2,47 s (sprint: 2,80 s). O número no ar só muda depois da publicação (#28).
@@ -420,14 +426,14 @@ Nível: Vitrine (N2). **7 de 12** critérios do MVP atendidos; **finalizado** no
 **O que queremos fazer**
 - [#28](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/28) Publicar esta versão e converter as imagens do servidor (responsável).
 - [#15](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/15) Proteger a `main`: feito em 10/11/2026; a issue fecha no merge da `main`.
-- [#16](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/16) Publicar no alwaysdata pelo CI depois do merge (responsável).
-- [#17](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/17) Roteiro de 5 minutos com uma pessoa de fora e meta confirmada (responsável).
-- [#18](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/18) Decidir e ligar a medição de uso (responsável).
+- [#16](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/16) Ligar a publicação pelo CI: segredos SSH e Variable (responsável; passo a passo na issue).
+- [#17](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/17) Validar com uma pessoa de fora (validação de produto).
+- [#18](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/18) Criar a conta do GoatCounter `douglasabnovato` (responsável; o código já está pronto).
 - [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) Medir o LCP no site depois da publicação; [#33](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/33) preload da imagem também pelo Laravel.
 - [#36](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/36) Deslocamento do rodapé na vitrine; [#37](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/37) fontes servidas pelo próprio site.
 - [#30](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/30) Imagens da vitrine em dois tamanhos (`srcset`).
 - [#20](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/20) Filtro da vitrine por faixa de preço.
-- [#21](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/21) Teste de ponta a ponta de vitrine, login e checkout.
+- [#21](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/21) Teste de ponta a ponta de vitrine, login e checkout: feito no PR #39; fecha depois do merge na `main`.
 
 **Onde está a documentação**
 - Estado e critérios: [`docs/MVP.md`](docs/MVP.md).

@@ -12,6 +12,8 @@ const porta = Number(process.env.E2E_PORT ?? 4193)
 
 export default defineConfig({
   testDir: './e2e',
+  // O fluxo contra o backend de verdade tem config própria (playwright.fluxo.config.js).
+  testIgnore: 'fluxo/**',
   timeout: 120000,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

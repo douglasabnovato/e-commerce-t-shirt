@@ -24,7 +24,7 @@ export default defineConfig([
 
   {
     name: 'app/playwright',
-    files: ['e2e/**', 'playwright.config.js'],
+    files: ['e2e/**', 'playwright.config.js', 'playwright.fluxo.config.js'],
     languageOptions: {
       globals: {
         ...globals.node,
