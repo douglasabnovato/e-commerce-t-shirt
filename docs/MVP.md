@@ -1,18 +1,149 @@
 # MVP — E-commerce T-Shirt
 
-> Criado em 31/10/2026, com os critérios usados no `movies`. Revisto em 06/11/2026 (ciclo de 03/11/2026, plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)).
+> Fonte única do estado. Criado em 31/10/2026; revisto em 10/11/2026 (ciclo da faixa de 90%, PR #39, decisões D1 a D7 de `engenharia/decisoes/2026-11-10-ciclo-faixa-90.md`; plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
 
 **Nível:** Vitrine (N2). Valem os 12 critérios.
 
-**Finalizado:** não. Faltam o critério 7 (#24) e o critério 8 na administração (#19), que o agente resolve. Os critérios 2, 3, 5 e 10 dependem do responsável e têm issue com `depende-do-responsavel` (#15, #16, #17, #18).
+**Resumo:** 9 de 12 aplicáveis atendidos
+
+**Finalizado:** sim
+
+Tudo o que o código resolve está feito (decisão 4 do processo de 03/11). O critério 7 atinge a meta localmente (mediana de 2,47 s em 6 execuções, PR #35) e fica "Parcial" até a medição no site, que só muda depois da publicação (#28). Os critérios 5, 7 e 10 dependem do responsável e têm issue com `depende-do-responsavel` (#18, #28 e #16). A `main` está protegida desde 10/11/2026 (#15); no 10 falta só ligar o deploy pelo CI, que já está escrito (`publicar.yml`, #16).
 
 ## Problema e hipótese
 
 **Problema e público:** Responde a um teste técnico: quem avalia confere a vitrine, a administração e as respostas pelo link publicado, sem instalar nada.
 
-**Hipótese:** Um avaliador completa o roteiro de 5 minutos do README sem precisar de ajuda. Proposta inicial, para o responsável confirmar ou trocar (#17).
+**Hipótese:** Um avaliador completa o roteiro de 5 minutos do README sem precisar de ajuda. Meta decidida pelo coordenador em 10/11/2026 (decisão D1), revisável pelo responsável.
 
 ## 1. Critérios
+
+| # | Critério | Como verificar | Situação em 10/11/2026 (ciclo da faixa de 90%) |
+|---|---|---|---|
+| 1 | Problema e público claros | Dá para explicar em uma frase | Atende |
+| 2 | Hipótese a validar | Existe uma aposta escrita, com meta | Atende: meta decidida pelo coordenador em 10/11/2026 (decisão D1), revisável pelo responsável |
+| 3 | Fluxo principal completo | Uma pessoa conclui sem ajuda | Atende (decisão D2): job `fluxo` do CI percorre no navegador, contra o Laravel de verdade (SQLite com o seed e o build em `/spa/`, mesma origem), vitrine com ordenação, login com a conta de demonstração, lista da administração e checkout até "Pedido realizado com sucesso!": 2 de 2 no run 42813288507 (PR #39, 10/11/2026). Site publicado, 10/11/2026: `/`, `/checkout` e `/api/produtos` com HTTP 200, `/sanctum/csrf-cookie` 204 e `/api/user` 401 sem sessão (o agente não entra com senha no site publicado). A pessoa de fora virou validação (#17) |
+| 4 | Escopo enxuto | O que não entra está registrado | Atende: loja de demonstração, sem pedido real |
+| 5 | Medição de uso | A métrica principal é coletada | Parcial: código pronto; falta a conta (decisão D5). GoatCounter (`https://douglasabnovato.goatcounter.com/count`, sem cookie) só no build de produção e fora do Playwright, com as páginas do Vue Router e o evento `pedido-fechado`; `npx vitest run` em `frontend`, 10/11/2026: 64 testes, 4 deles da medição. Chega ao site com a publicação (#28 ou #16) |
+| 6 | Falhas tratadas | Erro, vazio e carregamento têm resposta clara | Atende: vitrine, login, administração e checkout têm carregamento, vazio e erro com nova tentativa; upload sem GD com WebP grava o original (teste no CI) |
+| 7 | Desempenho aceitável | LCP de até 2,5 s no celular | Parcial: atinge a meta localmente; no ar depende da publicação. Local, build de produção servido com compressão como a produção (brotli), Lighthouse móvel, 09/11/2026 (PR #35): mediana de 2,44 s e 2,50 s em duas séries (6 execuções: 2,71, 2,14, 2,44, 2,50, 2,02 e 2,60 s; mediana geral 2,47 s; TBT de 194 a 504 ms), contra 2,85 e 2,75 s da sprint nas mesmas séries (mediana geral 2,80 s). Elemento do LCP: imagem do 1º produto. Margem pequena: o número no ar decide, depois da publicação pelo responsável (#28) e da medição na #24. No ar, ainda com a versão de 06/11/2026: 14,82 s. Detalhes em "Medições de 09/11/2026 (2ª rodada)" |
+| 8 | Acessibilidade básica | Lighthouse e teclado | Atende: vitrine com acessibilidade 1,00 no Lighthouse local (6 execuções de 09/11/2026). Administração no CI desde o ciclo de 09/11: `npm run test:e2e` (Playwright 1.64.1 e axe-core 4.14, WCAG 2.1 A e AA, API simulada, modos claro e escuro) percorre login, lista, exclusão por teclado e formulários, sem violação séria ou crítica, com foco visível em todo elemento alcançado por Tab e foco no título "Produtos" depois de excluir; 2 de 2 passaram localmente em 09/11/2026 (#31). Leitor de tela não testado |
+| 9 | Segurança e conformidade | Riscos decididos; termos de terceiros cumpridos | Atende: a conta de demonstração é de teste e fica pública por decisão do responsável (#9); `composer audit` sem alertas no CI do PR #27 (09/11/2026) |
+| 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: a `main` está protegida — `gh api repos/douglasabnovato/e-commerce-t-shirt/rulesets`, 10/11/2026: ruleset `principal-protegida` ativo (exige PR, bloqueia force push e exclusão), e o workflow `CI` (jobs `frontend` e `backend`) roda nos PRs para `main` e `developer/**` (#15). Desde 10/11/2026 a regra exige os jobs `backend` e `frontend` verdes (`required_status_checks`). Falta: o deploy no alwaysdata é manual. O workflow `publicar.yml` (PR #39) publica depois do CI verde na `main`, mas fica pulado até o responsável criar os segredos SSH e a Variable `PUBLICAR_ALWAYSDATA` (#16) |
+| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: no CI do PR #39 (run 42813288507, 10/11/2026), nenhum pulado: `npx vitest run` com 64 testes, `npm run test:e2e` (administração com axe), `npm run test:fluxo` com 2 (fluxo principal com o backend) e `php artisan test` com 31 (127 asserções; 2 novos da rota `/api/saude`, que consulta o banco e responde 503 sem ele) |
+| 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
+
+## 2. Tarefas
+
+| # | Tarefa | Situação |
+|---|---|---|
+| 1 | Primeiros cards sem lazy loading e o primeiro com prioridade alta | Feito (PR #27) |
+| 2 | Upload em WebP de até 600 px e comando para as imagens antigas | Feito (PR #27) |
+| 3 | Acessibilidade da administração | Feito (PR #27, #19) |
+| 4 | Publicar e converter as imagens do servidor | Com o responsável (#28) |
+| 5 | Encurtar a cadeia até a primeira imagem | Feito no ciclo de 09/11 (#29) |
+| 6 | Imagens em dois tamanhos | Issue #30 |
+| 7 | Teste de acessibilidade da administração no CI | Feito no ciclo de 09/11 (#31) |
+| 8 | Filtro por faixa de preço | Issue #20 |
+| 9 | Teste de ponta a ponta | Issue #21 |
+| 10 | Pré-carregar a imagem do LCP e enxugar o JS inicial | Feito no PR #35 pelo front (axios trocado por fetch, fontes depois do `load`, preload da imagem); a injeção pelo Laravel segue na #33 |
+| 11 | Deslocamento do rodapé (CLS de 0,28 em parte das execuções) | Issue #36 |
+| 12 | Fontes servidas pelo próprio site | Issue #37 |
+
+## 3. Fora do MVP
+
+Pagamento, pedidos reais, filtros por cor e tamanho, CDN.
+
+## Medições de 09/11/2026 (2ª rodada)
+
+Lighthouse 12.8.2 local, perfil móvel simulado, `--headless --no-sandbox`, `timeout 150` por execução. Servidor local que imita a produção (SPA em `/spa`, `/api/produtos` com 12 produtos em WebP e 300 ms de atraso, `/api/user` com 401) e **comprime texto com brotli**, como o alwaysdata (conferido com `curl -H "Accept-Encoding: br"` no site em 09/11/2026: `content-encoding: br`). Portas próprias (4391, 4392, 4497 e 4498), conferidas pelo nome do arquivo JS servido. Execução válida: FCP observado abaixo de 2 s e TBT abaixo de 5 s. Versões alternadas na mesma série.
+
+| Versão | JS inicial (transferido) | Execuções válidas (LCP) | Mediana | Elemento do LCP | Fases do LCP (típicas) |
+|---|---|---|---|---|---|
+| Sprint (PR #34) | 56,7 KB | Série 1: 2,83, 2,64, 2,78. Série 3: 2,89, 2,69, 2,85. Série 4: 2,75, 2,84, 2,67 | 2,78 / 2,85 / 2,75 | 1ª imagem ou texto `<p>` | FCP simulado de 2,45 a 2,63 s; espera da imagem de 1,7 a 2,0 s |
+| Sem axios (1º commit) | 40,5 KB | Série 1: 2,73, 2,47 (e 2,54 com TBT de 10 s) | 2,54 (com a de TBT alto) | 1ª imagem ou texto | FCP ainda em cerca de 2,5 s: o CSS das fontes e as fontes de googleapis e gstatic entravam antes da primeira pintura |
+| Sem axios e fontes depois do `load` | 40,5 KB | Série 3: 2,93, 2,38, 2,61 | 2,61 | 1ª imagem | FCP simulado cai para 1,1 a 1,5 s; a espera da imagem (1,3 a 1,8 s) vira o limite |
+| **Final (PR #35):** também preload da 1ª imagem | 40,5 KB | Série 3: 2,71, 2,14, 2,44. Série 4: 2,50, 2,02, 2,60 | **2,44 / 2,50** (geral 2,47) | 1ª imagem | FCP de 1,1 a 1,3 s; espera da imagem de 1,3 a 1,7 s; carga de 0,01 a 0,1 s |
+
+Descartadas: 5 execuções com TBT acima de 7 s (CPU disputada por outros processos), 2 com FCP observado acima de 2 s e 1 sem pintura (NO_FCP). Acessibilidade 1,00 em todas as execuções da versão final.
+
+Leitura: tirar o axios reduziu o JS inicial de 56,7 para 40,5 KB transferidos (103,85 para 55,31 KB no `vite build`), mas não mudou o LCP sozinho, porque a primeira pintura simulada estava presa às fontes de dois domínios externos. Com as fontes depois do `load`, a primeira pintura caiu cerca de 1,2 s; o preload da imagem pela busca inicial encurtou a espera dela. A medição da 1ª rodada (3,65 s) foi feita sem compressão; com compressão, a própria sprint fica em cerca de 2,8 s.
+
+Deslocamento de layout: o rodapé se desloca (CLS de 0,28 a 0,29) em 10 de 14 execuções da sprint e em 1 de 7 da versão final. Não é efeito das fontes (a troca de fonte deu 0,0005); fica na issue #36.
+
+## Histórico
+
+### Tabela de 09/11/2026 (ciclo de 09/11/2026, 2ª rodada, PR #35)
+
+**Resumo:** 7 de 12 aplicáveis atendidos (1, 4, 6, 8, 9, 11 e 12). **Finalizado:** sim.
+
+| # | Critério | Situação |
+|---|---|---|
+| 2 | Hipótese a validar | Parcial: meta proposta; confirmar era do responsável (#17) |
+| 3 | Fluxo principal completo | Parcial: vitrine e API respondiam; sem teste do fluxo no navegador com o backend; roteiro com pessoa de fora (#17) |
+| 5 | Medição de uso | Não atende: não coletava uso (#18) |
+| 10 | Entrega confiável | Parcial: deploy manual, sem ligação com o CI (#16) |
+
+Os demais seguiam como na tabela atual.
+
+### Tabela de 09/11/2026 (ciclo de 09/11/2026, 1ª rodada, PR #34)
+
+| # | Critério | Como verificar | Situação em 09/11/2026 (ciclo de 09/11) |
+|---|---|---|---|
+| 1 | Problema e público claros | Dá para explicar em uma frase | Atende |
+| 2 | Hipótese a validar | Existe uma aposta escrita, com meta | Parcial: meta proposta; confirmar é do responsável (#17) |
+| 3 | Fluxo principal completo | Uma pessoa conclui sem ajuda | Parcial: vitrine e API respondem (`curl` em 09/11/2026: HTTP 200); roteiro com pessoa de fora com o responsável (#17) |
+| 4 | Escopo enxuto | O que não entra está registrado | Atende: loja de demonstração, sem pedido real |
+| 5 | Medição de uso | A métrica principal é coletada | Não atende: não coleta uso; decidir e criar a conta é do responsável (#18) |
+| 6 | Falhas tratadas | Erro, vazio e carregamento têm resposta clara | Atende: vitrine, login, administração e checkout têm carregamento, vazio e erro com nova tentativa; upload sem GD com WebP grava o original (teste no CI) |
+| 7 | Desempenho aceitável | LCP de até 2,5 s no celular | Não atende. No ar: 14,82 s (06/11/2026), muda só depois da publicação pelo responsável (#28). Local, build de produção, 09/11/2026 (ciclo de 09/11): 4,17, 3,41 e 3,65 s (mediana 3,65 s), contra 4,47, 4,30 e 2,74 s da sprint na mesma sessão. A lista agora sai do `index.html` junto com o JS; o limite passou a ser baixar e executar o JS (primeira pintura entre 1,9 e 3,0 s) (#33). Detalhes em "Medições de 09/11/2026 (ciclo de 09/11)" |
+| 8 | Acessibilidade básica | Lighthouse e teclado | Atende: vitrine com acessibilidade 1,00 no Lighthouse local (6 execuções de 09/11/2026). Administração no CI desde o ciclo de 09/11: `npm run test:e2e` (Playwright 1.64.1 e axe-core 4.14, WCAG 2.1 A e AA, API simulada, modos claro e escuro) percorre login, lista, exclusão por teclado e formulários, sem violação séria ou crítica, com foco visível em todo elemento alcançado por Tab e foco no título "Produtos" depois de excluir; 2 de 2 passaram localmente em 09/11/2026 (#31). Leitor de tela não testado |
+| 9 | Segurança e conformidade | Riscos decididos; termos de terceiros cumpridos | Atende: a conta de demonstração é de teste e fica pública por decisão do responsável (#9); `composer audit` sem alertas no CI do PR #27 (09/11/2026) |
+| 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: `main` sem proteção (#15) e deploy manual, sem ligação com o CI (#16) |
+| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: `npx vitest run` com 40 testes (10 novos da busca inicial da vitrine e da sessão), `npm run test:e2e` com 2 e `php artisan test` com 29 (123 asserções), nenhum pulado, em 09/11/2026 |
+| 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
+
+### Medições de 09/11/2026 (ciclo de 09/11/2026, 1ª rodada, sem compressão)
+
+Lighthouse 12.8.2 local, perfil móvel simulado, `--headless --no-sandbox`, `timeout 150` por execução, mesmo servidor local que imita a produção (SPA em `/spa`, `/api/produtos` com 12 produtos em WebP e 300 ms de atraso, `/api/user` com 401 imediato). Portas próprias (4191, 4192 e 4195).
+
+| Versão | Execuções (LCP · TBT) | Mediana | Elemento do LCP | Fases do LCP |
+|---|---|---|---|---|
+| Sprint (PR #27) | 4,47 s · 251 ms; 4,30 s · 281 ms; 2,74 s · 9.176 ms | 4,30 s | 1ª imagem nas duas primeiras; texto `<p>` na terceira (CPU em 100%) | Espera para a imagem começar a baixar de 1,03 s: HTML → JS → `/api/user` → pedaço da vitrine → `/api/produtos` → imagem |
+| Busca no `index.html` (1º commit) | 4,07 s · 174 ms; 4,15 s · 9.191 ms; 3,71 s · 219 ms | 4,07 s | 1ª imagem | O script inline esperava o CSS do Google Fonts (a busca só saía quando o CSS terminava) |
+| Ciclo de 09/11 (script antes do CSS e fontes sem bloquear) | 4,17 s · 272 ms; 3,41 s · 181 ms; 3,65 s · 9.081 ms | 3,65 s | 1ª ou 2ª imagem | `/api/produtos` sai junto com o JS; espera da imagem de 0,48 a 1,05 s; primeira pintura entre 1,9 e 3,0 s, pelo JS de cerca de 160 KB (#33) |
+
+Leitura: a cadeia até a imagem ficou com três idas (HTML → JS e API em paralelo → imagem) em vez de cinco. O que sobra é o tempo de baixar e executar o JS antes de qualquer pintura. Execuções com TBT acima de 9 s tiveram a CPU disputada por outros processos.
+
+### Tabela de 09/11/2026 (ciclo de 07/11/2026)
+
+| # | Critério | Como verificar | Situação em 09/11/2026 |
+|---|---|---|---|
+| 1 | Problema e público claros | Dá para explicar em uma frase | Atende |
+| 2 | Hipótese a validar | Existe uma aposta escrita, com meta | Parcial: meta proposta; confirmar é do responsável (#17) |
+| 3 | Fluxo principal completo | Uma pessoa conclui sem ajuda | Parcial: vitrine e API respondem (`curl` em 09/11/2026: HTTP 200); roteiro com pessoa de fora com o responsável (#17) |
+| 4 | Escopo enxuto | O que não entra está registrado | Atende: loja de demonstração, sem pedido real |
+| 5 | Medição de uso | A métrica principal é coletada | Não atende: não coleta uso; decidir e criar a conta é do responsável (#18) |
+| 6 | Falhas tratadas | Erro, vazio e carregamento têm resposta clara | Atende: vitrine, login, administração e checkout têm carregamento, vazio e erro com nova tentativa; upload sem GD com WebP grava o original (teste no CI) |
+| 7 | Desempenho aceitável | LCP de até 2,5 s no celular | Não atende. No ar: 14,82 s (06/11/2026), muda só depois da publicação pelo responsável (#28). Local, build de produção, 09/11/2026: antes 3,41, 10,27 e 10,00 s (mediana 10,00 s); depois 2,85, 3,94 e 4,49 s (mediana 3,94 s). A espera da imagem caiu de 9,1 s para zero ou 3,8 s; o limite agora é a cadeia JS → API (#29). Detalhes em "Medições de 09/11/2026" |
+| 8 | Acessibilidade básica | Lighthouse e teclado | Atende: vitrine com Lighthouse 100 (06/11/2026 no ar; 1,00 nas execuções locais de 09/11/2026). Administração em 09/11/2026 com Playwright 1.56 e axe-core 4.14 (WCAG 2.1 A e AA), API simulada, modo claro e escuro: login, lista, formulário novo e edição sem violações; 4 elementos por Tab no login e 8 na lista e no formulário, todos com foco visível; exclusão por teclado devolve o foco ao título "Produtos" (#19). Leitor de tela não testado |
+| 9 | Segurança e conformidade | Riscos decididos; termos de terceiros cumpridos | Atende: a conta de demonstração é de teste e fica pública por decisão do responsável (#9); `composer audit` sem alertas no CI do PR #27 (09/11/2026) |
+| 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: `main` sem proteção (#15) e deploy manual, sem ligação com o CI (#16) |
+| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: `npx vitest run` com 30 testes e `php artisan test` com 29 testes (123 asserções), nenhum pulado, no CI do PR #27 em 09/11/2026 |
+| 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
+
+### Medições de 09/11/2026 (ciclo de 07/11/2026)
+
+Lighthouse 12.8.2 local, perfil móvel simulado, `--headless --no-sandbox`, com o build de produção do Vue servido por um servidor local que imita a produção (SPA em `/spa`, `/api/produtos` com 12 produtos e 300 ms de atraso, imagens em `/storage`). O computador estava com a CPU em 100% por outros processos; o bloqueio total (TBT) chegou a 8,8 s em algumas execuções, o que aumenta a variação.
+
+| Versão | Imagens | Execuções | Mediana | Fases do LCP |
+|---|---|---|---|---|
+| Antes (`main`, 58e059d) | 1º produto em PNG de 1,22 MB (como o publicado), demais JPG do seed | 3,41, 10,27 e 10,00 s | 10,00 s | Espera para baixar a imagem de 9,1 s (o mesmo padrão do site publicado, de 9 a 10 s) |
+| Depois (PR #27) | Todas em WebP de 600 px (13 a 23 KB), como depois do `produtos:reduzir-imagens` | 2,85, 3,94 e 4,49 s | 3,94 s | Imagem com `fetchpriority="high"` baixa em 0,13 s; espera até 3,8 s pela cadeia JS → vitrine → API |
+
+Duas execuções do "depois" travaram sem gravar resultado e foram descartadas. O número no ar só muda depois da publicação pelo responsável (#28).
+
+### Tabela de 06/11/2026 (ciclo de 03/11/2026)
 
 | # | Critério | Como verificar | Situação em 06/11/2026 |
 |---|---|---|---|
@@ -31,28 +162,10 @@
 
 **Resultado:** 6 de 12 critérios atendidos (1, 4, 6, 9, 11 e 12), 4 parciais (2, 3, 8 e 10) e 2 não atendidos (5 e 7). Em 31/10 a tabela tinha 7: o critério 7 caiu com a medição de 06/11/2026. É um julgamento técnico.
 
-## 2. Tarefas
+### Medições de 02/11/2026
 
-| # | Tarefa | Situação |
-|---|---|---|
-| 1 | Manter o acesso de demonstração no README e no login | Feito (PR #12) |
-| 2 | Manter a conta de demonstração acessível, por ser de teste | Decidido pelo responsável (#9) |
-| 3 | Conferir o roteiro de 5 minutos em produção | Com o responsável (#17) |
-| 4 | Ordenar a vitrine por preço e nome | Feito (ciclo de 03/11/2026) |
-| 5 | CI nos PRs para a `developer` | Feito (ciclo de 03/11/2026) |
-| 6 | Acessibilidade da administração | Issue #19 |
-| 7 | Filtro por faixa de preço | Issue #20 |
-| 8 | Teste de ponta a ponta | Issue #21 |
-| 9 | Imagens menores e LCP de até 2,5 s | Issue #24 |
+Mediana do LCP de 2,19 s, desempenho 94, acessibilidade 100. Lighthouse 12.8.2 local, perfil móvel simulado, no site publicado, sem aparelho real.
 
-## 3. Fora do MVP
-
-Pagamento, pedidos reais e filtros por cor e tamanho. O deploy automático saiu desta lista: ele é a parte que falta do critério 10 (#16).
-
-## Medições de 02/11/2026
-
-Mediana do LCP de 2,19 s, desempenho 94, acessibilidade 100. Lighthouse 12.8.2 local, perfil móvel simulado, sem aparelho real.
-
-## Medições de 06/11/2026
+### Medições de 06/11/2026
 
 Lighthouse 12.8.2 local, perfil móvel simulado, no site publicado: LCP de 14,85, 14,81 e 14,82 s (mediana 14,82 s), desempenho 0,44 a 0,48, acessibilidade 100. Uma quarta execução falhou sem pintar a página (NO_FCP) e foi descartada. Fases do LCP: TTFB de 0,9 a 1,7 s, espera de 9 a 10 s antes de baixar a imagem e 3,7 s de download. A API de produtos respondeu em cerca de 1 s.

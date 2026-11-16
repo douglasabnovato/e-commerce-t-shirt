@@ -15,11 +15,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProdutoRequest;
 use App\Http\Resources\ProdutoResource;
 use App\Models\Produto;
+use App\Support\ImagemVitrine;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Throwable;
 
 class ProdutoController extends Controller
@@ -79,7 +82,7 @@ class ProdutoController extends Controller
     public function store(ProdutoRequest $request): JsonResponse
     {
         $dados = $request->safe()->except('imagem');
-        $dados['imagem'] = $request->file('imagem')->store(self::PASTA, self::DISCO);
+        $dados['imagem'] = $this->salvarImagem($request->file('imagem'));
 
         try {
             $produto = Produto::create($dados);
@@ -105,7 +108,7 @@ class ProdutoController extends Controller
         $imagemNova = null;
 
         if ($request->hasFile('imagem')) {
-            $imagemNova = $request->file('imagem')->store(self::PASTA, self::DISCO);
+            $imagemNova = $this->salvarImagem($request->file('imagem'));
             $dados['imagem'] = $imagemNova;
         }
 
@@ -135,6 +138,25 @@ class ProdutoController extends Controller
         $this->removerImagem($imagem);
 
         return response()->noContent();
+    }
+
+    /**
+     * Grava a imagem enviada já reduzida para a vitrine (WebP de até 600 px,
+     * #24). Sem GD com WebP, ou com imagem que o GD não lê, grava o arquivo
+     * original, como antes.
+     */
+    private function salvarImagem(UploadedFile $arquivo): string
+    {
+        $webp = ImagemVitrine::reduzir((string) $arquivo->get());
+
+        if ($webp === null) {
+            return $arquivo->store(self::PASTA, self::DISCO);
+        }
+
+        $caminho = self::PASTA.'/'.Str::random(40).'.webp';
+        Storage::disk(self::DISCO)->put($caminho, $webp);
+
+        return $caminho;
     }
 
     /**

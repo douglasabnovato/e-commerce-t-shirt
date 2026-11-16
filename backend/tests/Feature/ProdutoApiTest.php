@@ -10,6 +10,7 @@ namespace Tests\Feature;
 
 use App\Models\Produto;
 use App\Models\User;
+use App\Support\ImagemVitrine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -157,6 +158,73 @@ class ProdutoApiTest extends TestCase
         $produto = Produto::firstOrFail();
         Storage::disk('public')->assertExists($produto->imagem);
         $this->assertNotNull($resposta->json('data.imagem_url'));
+    }
+
+    /**
+     * Imagem grande vira WebP de até 600 px de largura, mantendo a
+     * proporção (#24). Precisa de GD com WebP, como no CI.
+     */
+    public function test_upload_grava_imagem_reduzida_em_webp(): void
+    {
+        $this->assertTrue(ImagemVitrine::disponivel(), 'O PHP do teste precisa de GD com WebP.');
+
+        $this->actingAs(User::factory()->create())
+            ->post('/api/produtos', [
+                ...$this->dadosValidos(),
+                'imagem' => UploadedFile::fake()->image('grande.png', 1200, 1680),
+            ], ['Accept' => 'application/json'])
+            ->assertCreated();
+
+        $caminho = Produto::firstOrFail()->imagem;
+        $this->assertStringEndsWith('.webp', $caminho);
+
+        $info = getimagesizefromstring(Storage::disk('public')->get($caminho));
+        $this->assertSame('image/webp', $info['mime']);
+        $this->assertSame(600, $info[0]);
+        $this->assertSame(840, $info[1]);
+    }
+
+    /**
+     * O comando produtos:reduzir-imagens converte as imagens antigas e,
+     * por padrão, mantém o original no disco.
+     */
+    public function test_comando_reduz_imagens_ja_salvas(): void
+    {
+        $this->assertTrue(ImagemVitrine::disponivel(), 'O PHP do teste precisa de GD com WebP.');
+
+        $original = UploadedFile::fake()->image('antiga.png', 1000, 1400)->store('produtos', 'public');
+        $produto = Produto::factory()->create(['imagem' => $original]);
+        $ausente = Produto::factory()->create(['imagem' => 'produtos/nao-existe.png']);
+
+        $this->artisan('produtos:reduzir-imagens')
+            ->expectsOutputToContain('1 imagem(ns) convertida(s).')
+            ->assertSuccessful();
+
+        $novo = $produto->fresh()->imagem;
+        $this->assertStringEndsWith('.webp', $novo);
+        Storage::disk('public')->assertExists($novo);
+        Storage::disk('public')->assertExists($original);
+        $this->assertSame('produtos/nao-existe.png', $ausente->fresh()->imagem);
+
+        $this->artisan('produtos:reduzir-imagens --apagar-originais')
+            ->expectsOutputToContain('0 imagem(ns) convertida(s).')
+            ->assertSuccessful();
+    }
+
+    /**
+     * Com --apagar-originais, o arquivo antigo sai do disco.
+     */
+    public function test_comando_apaga_originais_quando_pedido(): void
+    {
+        $this->assertTrue(ImagemVitrine::disponivel(), 'O PHP do teste precisa de GD com WebP.');
+
+        $original = UploadedFile::fake()->image('antiga.jpg', 800, 1120)->store('produtos', 'public');
+        $produto = Produto::factory()->create(['imagem' => $original]);
+
+        $this->artisan('produtos:reduzir-imagens --apagar-originais')->assertSuccessful();
+
+        Storage::disk('public')->assertMissing($original);
+        Storage::disk('public')->assertExists($produto->fresh()->imagem);
     }
 
     /**

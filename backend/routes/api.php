@@ -9,7 +9,25 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProdutoController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+
+/*
+ * Saúde que toca o banco: o /up do Laravel só prova que o PHP sobe. Esta rota
+ * conta os produtos; sem banco, responde 503.
+ */
+Route::get('/saude', function () {
+    try {
+        $produtos = DB::table('produtos')->count();
+
+        return response()->json(['ok' => true, 'banco' => 'ok', 'produtos' => $produtos]);
+    } catch (\Throwable $erro) {
+        Log::error('Saúde: o banco não respondeu.', ['erro' => $erro->getMessage()]);
+
+        return response()->json(['ok' => false, 'banco' => 'fora'], 503);
+    }
+})->name('saude');
 
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:login')

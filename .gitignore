@@ -37,3 +37,8 @@ desktop.ini
 
 # Material de consulta local (referências, repositórios antigos e PDF do enunciado)
 consultar/
+
+# Playwright
+/.build-e2e/
+frontend/test-results/
+frontend/playwright-report/

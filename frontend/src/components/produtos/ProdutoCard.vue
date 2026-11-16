@@ -1,13 +1,25 @@
 <!--
-  Card de produto da vitrine. A imagem usa lazy loading e dimensões
-  explícitas (evita que o layout "pule" enquanto carrega).
+  Card de produto da vitrine. A imagem tem dimensões explícitas (evita que
+  o layout "pule" enquanto carrega). Os primeiros cards ficam acima da dobra
+  e um deles vira o LCP: por isso carregam já (loading="eager"), e o
+  primeiro pede prioridade alta (fetchpriority="high"). Os demais usam
+  lazy loading (#24).
 -->
 <script setup>
+import { computed } from 'vue'
 import { formatarPreco } from '@/utils/formatadores'
 
-defineProps({
+const props = defineProps({
   produto: { type: Object, required: true },
+  /** Posição do card na grade, a partir de 0. */
+  posicao: { type: Number, default: Infinity },
 })
+
+/** Quantos cards carregam sem lazy loading: a primeira linha no desktop. */
+const CARDS_ACIMA_DA_DOBRA = 4
+
+const carregamento = computed(() => (props.posicao < CARDS_ACIMA_DA_DOBRA ? 'eager' : 'lazy'))
+const prioridade = computed(() => (props.posicao === 0 ? 'high' : 'auto'))
 </script>
 
 <template>
@@ -19,7 +31,8 @@ defineProps({
         :alt="produto.nome"
         width="232"
         height="325"
-        loading="lazy"
+        :loading="carregamento"
+        :fetchpriority="prioridade"
         decoding="async"
       />
       <span v-else class="card__sem-imagem">Sem imagem</span>

@@ -4,7 +4,7 @@
   com login (meta.exigeLogin no router e auth:sanctum na API).
 -->
 <script setup>
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import CarregandoIndicador from '@/components/ui/CarregandoIndicador.vue'
 import PaginacaoLista from '@/components/ui/PaginacaoLista.vue'
@@ -26,6 +26,7 @@ const carregando = ref(false)
 const excluindoId = ref(null)
 const erro = ref('')
 const sucesso = ref(MENSAGENS[rota.query.aviso] ?? '')
+const titulo = ref(null)
 
 /**
  * Carrega uma página da lista de produtos.
@@ -64,6 +65,10 @@ async function excluir(produto) {
     erro.value = extrairErro(falha).mensagem
   } finally {
     excluindoId.value = null
+    // O botão Excluir some com a linha; sem isto o foco cairia no <body> e
+    // quem usa teclado voltaria ao início da página (#19).
+    await nextTick()
+    titulo.value?.focus()
   }
 }
 
@@ -78,7 +83,7 @@ onMounted(() => {
 <template>
   <section class="container admin" aria-labelledby="titulo-admin">
     <header class="admin__topo">
-      <h1 id="titulo-admin">Produtos</h1>
+      <h1 id="titulo-admin" ref="titulo" tabindex="-1">Produtos</h1>
       <RouterLink :to="{ name: 'admin-produto-novo' }" class="botao">Novo produto</RouterLink>
     </header>
 

@@ -28,6 +28,7 @@ import {
 } from '@/utils/checkout/mascaras'
 import { CAMPOS, validarCampo, validarCep, validarFormulario } from '@/utils/checkout/validacoes'
 import { montarPedido } from '@/utils/checkout/pedido'
+import { contarEvento } from '@/utils/medicao'
 
 const sacola = useSacolaStore()
 
@@ -140,6 +141,7 @@ async function fecharPedido() {
       ...pedido,
     })
     pedidoConfirmado.value = confirmacao
+    contarEvento('pedido-fechado')
     await nextTick()
     mensagemSucesso.value?.focus()
   } catch {
