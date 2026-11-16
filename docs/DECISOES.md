@@ -182,3 +182,17 @@
 - **Motivo:** o roteiro de 5 minutos do README depende de entrar na administração sem ajuda. O risco é perder ou bagunçar produtos de demonstração, que o seed recria.
 - **Consequência:** agentes e revisões não removem a conta nem propõem trocar a senha. O critério 9 do `docs/MVP.md` cita esta decisão.
 - **Status:** ✅ aceita pelo responsável (#9) · registrada como ADR em 16/11/2026
+
+## D24 — Aceitar os alertas de desenvolvimento do Dependabot
+- **Contexto:** em 16/11/2026, às 14h39, `gh api "repos/douglasabnovato/e-commerce-t-shirt/dependabot/alerts?state=open&per_page=100"` devolveu 1 alerta aberto, no `frontend/package-lock.json`, com escopo de desenvolvimento. Regra para os alertas, ordem do responsável repassada pelo DG líder em 16/11/2026: "Regra geral por ADR. alertas que nao atrapalham a producao, pode passar. os que atrapalham, entender, escolher a melhor estrategia para manter a funcionalidade". "Produção" é o build do Vue em `/spa/` e o Laravel no alwaysdata.
+- **Decisão:** o alerta abaixo fica aceito, porque não chega à produção.
+
+| Alerta | Pacote | Severidade | Quem o puxa | Por que não chega à produção |
+|---|---|---|---|---|
+| #14 | `minimatch` 10.2.6 (GHSA-g3hv-75wg-m249) | média | `@vitest/eslint-plugin` → `@typescript-eslint/utils` → `@typescript-eslint/typescript-estree` 8.72.2; e `@vue/test-utils` → `js-beautify` 2.0.3 → `editorconfig` 3.0.2 e `glob` 13.0.7 | Só lint e testes, em `devDependencies`. `npm ls minimatch --all --omit=dev` em `frontend`: "(empty)". O build do Vite só leva o que o código da loja importa. A correção existe só no `minimatch` 11, e os três caminhos, nas versões mais novas, ainda pedem a 10. |
+
+- **Prova** (16/11/2026, `frontend/` no clone da `developer/sprint-2026-11-19`): `npm ls minimatch --all --package-lock-only` mostra os caminhos acima; com `--omit=dev`, nenhum. `npm audit --omit=dev --package-lock-only`: "found 0 vulnerabilities". Nenhum alerta foi fechado ou dispensado pela API.
+- **Alternativas:** `overrides` do `minimatch` para a 11 (versão maior que nenhum dos três pacotes declara, só para lint e testes); trocar o `@vue/test-utils` (perde a base dos testes de componente).
+- **Consequência:** o risco fica no ambiente de quem desenvolve e no CI, não no site. O alerta #14 segue aberto no GitHub e conta como coberto no critério 9 do `docs/MVP.md`. A #44 segue como o caminho para zerar o aviso quando sair a correção.
+- **Quando revisar:** se o `minimatch` aparecer no `npm audit --omit=dev`; quando `typescript-eslint`, `js-beautify` ou `editorconfig` aceitarem o `minimatch` 11; numa troca da ferramenta de testes ou de lint.
+- **Status:** ✅ aceita · 16/11/2026 (ordem do responsável)
