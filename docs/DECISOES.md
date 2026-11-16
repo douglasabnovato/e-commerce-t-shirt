@@ -174,3 +174,11 @@
 - **Alternativas:** manter o axios e só dividir pacotes; `ky` ou `ofetch` (outra dependência para o mesmo papel).
 - **Motivo:** o navegador já tem `fetch`; a troca tira uma dependência e cerca de 13 KB comprimidos do pacote inicial, sem mudar as telas. Testes em `src/__tests__/api.spec.js`.
 - **Status:** ✅ implementada · 09/11/2026
+
+## D23 — Conta de demonstração pública (risco aceito)
+- **Contexto:** o README publica o e-mail e a senha da conta `avaliador@tshirt.test`, para quem avalia entrar na administração sem pedir acesso. Com ela, qualquer pessoa pode criar, editar ou excluir produtos no site publicado (achado A4 de `AVALIACAO.md`).
+- **Decisão:** a conta segue pública. É uma conta de teste, criada pelo seed, sem dado pessoal, e o site é uma loja de demonstração, sem pedido real. Decidido pelo responsável na issue #9.
+- **Alternativas:** conta só de leitura; restaurar os produtos de tempos em tempos; tirar a senha do README e entregar o acesso a cada avaliador.
+- **Motivo:** o roteiro de 5 minutos do README depende de entrar na administração sem ajuda. O risco é perder ou bagunçar produtos de demonstração, que o seed recria.
+- **Consequência:** agentes e revisões não removem a conta nem propõem trocar a senha. O critério 9 do `docs/MVP.md` cita esta decisão.
+- **Status:** ✅ aceita pelo responsável (#9) · registrada como ADR em 16/11/2026

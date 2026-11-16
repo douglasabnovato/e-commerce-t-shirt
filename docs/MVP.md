@@ -1,37 +1,37 @@
 # MVP — E-commerce T-Shirt
 
-> Fonte única do estado. Criado em 31/10/2026; revisto em 10/11/2026 (ciclo da faixa de 90%, PR #39, decisões D1 a D7 de `engenharia/decisoes/2026-11-10-ciclo-faixa-90.md`; plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
+> Fonte única do estado. Criado em 31/10/2026; revisto em 16/11/2026 (ciclo de 16/11/2026, PR #42; plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
 
 **Nível:** Vitrine (N2). Valem os 12 critérios.
 
-**Resumo:** 9 de 12 aplicáveis atendidos
+**Resumo:** 8 de 12 aplicáveis atendidos
 
 **Finalizado:** sim
 
-Tudo o que o código resolve está feito (decisão 4 do processo de 03/11). O critério 7 atinge a meta localmente (mediana de 2,47 s em 6 execuções, PR #35) e fica "Parcial" até a medição no site, que só muda depois da publicação (#28). Os critérios 5, 7 e 10 dependem do responsável e têm issue com `depende-do-responsavel` (#18, #28 e #16). A `main` está protegida desde 10/11/2026 (#15); no 10 falta só ligar o deploy pelo CI, que já está escrito (`publicar.yml`, #16).
+Tudo o que o código resolve está em "Atende". Os quatro critérios em "Parcial" dependem do responsável, e cada um tem issue com `depende-do-responsavel`: 5 (conta do GoatCounter, #18), 7 (publicar a versão nova, #28), 9 (ligar os alertas do Dependabot, #43) e 10 (ligar a publicação pelo CI, #16). Em 10/11/2026 a tabela marcava 9 de 12. A revisão de 16/11/2026 tirou o "Atende" do critério 9, porque os alertas do Dependabot estão desligados (regra em decisão na engenharia#33).
 
 ## Problema e hipótese
 
-**Problema e público:** Responde a um teste técnico: quem avalia confere a vitrine, a administração e as respostas pelo link publicado, sem instalar nada.
+**Problema e público:** responde a um teste técnico. Quem avalia confere a vitrine, a administração e as respostas pelo link publicado, sem instalar nada.
 
-**Hipótese:** Um avaliador completa o roteiro de 5 minutos do README sem precisar de ajuda. Meta decidida pelo coordenador em 10/11/2026 (decisão D1), revisável pelo responsável.
+**Hipótese:** acreditamos que o roteiro de 5 minutos do README, com a conta de demonstração, fará quem avalia percorrer vitrine, administração, checkout e respostas sem ajuda. **Meta:** uma pessoa de fora conclui o roteiro em até 5 minutos, sem perguntar nada. **Saberemos quando** essa pessoa registrar o tempo na #17 e, depois da conta de medição (#18), o painel do GoatCounter mostrar visitas a `/login` e eventos `pedido-fechado`. Meta decidida pelo coordenador em 10/11/2026 (decisão D1), revisável pelo responsável.
 
 ## 1. Critérios
 
-| # | Critério | Como verificar | Situação em 10/11/2026 (ciclo da faixa de 90%) |
+| # | Critério | Como verificar | Situação em 16/11/2026 (ciclo de 16/11/2026) |
 |---|---|---|---|
-| 1 | Problema e público claros | Dá para explicar em uma frase | Atende |
-| 2 | Hipótese a validar | Existe uma aposta escrita, com meta | Atende: meta decidida pelo coordenador em 10/11/2026 (decisão D1), revisável pelo responsável |
-| 3 | Fluxo principal completo | Uma pessoa conclui sem ajuda | Atende (decisão D2): job `fluxo` do CI percorre no navegador, contra o Laravel de verdade (SQLite com o seed e o build em `/spa/`, mesma origem), vitrine com ordenação, login com a conta de demonstração, lista da administração e checkout até "Pedido realizado com sucesso!": 2 de 2 no run 42813288507 (PR #39, 10/11/2026). Site publicado, 10/11/2026: `/`, `/checkout` e `/api/produtos` com HTTP 200, `/sanctum/csrf-cookie` 204 e `/api/user` 401 sem sessão (o agente não entra com senha no site publicado). A pessoa de fora virou validação (#17) |
-| 4 | Escopo enxuto | O que não entra está registrado | Atende: loja de demonstração, sem pedido real |
-| 5 | Medição de uso | A métrica principal é coletada | Parcial: código pronto; falta a conta (decisão D5). GoatCounter (`https://douglasabnovato.goatcounter.com/count`, sem cookie) só no build de produção e fora do Playwright, com as páginas do Vue Router e o evento `pedido-fechado`; `npx vitest run` em `frontend`, 10/11/2026: 64 testes, 4 deles da medição. Chega ao site com a publicação (#28 ou #16) |
-| 6 | Falhas tratadas | Erro, vazio e carregamento têm resposta clara | Atende: vitrine, login, administração e checkout têm carregamento, vazio e erro com nova tentativa; upload sem GD com WebP grava o original (teste no CI) |
-| 7 | Desempenho aceitável | LCP de até 2,5 s no celular | Parcial: atinge a meta localmente; no ar depende da publicação. Local, build de produção servido com compressão como a produção (brotli), Lighthouse móvel, 09/11/2026 (PR #35): mediana de 2,44 s e 2,50 s em duas séries (6 execuções: 2,71, 2,14, 2,44, 2,50, 2,02 e 2,60 s; mediana geral 2,47 s; TBT de 194 a 504 ms), contra 2,85 e 2,75 s da sprint nas mesmas séries (mediana geral 2,80 s). Elemento do LCP: imagem do 1º produto. Margem pequena: o número no ar decide, depois da publicação pelo responsável (#28) e da medição na #24. No ar, ainda com a versão de 06/11/2026: 14,82 s. Detalhes em "Medições de 09/11/2026 (2ª rodada)" |
-| 8 | Acessibilidade básica | Lighthouse e teclado | Atende: vitrine com acessibilidade 1,00 no Lighthouse local (6 execuções de 09/11/2026). Administração no CI desde o ciclo de 09/11: `npm run test:e2e` (Playwright 1.64.1 e axe-core 4.14, WCAG 2.1 A e AA, API simulada, modos claro e escuro) percorre login, lista, exclusão por teclado e formulários, sem violação séria ou crítica, com foco visível em todo elemento alcançado por Tab e foco no título "Produtos" depois de excluir; 2 de 2 passaram localmente em 09/11/2026 (#31). Leitor de tela não testado |
-| 9 | Segurança e conformidade | Riscos decididos; termos de terceiros cumpridos | Atende: a conta de demonstração é de teste e fica pública por decisão do responsável (#9); `composer audit` sem alertas no CI do PR #27 (09/11/2026) |
-| 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: a `main` está protegida — `gh api repos/douglasabnovato/e-commerce-t-shirt/rulesets`, 10/11/2026: ruleset `principal-protegida` ativo (exige PR, bloqueia force push e exclusão), e o workflow `CI` (jobs `frontend` e `backend`) roda nos PRs para `main` e `developer/**` (#15). Desde 10/11/2026 a regra exige os jobs `backend` e `frontend` verdes (`required_status_checks`). Falta: o deploy no alwaysdata é manual. O workflow `publicar.yml` (PR #39) publica depois do CI verde na `main`, mas fica pulado até o responsável criar os segredos SSH e a Variable `PUBLICAR_ALWAYSDATA` (#16) |
-| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: no CI do PR #39 (run 42813288507, 10/11/2026), nenhum pulado: `npx vitest run` com 64 testes, `npm run test:e2e` (administração com axe), `npm run test:fluxo` com 2 (fluxo principal com o backend) e `php artisan test` com 31 (127 asserções; 2 novos da rota `/api/saude`, que consulta o banco e responde 503 sem ele) |
-| 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
+| 1 | Problema e público claros | Dá para explicar em uma frase | Atende: frase em "Problema e hipótese", acima, e no topo do README |
+| 2 | Hipótese a validar | Aposta escrita, com meta | Atende: "acreditamos que… meta… saberemos quando…", acima, com a meta de 5 minutos (D1, 10/11/2026) |
+| 3 | Fluxo principal completo | Teste de ponta a ponta no navegador, no CI | Atende: `npm run test:fluxo` no job `fluxo`, contra o Laravel de verdade (SQLite com o seed, build em `/spa/`, mesma origem): vitrine com ordenação, login com a conta de demonstração, lista da administração e checkout até "Pedido realizado com sucesso!". Run [43826555344](https://github.com/douglasabnovato/e-commerce-t-shirt/actions/runs/43826555344) do PR #42, 16/11/2026: 3 de 3 passaram |
+| 4 | Escopo enxuto | Seção "Fora do MVP" | Atende: seção 3, abaixo |
+| 5 | Medição de uso | Painel com visitas | Parcial: o código está pronto (GoatCounter sem cookie, só no build de produção; `medicao.spec.js` com 4 testes no run 43826555344), mas a conta não existe e o site publicado ainda roda a versão de 06/11/2026, sem o script (`curl` em 16/11/2026: `/api/saude` responde 404, rota que só existe na versão nova). Depende do responsável (#18 e #28) |
+| 6 | Falhas tratadas | Testes de falha de rede, lista vazia e espera | Atende: `vitrine-reserva.spec.js` (carregamento com área reservada, lista vazia, erro de rede com "Tentar novamente" que busca de novo) e `api.spec.js` (rede fora, tempo limite de 15 s, 401, 419, 422 e 500), entre os 69 testes do Vitest do run 43826555344, 16/11/2026. No backend, upload sem GD com WebP grava o original (`php artisan test`, 31 testes no mesmo run) |
+| 7 | Desempenho aceitável | Lighthouse móvel no site publicado, 3 execuções | Parcial: a medição que vale é no site, e ele ainda roda a versão de 06/11/2026, não a da `main` (#28): em 16/11/2026 o HTML publicado carrega `/spa/assets/index-ywWTI9j0.js` e `/api/saude` responde 404. A única medição no ar, de 06/11/2026 (mediana de 14,82 s), é desse build antigo e precisa ser refeita depois da publicação (#24). Local, build comprimido como no site, 09/11/2026 (PR #35): mediana de 2,47 s em 6 execuções, TBT de 194 a 504 ms, elemento do LCP: imagem do 1º produto. CLS: a vitrine reserva a área da grade durante o carregamento (#36); `vitrine-layout.spec.js` mede o CLS no navegador abaixo de 0,1, com a lista atrasada 800 ms, em desktop e celular (run 43826555344). Medir no ar depois da publicação (#24) |
+| 8 | Acessibilidade básica | axe (desktop, dados reais) e teclado | Atende: com os dados do seed, contra o Laravel, o job `fluxo` roda o axe (WCAG 2.1 A e AA, sem violação séria ou crítica) na vitrine, no Teste Técnico, no checkout, no login e na lista da administração, em largura de desktop, e confere foco visível por Tab na vitrine e no checkout (run 43826555344, 16/11/2026). `npm run test:e2e` repete axe e foco na administração e roda o axe no Teste Técnico, no checkout e na vitrine, em desktop e no celular de 375 px, sem rolagem horizontal (8 de 8 no mesmo run). O app não tem tema escuro próprio (nenhum `prefers-color-scheme` no CSS), então não há teste no escuro. Não há diálogo próprio para testar o Esc (a exclusão usa o `confirm` do navegador). Leitor de tela não testado (#45) |
+| 9 | Segurança e conformidade | `composer audit`, `npm audit --omit=dev` e alertas do Dependabot pela API | Parcial: os alertas do Dependabot estão desligados (`gh api "repos/douglasabnovato/e-commerce-t-shirt/dependabot/alerts?state=open&per_page=100"`, 16/11/2026: HTTP 403, "Dependabot alerts are disabled"). Sem a lista, o critério não fica "Atende" só pelo audit (regra em decisão na engenharia#33); ligar os alertas é do responsável (#43). Audits de 16/11/2026: `composer audit` sem avisos (local e no run 43826555344); `npm audit --omit=dev` em `frontend`, local: "found 0 vulnerabilities" (o CI não roda esse comando). Avisos só de desenvolvimento, todos moderados: `npm audit` local conta 7, e o `npm ci` do run 43826555344 conta 8 (#44). Nenhum segredo no código. A conta de demonstração é pública por decisão do responsável (risco aceito, #9 e D23 de `DECISOES.md`) |
+| 10 | Entrega confiável | CI nos PRs e principal protegida | Parcial: `gh api repos/douglasabnovato/e-commerce-t-shirt/rulesets/26932526`, 16/11/2026: ruleset `principal-protegida` ativo, com `deletion`, `non_fast_forward`, `pull_request` e `required_status_checks` (`backend`, `frontend` e `fluxo`); o CI roda nos PRs para `main` e `developer/**`. Falta a publicação sair do CI: `publicar.yml` fica pulado até o responsável criar os segredos SSH e a Variable `PUBLICAR_ALWAYSDATA` (#16) |
+| 11 | Testes dos fluxos críticos | Testes no CI, sem `skipped` | Atende: run 43826555344 do PR #42, 16/11/2026, sem nenhum teste pulado: Vitest 69, `npm run test:e2e` 8, `npm run test:fluxo` 3 e `php artisan test` 31 (127 asserções) |
+| 12 | Documentação honesta | README com comandos conferidos | Atende: comandos da seção "Testes" do README conferidos contra o `package.json` e o run 43826555344 em 16/11/2026. O README diz que o site publicado ainda roda a versão de 06/11/2026 (`curl` em 16/11/2026: `/` com HTTP 200, `/api/saude` com 404) |
 
 ## 2. Tarefas
 
@@ -41,14 +41,17 @@ Tudo o que o código resolve está feito (decisão 4 do processo de 03/11). O cr
 | 2 | Upload em WebP de até 600 px e comando para as imagens antigas | Feito (PR #27) |
 | 3 | Acessibilidade da administração | Feito (PR #27, #19) |
 | 4 | Publicar e converter as imagens do servidor | Com o responsável (#28) |
-| 5 | Encurtar a cadeia até a primeira imagem | Feito no ciclo de 09/11 (#29) |
+| 5 | Encurtar a cadeia até a primeira imagem | Feito (#29, na `main` desde 16/11/2026) |
 | 6 | Imagens em dois tamanhos | Issue #30 |
-| 7 | Teste de acessibilidade da administração no CI | Feito no ciclo de 09/11 (#31) |
+| 7 | Teste de acessibilidade da administração no CI | Feito (#31, na `main` desde 16/11/2026) |
 | 8 | Filtro por faixa de preço | Issue #20 |
-| 9 | Teste de ponta a ponta | Issue #21 |
-| 10 | Pré-carregar a imagem do LCP e enxugar o JS inicial | Feito no PR #35 pelo front (axios trocado por fetch, fontes depois do `load`, preload da imagem); a injeção pelo Laravel segue na #33 |
-| 11 | Deslocamento do rodapé (CLS de 0,28 em parte das execuções) | Issue #36 |
+| 9 | Teste de ponta a ponta | Feito (#21, na `main` desde 16/11/2026) |
+| 10 | Pré-carregar a imagem do LCP e enxugar o JS inicial | Feito pelo front (PR #35); a injeção pelo Laravel segue na #33 |
+| 11 | Deslocamento do rodapé (CLS) | Feito no PR #42 (#36); falta o Lighthouse no ar, com a #24 |
 | 12 | Fontes servidas pelo próprio site | Issue #37 |
+| 13 | axe com dados reais, celular no lugar do "escuro" falso, código e tabelas do Teste Técnico focáveis | Feito no PR #42; semântica das tabelas na #46 |
+| 14 | Ligar os alertas do Dependabot | Com o responsável (#43) |
+| 15 | Dependências de desenvolvimento | Issues #44 e #47 |
 
 ## 3. Fora do MVP
 
@@ -72,6 +75,25 @@ Leitura: tirar o axios reduziu o JS inicial de 56,7 para 40,5 KB transferidos (1
 Deslocamento de layout: o rodapé se desloca (CLS de 0,28 a 0,29) em 10 de 14 execuções da sprint e em 1 de 7 da versão final. Não é efeito das fontes (a troca de fonte deu 0,0005); fica na issue #36.
 
 ## Histórico
+
+### Tabela de 10/11/2026 (ciclo da faixa de 90%, PR #39)
+
+**Resumo:** 9 de 12 aplicáveis atendidos. **Finalizado:** sim. Na revisão de 16/11/2026, o critério 9 passou a "Parcial" (alertas do Dependabot desligados) e o 8 perdeu o "modos claro e escuro" (o app não tem tema escuro).
+
+| # | Critério | Como verificar | Situação em 10/11/2026 |
+|---|---|---|---|
+| 1 | Problema e público claros | Dá para explicar em uma frase | Atende |
+| 2 | Hipótese a validar | Existe uma aposta escrita, com meta | Atende: meta decidida pelo coordenador em 10/11/2026 (decisão D1), revisável pelo responsável |
+| 3 | Fluxo principal completo | Uma pessoa conclui sem ajuda | Atende (decisão D2): job `fluxo` do CI percorre no navegador, contra o Laravel de verdade (SQLite com o seed e o build em `/spa/`, mesma origem), vitrine com ordenação, login com a conta de demonstração, lista da administração e checkout até "Pedido realizado com sucesso!": 2 de 2 no run 42813288507 (PR #39, 10/11/2026). Site publicado, 10/11/2026: `/`, `/checkout` e `/api/produtos` com HTTP 200, `/sanctum/csrf-cookie` 204 e `/api/user` 401 sem sessão (o agente não entra com senha no site publicado). A pessoa de fora virou validação (#17) |
+| 4 | Escopo enxuto | O que não entra está registrado | Atende: loja de demonstração, sem pedido real |
+| 5 | Medição de uso | A métrica principal é coletada | Parcial: código pronto; falta a conta (decisão D5). GoatCounter (`https://douglasabnovato.goatcounter.com/count`, sem cookie) só no build de produção e fora do Playwright, com as páginas do Vue Router e o evento `pedido-fechado`; `npx vitest run` em `frontend`, 10/11/2026: 64 testes, 4 deles da medição. Chega ao site com a publicação (#28 ou #16) |
+| 6 | Falhas tratadas | Erro, vazio e carregamento têm resposta clara | Atende: vitrine, login, administração e checkout têm carregamento, vazio e erro com nova tentativa; upload sem GD com WebP grava o original (teste no CI) |
+| 7 | Desempenho aceitável | LCP de até 2,5 s no celular | Parcial: atinge a meta localmente; no ar depende da publicação. Local, build de produção servido com compressão como a produção (brotli), Lighthouse móvel, 09/11/2026 (PR #35): mediana de 2,44 s e 2,50 s em duas séries (6 execuções: 2,71, 2,14, 2,44, 2,50, 2,02 e 2,60 s; mediana geral 2,47 s; TBT de 194 a 504 ms), contra 2,85 e 2,75 s da sprint nas mesmas séries (mediana geral 2,80 s). Elemento do LCP: imagem do 1º produto. Margem pequena: o número no ar decide, depois da publicação pelo responsável (#28) e da medição na #24. No ar, ainda com a versão de 06/11/2026: 14,82 s. Detalhes em "Medições de 09/11/2026 (2ª rodada)" |
+| 8 | Acessibilidade básica | Lighthouse e teclado | Atende: vitrine com acessibilidade 1,00 no Lighthouse local (6 execuções de 09/11/2026). Administração no CI desde o ciclo de 09/11: `npm run test:e2e` (Playwright 1.64.1 e axe-core 4.14, WCAG 2.1 A e AA, API simulada, modos claro e escuro) percorre login, lista, exclusão por teclado e formulários, sem violação séria ou crítica, com foco visível em todo elemento alcançado por Tab e foco no título "Produtos" depois de excluir; 2 de 2 passaram localmente em 09/11/2026 (#31). Leitor de tela não testado |
+| 9 | Segurança e conformidade | Riscos decididos; termos de terceiros cumpridos | Atende: a conta de demonstração é de teste e fica pública por decisão do responsável (#9); `composer audit` sem alertas no CI do PR #27 (09/11/2026) |
+| 10 | Entrega confiável | Publicação só depois de CI verde | Parcial: a `main` está protegida — `gh api repos/douglasabnovato/e-commerce-t-shirt/rulesets`, 10/11/2026: ruleset `principal-protegida` ativo (exige PR, bloqueia force push e exclusão), e o workflow `CI` (jobs `frontend` e `backend`) roda nos PRs para `main` e `developer/**` (#15). Desde 10/11/2026 a regra exige os jobs `backend` e `frontend` verdes (`required_status_checks`). Falta: o deploy no alwaysdata é manual. O workflow `publicar.yml` (PR #39) publica depois do CI verde na `main`, mas fica pulado até o responsável criar os segredos SSH e a Variable `PUBLICAR_ALWAYSDATA` (#16) |
+| 11 | Testes dos fluxos críticos | Testes automatizados no CI | Atende: no CI do PR #39 (run 42813288507, 10/11/2026), nenhum pulado: `npx vitest run` com 64 testes, `npm run test:e2e` (administração com axe), `npm run test:fluxo` com 2 (fluxo principal com o backend) e `php artisan test` com 31 (127 asserções; 2 novos da rota `/api/saude`, que consulta o banco e responde 503 sem ele) |
+| 12 | Documentação honesta | Qualquer pessoa roda o projeto, e os números estão certos | Atende: README com o passo do comando `produtos:reduzir-imagens` na publicação |
 
 ### Tabela de 09/11/2026 (ciclo de 09/11/2026, 2ª rodada, PR #35)
 

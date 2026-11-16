@@ -32,12 +32,16 @@ const TELAS = [
  * Converte o markdown de uma resposta em HTML (HTML bruto desativado) e
  * desce um nível nos títulos: cada resposta já tem o seu h2, então os
  * títulos internos passam a h3, h4… e a hierarquia fica correta para
- * leitores de tela.
+ * leitores de tela. Blocos de código (`<pre>`) e tabelas recebem
+ * tabindex="0": eles rolam na horizontal (no celular, quase sempre), e quem
+ * usa só o teclado precisa focá-los para rolar (WCAG 2.1.1; regra
+ * scrollable-region-focusable do axe).
  */
 function renderizar(corpo) {
   return markdown
     .render(corpo)
     .replace(/<(\/?)h([1-5])(?=[\s>])/g, (_, barra, nivel) => `<${barra}h${Number(nivel) + 1}`)
+    .replace(/<(pre|table)>/g, '<$1 tabindex="0">')
 }
 </script>
 
@@ -94,7 +98,7 @@ function renderizar(corpo) {
         <p class="teste__arquivo">
           Arquivo entregue: <code>docs/respostas/{{ resposta.arquivo }}</code>
         </p>
-        <pre class="teste__codigo"><code>{{ resposta.corpo }}</code></pre>
+        <pre class="teste__codigo" tabindex="0"><code>{{ resposta.corpo }}</code></pre>
       </template>
       <p class="teste__voltar"><a href="#conteudo">Voltar ao topo</a></p>
     </article>
@@ -161,6 +165,13 @@ function renderizar(corpo) {
 
     :deep(code) {
       font-size: @texto-pequeno;
+    }
+
+    // Caminhos e endereços longos (código inline e links) quebram a linha no
+    // celular, em vez de empurrar a página para os lados (WCAG 1.4.10).
+    :deep(:not(pre) > code),
+    :deep(a) {
+      overflow-wrap: anywhere;
     }
 
     :deep(h3) {
