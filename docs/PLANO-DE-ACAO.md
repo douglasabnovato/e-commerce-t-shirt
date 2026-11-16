@@ -213,3 +213,66 @@
 **Revisão independente (09/11/2026).** Um subagente que não viu o código leu só o diff e esta seção. Corrigido: o tempo limite de 15 s terminava quando os cabeçalhos chegavam (no axios vale para a resposta inteira), e o teste "sem imagem" não provava a ausência do preload, porque o `try/catch` do script engolia o erro. Conferido sem mudança: CSRF, 419 sem laço, FormData sem `Content-Type`, 204 com `data: null`, preload sem `crossorigin` como o `<img>` e `href` atribuído como propriedade.
 
 **Vira issue.** #36 (deslocamento do rodapé), #37 (fontes no próprio site). Segue: #33 (preload pelo Laravel), #24 e #28 (medir no ar depois da publicação).
+
+## Ciclo de 16/11/2026
+
+> Branch `feature/2026-11-16`, criada a partir de `developer/sprint-2026-11-19` (que já tem o `laravel/framework` 12.72.0, PR #40); PR #42 para a sprint. O PR da sprint para a `main` (#41) fica aberto para o responsável. Nível: Vitrine (N2), 12 critérios.
+
+### Produto
+
+**Problema e público.** Quem avalia o teste técnico confere vitrine, administração, checkout e respostas pelo link, sem instalar nada. Hipótese, meta e "saberemos quando" em [`MVP.md`](MVP.md).
+
+**O que a análise achou.**
+- O `MVP.md` marcava 9 de 12. Dois "Atende" não batiam com a régua: o 9 contava só o audit, com os alertas do Dependabot desligados (API 403 em 16/11/2026); o 8 dizia "modos claro e escuro", mas o CSS não tem `prefers-color-scheme`, então o projeto "escuro" do Playwright repetia a tela clara. O axe também só rodava com a API simulada, nunca com os dados reais.
+- A `main` recebeu o PR #32 em 16/11/2026 e o CI ficou vermelho só no `composer audit` (run 43799448144); o PR #40 corrigiu na sprint. #21, #29 e #31 já estão na `main`.
+- O site publicado responde 200, mas roda a versão de 06/11/2026: `/api/saude`, rota nova, responde 404 (`curl`, 16/11/2026).
+
+**Pesquisa.**
+
+| Ideia | O que levamos para o projeto | Fonte |
+|---|---|---|
+| Conteúdo que chega depois desloca o que está abaixo; reservar o espaço antes evita o deslocamento (CLS "bom" até 0,1) | A vitrine reserva a altura da tela para a grade enquanto a lista carrega; teste mede o CLS no navegador | [web.dev: Optimize Cumulative Layout Shift](https://web.dev/articles/optimize-cls) |
+| Refluxo: o conteúdo deve caber em 320 CSS px de largura sem rolagem nas duas direções (tabelas e código podem rolar dentro de si) | Projeto "celular" de 375 px no Playwright, com a regra de nenhuma rolagem horizontal da página; caminhos e links longos quebram a linha | [W3C: Understanding SC 1.4.10 Reflow](https://www.w3.org/WAI/WCAG21/Understanding/reflow.html) |
+| Região que rola precisa ser alcançável pelo teclado | Blocos de código e tabelas do Teste Técnico com `tabindex="0"` | [Deque: scrollable-region-focusable](https://dequeuniversity.com/rules/axe/4.10/scrollable-region-focusable), [Playwright: accessibility testing](https://playwright.dev/docs/accessibility-testing) |
+| Os alertas do Dependabot são ligados nas configurações de segurança do repositório | Issue #43 com o passo a passo para o responsável | [GitHub Docs: configuring Dependabot alerts](https://docs.github.com/en/code-security/dependabot/dependabot-alerts/configuring-dependabot-alerts) |
+
+**Backlog priorizado (impacto × esforço).**
+
+| # | Item | Impacto | Esforço | Decisão |
+|---|---|---|---|---|
+| 1 | Critério 9 honesto e alertas do Dependabot | Alto | Baixo | Este ciclo (documento) e #43 (responsável) |
+| 2 | axe com dados reais, em desktop, no job `fluxo` | Alto | Baixo | Este ciclo |
+| 3 | Trocar o "escuro" falso pelo celular | Médio | Baixo | Este ciclo |
+| 4 | Reservar a área da vitrine (#36) | Médio | Baixo | Este ciclo |
+| 5 | Dependências de produção em patch e minor | Médio | Baixo | Este ciclo |
+| 6 | Filtro por preço (#20), `srcset` (#30), fontes (#37) | Médio | Médio | Seguem em issue |
+
+**Fora do escopo.** Publicar (#28), ligar a publicação pelo CI (#16) e a conta do GoatCounter (#18): são do responsável. Versões maiores de dependências.
+
+### Engenharia
+
+**Arquitetura.** Sem mudança. Laravel 12 entrega a API e o build do Vue em `/spa/`, na mesma origem. Os testes no navegador ficam em dois grupos: `npm run test:e2e` (build com `vite preview` e API simulada, projetos desktop e celular) e `npm run test:fluxo` (Laravel com SQLite e o seed, desktop). O axe, a varredura de foco e a medida da rolagem horizontal ficam em `frontend/e2e/apoio/acessibilidade.js`, usados pelos dois.
+
+**Riscos.**
+- O backend não roda no computador local (PHP 8.1; o projeto pede 8.2+). O `test:fluxo` só roda no CI.
+- `min-height: 100vh` na reserva da vitrine: numa categoria com poucos produtos, o rodapé sobe depois que a lista chega. Isso não conta no CLS da carga com a lista cheia, e o teste usa 12 produtos.
+- O `content-hash` do `composer.lock` foi mantido igual ao do `composer.json`: a atualização usou `platform.php` 8.3.0 só durante o comando.
+
+**Qualidade.**
+- Testes: Vitest 69 (5 novos da vitrine: reserva, lista vazia e erro com nova tentativa); `test:e2e` 8 (desktop e celular: administração, Teste Técnico, checkout e vitrine); `test:fluxo` 3 (1 novo: axe e foco com os dados do seed); `php artisan test` 31. Run 43826555344.
+- Acessibilidade: o axe com dados reais achou `scrollable-region-focusable` no Teste Técnico (run 43825133895), e o celular achou 77 px de rolagem lateral. Os dois foram corrigidos, e os testes falham sem a correção.
+- Desempenho: CLS da vitrine medido no navegador abaixo de 0,1; o LCP no ar só depois da publicação (#24).
+- Segurança: `composer audit` e `npm audit --omit=dev` sem avisos; alertas do Dependabot desligados (#43); 7 avisos moderados só de desenvolvimento (#44).
+
+**Definição de pronto.** Lint, Vitest, Playwright e build passam; CI verde no PR #42; revisão independente feita e erros corrigidos; `MVP.md`, README, `DEPLOY.md` e este plano atualizados; issues comentadas.
+
+### Plano de ação
+
+**Este ciclo executa.**
+1. Segurança: vue, vue-router, pinia, vitest e laravel/sanctum em patch ou minor; audits limpos.
+2. Honestidade: critério 9 em "Parcial"; critério 8 sem o "escuro"; hipótese com "saberemos quando"; cada "Atende" com comando, data e run.
+3. Código: axe com dados reais no `fluxo`; projeto celular no lugar do escuro; código e tabelas do Teste Técnico focáveis; sem rolagem lateral no celular.
+4. Melhoria de issue antiga: reserva da área da vitrine (#36), com teste de CLS.
+5. Documentação: `docs/DEPLOY.md`, ADR D23 da conta de demonstração, README.
+
+**Vira issue ou segue em issue.** Novas: #43 (alertas do Dependabot, responsável), #44 (avisos de desenvolvimento), #45 (leitor de tela), #46 (tabelas com invólucro), #47 (dependências de desenvolvimento). Seguem: #16, #17, #18 e #28 (responsável); #20, #24, #30, #33 e #37. #21, #29 e #31 fecham com a evidência da `main`.
