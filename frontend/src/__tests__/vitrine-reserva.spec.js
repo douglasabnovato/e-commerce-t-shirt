@@ -22,7 +22,7 @@ async function montar() {
   return mount(VitrineView, { global: { plugins: [router] } })
 }
 
-afterEach(() => vi.clearAllMocks())
+afterEach(() => vi.resetAllMocks())
 
 describe('vitrine: área reservada durante o carregamento', () => {
   it('reserva a área da grade, com o indicador dentro, enquanto a lista não chega', async () => {

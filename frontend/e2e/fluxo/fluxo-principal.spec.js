@@ -84,8 +84,11 @@ test('axe e foco visível com os dados do seed', async ({ page }) => {
   await page.goto('/')
   await expect(page.locator('.vitrine__grade article').first()).toBeVisible()
   expect(await violacoesGraves(page)).toEqual([])
-  const vitrine = await semFocoVisivel(page)
+  // Limite folgado, e a volta precisa terminar antes dele: senão parte dos
+  // elementos ficaria sem conferir.
+  const vitrine = await semFocoVisivel(page, 150)
   expect(vitrine.alcancados).toBeGreaterThan(5)
+  expect(vitrine.alcancados).toBeLessThan(150)
   expect(vitrine.falhas).toEqual([])
 
   await page.goto('/teste-tecnico')
@@ -95,8 +98,9 @@ test('axe e foco visível com os dados do seed', async ({ page }) => {
   await page.goto('/checkout')
   await expect(page.getByRole('button', { name: 'Fechar pedido' })).toBeVisible()
   expect(await violacoesGraves(page)).toEqual([])
-  const checkout = await semFocoVisivel(page, 80)
+  const checkout = await semFocoVisivel(page, 150)
   expect(checkout.alcancados).toBeGreaterThan(5)
+  expect(checkout.alcancados).toBeLessThan(150)
   expect(checkout.falhas).toEqual([])
 
   await page.goto('/login')
