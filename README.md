@@ -9,7 +9,7 @@ E-commerce de moda desenvolvido como resposta a um teste técnico Full Stack (La
 | E-mail | `avaliador@tshirt.test` |
 | Senha | `Avaliador@2026` |
 
-> **Status:** publicado em produção. O [plano de ação](#plano-de-ação) mostra o que está pronto; um item só recebe `[x]` quando está implementado e verificável.
+> **Status:** publicado em produção, ainda com a versão de 06/11/2026 (conferido com `curl` em 16/11/2026: `/` responde 200 e `/api/saude`, que só existe na versão nova, responde 404). A versão da `main` entra no ar quando o responsável publicar (#28). O [plano de ação](#plano-de-ação) mostra o que está pronto; um item só recebe `[x]` quando está implementado e verificável.
 > Loja de demonstração: nenhum pedido é processado ou cobrado.
 
 ---
@@ -25,7 +25,7 @@ E-commerce de moda desenvolvido como resposta a um teste técnico Full Stack (La
 - [Plano de ação](#plano-de-ação)
 - [Requisitos do teste técnico](#requisitos-do-teste-técnico)
 - [Decisões técnicas](#decisões-técnicas)
-- [Estado e próximos passos (ciclo de 10/11/2026)](#estado-e-próximos-passos-ciclo-de-10112026)
+- [Estado e próximos passos (ciclo de 16/11/2026)](#estado-e-próximos-passos-ciclo-de-16112026)
 - [Créditos de imagens](#créditos-de-imagens)
 
 ---
@@ -155,16 +155,21 @@ Com o `php artisan serve` rodando, abra `http://localhost:8000`: o Laravel entre
 
 ### Testes
 ```bash
-cd backend && php artisan test        # 29 testes de feature (API, autenticação, imagens e rota da SPA)
-cd frontend && npx vitest run         # 40 testes unitários (sacola, checkout, vitrine, respostas)
-cd frontend && npm run test:e2e       # acessibilidade da administração (Playwright + axe, API simulada)
+cd backend && php artisan test        # 31 testes (API, autenticação, imagens, /api/saude e rota da SPA)
+cd frontend && npx vitest run         # 69 testes unitários (sacola, checkout, vitrine, cliente HTTP, respostas)
+cd frontend && npx playwright install chromium   # uma vez, antes dos testes no navegador
+cd frontend && npm run test:e2e       # 8 testes: axe, foco e layout em desktop e celular (375 px), API simulada
+cd frontend && npm run test:fluxo     # 3 testes: fluxo principal e axe contra o Laravel (precisa do build e do banco)
 ```
+Para o `test:fluxo`, prepare antes o banco com o seed e o build em `backend/public/spa`, como no job `fluxo` do CI (`.github/workflows/ci.yml`). Os números são os do run 43826555344 (16/11/2026). O `@axe-core/playwright` 4.14 pede Node 22.12 ou mais novo.
 
 ---
 
 ## Deploy em produção
 
 Hospedagem: **alwaysdata, plano gratuito** ([D20](docs/DECISOES.md)). Um único site PHP com raiz em `backend/public`, MySQL gerenciado e HTTPS no subdomínio.
+
+Passo a passo completo, com a publicação pelo CI (`publicar.yml`) e o que é do responsável: [`docs/DEPLOY.md`](docs/DEPLOY.md). Abaixo, o resumo.
 
 ### Primeira publicação (resumo)
 1. No painel: banco MySQL criado, PHP 8.4 e acesso SSH ativados.
@@ -400,9 +405,17 @@ Todas as decisões, com contexto, alternativas e motivo, estão em [`docs/DECISO
 
 --- 
 
-## Estado e próximos passos (ciclo de 10/11/2026)
+## Estado e próximos passos (ciclo de 16/11/2026)
 
-Nível: Vitrine (N2). **9 de 12** critérios do MVP atendidos; **finalizado** no que o código resolve. O que falta (publicar, ligar o deploy pelo CI, criar a conta de medição) é do responsável e tem issue. A `main` está protegida desde 10/11/2026 (ruleset `principal-protegida`).
+Nível: Vitrine (N2). **8 de 12** critérios do MVP atendidos; **finalizado** no que o código resolve. Os quatro "Parcial" (medição, desempenho no ar, alertas do Dependabot e publicação pelo CI) dependem do responsável e têm issue. Em 10/11/2026 eram 9 de 12: a revisão de 16/11/2026 passou o critério 9 a "Parcial", porque os alertas do Dependabot estão desligados (#43). A `main` está protegida (ruleset `principal-protegida`, com os jobs `backend`, `frontend` e `fluxo` obrigatórios).
+
+**O que foi feito em 16/11/2026** (PR #42, para a sprint; entra na `main` pelo PR #41)
+- axe com os dados reais do seed, contra o Laravel, no job `fluxo`: vitrine, Teste Técnico, checkout, login e administração. Ele achou blocos de código e tabelas do Teste Técnico que rolavam sem foco pelo teclado; agora são focáveis.
+- O teste "escuro" foi trocado pelo celular de 375 px: o app não tem tema escuro próprio, e o teste só repetia a tela clara. No celular, o Teste Técnico rolava 77 px para o lado; caminhos e links longos agora quebram a linha.
+- A vitrine reserva a área da grade enquanto a lista carrega, e o rodapé não desce depois (#36). Teste mede o CLS no navegador, abaixo de 0,1.
+- Testes de lista vazia e de erro com "Tentar novamente" na vitrine.
+- Dependências: vue, vue-router, pinia e laravel/sanctum em patch ou minor; `npm audit --omit=dev` e `composer audit` sem avisos.
+- A conta de demonstração pública virou ADR (D23 de `docs/DECISOES.md`), como risco aceito (#9). Passo a passo de publicação em [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 **O que foi feito em 10/11/2026** (PR #39)
 - Fluxo principal no navegador contra o Laravel de verdade, no CI: `cd frontend && npm run test:fluxo` (job `fluxo`; antes, backend com SQLite e o seed e `npm run build`).
@@ -425,19 +438,21 @@ Nível: Vitrine (N2). **9 de 12** critérios do MVP atendidos; **finalizado** no
 
 **O que queremos fazer**
 - [#28](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/28) Publicar esta versão e converter as imagens do servidor (responsável).
-- [#15](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/15) Proteger a `main`: feito em 10/11/2026; a issue fecha no merge da `main`.
-- [#16](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/16) Ligar a publicação pelo CI: segredos SSH e Variable (responsável; passo a passo na issue).
-- [#17](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/17) Validar com uma pessoa de fora (validação de produto).
+- [#16](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/16) Ligar a publicação pelo CI: segredos SSH e Variable (responsável; passo a passo na issue e em `docs/DEPLOY.md`).
+- [#43](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/43) Ligar os alertas do Dependabot (responsável).
 - [#18](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/18) Criar a conta do GoatCounter `douglasabnovato` (responsável; o código já está pronto).
-- [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) Medir o LCP no site depois da publicação; [#33](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/33) preload da imagem também pelo Laravel.
-- [#36](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/36) Deslocamento do rodapé na vitrine; [#37](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/37) fontes servidas pelo próprio site.
-- [#30](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/30) Imagens da vitrine em dois tamanhos (`srcset`).
-- [#20](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/20) Filtro da vitrine por faixa de preço.
-- [#21](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/21) Teste de ponta a ponta de vitrine, login e checkout: feito no PR #39; fecha depois do merge na `main`.
+- [#17](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/17) Validar com uma pessoa de fora (validação de produto).
+- [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) Medir o LCP e o CLS no site depois da publicação; [#33](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/33) preload da imagem também pelo Laravel.
+- [#36](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/36) Deslocamento do rodapé: feito no PR #42; falta o Lighthouse no ar, com a #24.
+- [#45](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/45) Leitor de tela; [#46](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/46) tabelas do Teste Técnico com rolagem num invólucro.
+- [#44](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/44) e [#47](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/47) Dependências de desenvolvimento.
+- [#37](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/37) Fontes servidas pelo próprio site; [#30](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/30) imagens em dois tamanhos (`srcset`); [#20](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/20) filtro por faixa de preço.
 
 **Onde está a documentação**
 - Estado e critérios: [`docs/MVP.md`](docs/MVP.md).
 - Plano do ciclo, pesquisa e backlog: [`docs/PLANO-DE-ACAO.md`](docs/PLANO-DE-ACAO.md).
+- Publicação no alwaysdata: [`docs/DEPLOY.md`](docs/DEPLOY.md).
+- Decisões (ADRs): [`docs/DECISOES.md`](docs/DECISOES.md).
 
 ---
 
