@@ -1,14 +1,14 @@
 # MVP — E-commerce T-Shirt
 
-> Fonte única do estado. Criado em 31/10/2026; revisto em 16/11/2026 (ciclo de 16/11/2026, PR #42; plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
+> Fonte única do estado. Criado em 31/10/2026; revisto em 16/11/2026, 12h10 (alertas do Dependabot; antes, ciclo de 16/11/2026, PR #42; plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md)). As tabelas anteriores estão em [Histórico](#histórico).
 
 **Nível:** Vitrine (N2). Valem os 12 critérios.
 
 **Resumo:** 8 de 12 aplicáveis atendidos
 
-**Finalizado:** sim
+**Finalizado:** não
 
-Tudo o que o código resolve está em "Atende". Os quatro critérios em "Parcial" dependem do responsável, e cada um tem issue com `depende-do-responsavel`: 5 (conta do GoatCounter, #18), 7 (publicar a versão nova, #28), 9 (ligar os alertas do Dependabot, #43) e 10 (ligar a publicação pelo CI, #16). Em 10/11/2026 a tabela marcava 9 de 12. A revisão de 16/11/2026 tirou o "Atende" do critério 9, porque os alertas do Dependabot estão desligados (regra em decisão na engenharia#33).
+Três critérios em "Parcial" dependem do responsável, e cada um tem issue com `depende-do-responsavel`: 5 (conta do GoatCounter, #18), 7 (publicar a versão nova, #28) e 10 (ligar a publicação pelo CI, #16). O 9 também está em "Parcial", mas não só pelo responsável: os alertas do Dependabot foram ligados em 16/11/2026 e resta 1 aberto (`minimatch`, moderada, só de desenvolvimento, #44), sem correção sem versão maior. Por isso o Finalizado é "não". Em 10/11/2026 a tabela marcava 9 de 12.
 
 ## Problema e hipótese
 
@@ -28,7 +28,7 @@ Tudo o que o código resolve está em "Atende". Os quatro critérios em "Parcial
 | 6 | Falhas tratadas | Testes de falha de rede, lista vazia e espera | Atende: `vitrine-reserva.spec.js` (carregamento com área reservada, lista vazia, erro de rede com "Tentar novamente" que busca de novo) e `api.spec.js` (rede fora, tempo limite de 15 s, 401, 419, 422 e 500), entre os 69 testes do Vitest do run 43826555344, 16/11/2026. No backend, upload sem GD com WebP grava o original (`php artisan test`, 31 testes no mesmo run) |
 | 7 | Desempenho aceitável | Lighthouse móvel no site publicado, 3 execuções | Parcial: a medição que vale é no site, e ele ainda roda a versão de 06/11/2026, não a da `main` (#28): em 16/11/2026 o HTML publicado carrega `/spa/assets/index-ywWTI9j0.js` e `/api/saude` responde 404. A única medição no ar, de 06/11/2026 (mediana de 14,82 s), é desse build antigo e precisa ser refeita depois da publicação (#24). Local, build comprimido como no site, 09/11/2026 (PR #35): mediana de 2,47 s em 6 execuções, TBT de 194 a 504 ms, elemento do LCP: imagem do 1º produto. CLS: a vitrine reserva a área da grade durante o carregamento (#36); `vitrine-layout.spec.js` mede o CLS no navegador abaixo de 0,1, com a lista atrasada 800 ms, em desktop e celular (run 43826555344). Medir no ar depois da publicação (#24) |
 | 8 | Acessibilidade básica | axe (desktop, dados reais) e teclado | Atende: com os dados do seed, contra o Laravel, o job `fluxo` roda o axe (WCAG 2.1 A e AA, sem violação séria ou crítica) na vitrine, no Teste Técnico, no checkout, no login e na lista da administração, em largura de desktop, e confere foco visível por Tab na vitrine e no checkout (run 43826555344, 16/11/2026). `npm run test:e2e` repete axe e foco na administração e roda o axe no Teste Técnico, no checkout e na vitrine, em desktop e no celular de 375 px, sem rolagem horizontal (8 de 8 no mesmo run). O app não tem tema escuro próprio (nenhum `prefers-color-scheme` no CSS), então não há teste no escuro. Não há diálogo próprio para testar o Esc (a exclusão usa o `confirm` do navegador). Leitor de tela não testado (#45) |
-| 9 | Segurança e conformidade | `composer audit`, `npm audit --omit=dev` e alertas do Dependabot pela API | Parcial: os alertas do Dependabot estão desligados (`gh api "repos/douglasabnovato/e-commerce-t-shirt/dependabot/alerts?state=open&per_page=100"`, 16/11/2026: HTTP 403, "Dependabot alerts are disabled"). Sem a lista, o critério não fica "Atende" só pelo audit (regra em decisão na engenharia#33); ligar os alertas é do responsável (#43). Audits de 16/11/2026: `composer audit` sem avisos (local e no run 43826555344); `npm audit --omit=dev` em `frontend`, local: "found 0 vulnerabilities" (o CI não roda esse comando). Avisos só de desenvolvimento, todos moderados: `npm audit` local conta 7, e o `npm ci` do run 43826555344 conta 8 (#44). Nenhum segredo no código. A conta de demonstração é pública por decisão do responsável (risco aceito, #9 e D23 de `DECISOES.md`) |
+| 9 | Segurança e conformidade | `composer audit`, `npm audit --omit=dev` e alertas do Dependabot pela API | Parcial: alertas do Dependabot ligados em 16/11/2026. `gh api "repos/douglasabnovato/e-commerce-t-shirt/dependabot/alerts?state=open&per_page=100"` às 12h10: 1 aberto, o #14 (`minimatch` 10.2.6, moderada, desenvolvimento, `frontend/package-lock.json`, GHSA-g3hv-75wg-m249). 0 corrigidos na sprint-19; 1 resta (#44): a correção só existe no `minimatch` 11, e os três caminhos ainda pedem a 10 (`@vitest/eslint-plugin` → `@typescript-eslint/typescript-estree` 8.72.2, o mais novo, com `^10.2.2`; `@vue/test-utils` → `js-beautify` 2.0.3, o mais novo, → `editorconfig` `^3.0.2` e `glob` `^13.0.6`). Audits de 16/11/2026: `composer audit` sem avisos (local e no run 43826555344); `npm audit --omit=dev` em `frontend`, local: "found 0 vulnerabilities" (o CI não roda esse comando); `npm audit` completo, local, às 12h10: 7 moderados, todos da mesma cadeia do `minimatch`. Nenhum segredo no código. A conta de demonstração é pública por decisão do responsável (risco aceito, #9 e D23 de `DECISOES.md`) |
 | 10 | Entrega confiável | CI nos PRs e principal protegida | Parcial: `gh api repos/douglasabnovato/e-commerce-t-shirt/rulesets/26932526`, 16/11/2026: ruleset `principal-protegida` ativo, com `deletion`, `non_fast_forward`, `pull_request` e `required_status_checks` (`backend`, `frontend` e `fluxo`); o CI roda nos PRs para `main` e `developer/**`. Falta a publicação sair do CI: `publicar.yml` fica pulado até o responsável criar os segredos SSH e a Variable `PUBLICAR_ALWAYSDATA` (#16) |
 | 11 | Testes dos fluxos críticos | Testes no CI, sem `skipped` | Atende: run 43826555344 do PR #42, 16/11/2026, sem nenhum teste pulado: Vitest 69, `npm run test:e2e` 8, `npm run test:fluxo` 3 e `php artisan test` 31 (127 asserções) |
 | 12 | Documentação honesta | README com comandos conferidos | Atende: comandos da seção "Testes" do README conferidos contra o `package.json` e o run 43826555344 em 16/11/2026. O README diz que o site publicado ainda roda a versão de 06/11/2026 (`curl` em 16/11/2026: `/` com HTTP 200, `/api/saude` com 404) |
@@ -50,7 +50,7 @@ Tudo o que o código resolve está em "Atende". Os quatro critérios em "Parcial
 | 11 | Deslocamento do rodapé (CLS) | Feito no PR #42 (#36); falta o Lighthouse no ar, com a #24 |
 | 12 | Fontes servidas pelo próprio site | Issue #37 |
 | 13 | axe com dados reais, celular no lugar do "escuro" falso, código e tabelas do Teste Técnico focáveis | Feito no PR #42; semântica das tabelas na #46 |
-| 14 | Ligar os alertas do Dependabot | Com o responsável (#43) |
+| 14 | Ligar os alertas do Dependabot | Ligados pelo responsável em 16/11/2026 (#43); resta 1 alerta (#44) |
 | 15 | Dependências de desenvolvimento | Issues #44 e #47 |
 
 ## 3. Fora do MVP
@@ -75,6 +75,10 @@ Leitura: tirar o axios reduziu o JS inicial de 56,7 para 40,5 KB transferidos (1
 Deslocamento de layout: o rodapé se desloca (CLS de 0,28 a 0,29) em 10 de 14 execuções da sprint e em 1 de 7 da versão final. Não é efeito das fontes (a troca de fonte deu 0,0005); fica na issue #36.
 
 ## Histórico
+
+### Revisão de 16/11/2026, 12h10 (alertas do Dependabot)
+
+Antes: **Resumo** 8 de 12, **Finalizado:** sim, com o 9 em "Parcial" por alertas desligados (403, #43). Depois: alertas ligados; resta 1 aberto (#14, `minimatch`, #44), sem correção sem versão maior. O 9 segue "Parcial", agora por um motivo que não é só do responsável, e o Finalizado cai para "não". Resumo segue 8 de 12.
 
 ### Tabela de 10/11/2026 (ciclo da faixa de 90%, PR #39)
 
