@@ -55,4 +55,33 @@ describe('vitrine: área reservada durante o carregamento', () => {
   })
 })
 
+describe('vitrine: vazio e erro com nova tentativa (critério 6)', () => {
+  it('lista vazia mostra o aviso, sem grade', async () => {
+    listarProdutos.mockResolvedValue({
+      produtos: [],
+      paginacao: { current_page: 1, last_page: 1, total: 0 },
+    })
+    const tela = await montar()
+    await flushPromises()
+    expect(tela.text()).toContain('Nenhum produto encontrado nesta categoria.')
+    expect(tela.find('.vitrine__grade').exists()).toBe(false)
+  })
+
+  it('erro de rede mostra a mensagem, e "Tentar novamente" busca de novo', async () => {
+    listarProdutos.mockRejectedValueOnce(new TypeError('Failed to fetch')).mockResolvedValueOnce({
+      produtos: [{ id: 2, nome: 'Moletom', descricao: '', preco: 120, imagem_url: '/y.webp' }],
+      paginacao: { current_page: 1, last_page: 1, total: 1 },
+    })
+    const tela = await montar()
+    await flushPromises()
+    const alerta = tela.get('[role="alert"]')
+    expect(alerta.text().length).toBeGreaterThan(0)
+    await alerta.get('button').trigger('click')
+    await flushPromises()
+    expect(listarProdutos).toHaveBeenCalledTimes(2)
+    expect(tela.find('[role="alert"]').exists()).toBe(false)
+    expect(tela.findAll('.vitrine__grade li')).toHaveLength(1)
+  })
+})
+
 /* Fim de vitrine-reserva.spec.js */
