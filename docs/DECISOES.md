@@ -189,10 +189,10 @@
 
 | Alerta | Pacote | Severidade | Quem o puxa | Por que não chega à produção |
 |---|---|---|---|---|
-| #14 | `minimatch` 10.2.6 (GHSA-g3hv-75wg-m249) | média | `@vitest/eslint-plugin` → `@typescript-eslint/utils` → `@typescript-eslint/typescript-estree` 8.72.2; e `@vue/test-utils` → `js-beautify` 2.0.3 → `editorconfig` 3.0.2 e `glob` 13.0.7 | Só lint e testes, em `devDependencies`. `npm ls minimatch --all --omit=dev` em `frontend`: "(empty)". O build do Vite só leva o que o código da loja importa. A correção existe só no `minimatch` 11, e os três caminhos, nas versões mais novas, ainda pedem a 10. |
+| #14 | `minimatch` 10.2.6 (GHSA-g3hv-75wg-m249) | média | `@vitest/eslint-plugin` → `@typescript-eslint/utils` → `@typescript-eslint/typescript-estree` 8.72.2; e `@vue/test-utils` → `js-beautify` 2.0.3 → `editorconfig` 3.0.2 e `glob` 13.0.7 | Só lint e testes, em `devDependencies`. `npm ls minimatch --all --omit=dev` em `frontend`: "(empty)". O build do Vite só leva o que o código da loja importa. A correção existe só no `minimatch` 11. O `js-beautify` 2.0.3, o mais novo, ainda pede `editorconfig` `^3.0.2` e `glob` `^13.0.6`, que usam a 10; o `@typescript-eslint/typescript-estree` 8.73.0, publicado em 16/11/2026, já aceita a 11. |
 
 - **Prova** (16/11/2026, `frontend/` no clone da `developer/sprint-2026-11-19`): `npm ls minimatch --all --package-lock-only` mostra os caminhos acima; com `--omit=dev`, nenhum. `npm audit --omit=dev --package-lock-only`: "found 0 vulnerabilities". Nenhum alerta foi fechado ou dispensado pela API.
 - **Alternativas:** `overrides` do `minimatch` para a 11 (versão maior que nenhum dos três pacotes declara, só para lint e testes); trocar o `@vue/test-utils` (perde a base dos testes de componente).
 - **Consequência:** o risco fica no ambiente de quem desenvolve e no CI, não no site. O alerta #14 segue aberto no GitHub e conta como coberto no critério 9 do `docs/MVP.md`. A #44 segue como o caminho para zerar o aviso quando sair a correção.
-- **Quando revisar:** se o `minimatch` aparecer no `npm audit --omit=dev`; quando `typescript-eslint`, `js-beautify` ou `editorconfig` aceitarem o `minimatch` 11; numa troca da ferramenta de testes ou de lint.
+- **Quando revisar:** se o `minimatch` aparecer no `npm audit --omit=dev`; quando o `js-beautify` aceitar `editorconfig` 4 e `glob` 14 (que já usam o `minimatch` 11); numa troca da ferramenta de testes ou de lint.
 - **Status:** ✅ aceita · 16/11/2026 (ordem do responsável)
