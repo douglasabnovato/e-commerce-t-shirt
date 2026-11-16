@@ -161,7 +161,7 @@ cd frontend && npx playwright install chromium   # uma vez, antes dos testes no 
 cd frontend && npm run test:e2e       # 8 testes: axe, foco e layout em desktop e celular (375 px), API simulada
 cd frontend && npm run test:fluxo     # 3 testes: fluxo principal e axe contra o Laravel (precisa do build e do banco)
 ```
-Para o `test:fluxo`, prepare antes o banco com o seed e o build em `backend/public/spa`, como no job `fluxo` do CI (`.github/workflows/ci.yml`). Os números são os do run 43826555344 (16/11/2026). O `@axe-core/playwright` 4.14 pede Node 22.12 ou mais novo.
+Para o `test:fluxo`, prepare antes o banco com o seed e o build em `backend/public/spa`, como no job `fluxo` do CI (`.github/workflows/ci.yml`). Os números são os do run 43826555344 (16/11/2026). Node conforme o `engines` do `frontend/package.json` (`^22.18.0 || >=24.12.0`); o `@axe-core/playwright` 4.14 sozinho já pede 22.12 ou mais novo.
 
 ---
 
@@ -414,7 +414,7 @@ Nível: Vitrine (N2). **8 de 12** critérios do MVP atendidos; **finalizado** no
 - O teste "escuro" foi trocado pelo celular de 375 px: o app não tem tema escuro próprio, e o teste só repetia a tela clara. No celular, o Teste Técnico rolava 77 px para o lado; caminhos e links longos agora quebram a linha.
 - A vitrine reserva a área da grade enquanto a lista carrega, e o rodapé não desce depois (#36). Teste mede o CLS no navegador, abaixo de 0,1.
 - Testes de lista vazia e de erro com "Tentar novamente" na vitrine.
-- Dependências: vue, vue-router, pinia e laravel/sanctum em patch ou minor; `npm audit --omit=dev` e `composer audit` sem avisos.
+- Dependências: vue, vue-router, pinia, vitest e laravel/sanctum em patch ou minor, mais o `npm audit fix` sem versão maior; `npm audit --omit=dev` (local) e `composer audit` (local e CI) sem avisos.
 - A conta de demonstração pública virou ADR (D23 de `docs/DECISOES.md`), como risco aceito (#9). Passo a passo de publicação em [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 **O que foi feito em 10/11/2026** (PR #39)

@@ -255,24 +255,26 @@
 
 **Riscos.**
 - O backend não roda no computador local (PHP 8.1; o projeto pede 8.2+). O `test:fluxo` só roda no CI.
-- `min-height: 100vh` na reserva da vitrine: numa categoria com poucos produtos, o rodapé sobe depois que a lista chega. Isso não conta no CLS da carga com a lista cheia, e o teste usa 12 produtos.
+- `min-height: 100vh` na reserva da vitrine: numa categoria com poucos produtos, o rodapé sobe depois que a lista chega; na troca de página, de categoria ou de ordem, a grade some e dá lugar a um bloco da altura da tela. Isso não conta no CLS da carga com a lista cheia, e o teste usa 12 produtos.
 - O `content-hash` do `composer.lock` foi mantido igual ao do `composer.json`: a atualização usou `platform.php` 8.3.0 só durante o comando.
 
 **Qualidade.**
 - Testes: Vitest 69 (5 novos da vitrine: reserva, lista vazia e erro com nova tentativa); `test:e2e` 8 (desktop e celular: administração, Teste Técnico, checkout e vitrine); `test:fluxo` 3 (1 novo: axe e foco com os dados do seed); `php artisan test` 31. Run 43826555344.
 - Acessibilidade: o axe com dados reais achou `scrollable-region-focusable` no Teste Técnico (run 43825133895), e o celular achou 77 px de rolagem lateral. Os dois foram corrigidos, e os testes falham sem a correção.
 - Desempenho: CLS da vitrine medido no navegador abaixo de 0,1; o LCP no ar só depois da publicação (#24).
-- Segurança: `composer audit` e `npm audit --omit=dev` sem avisos; alertas do Dependabot desligados (#43); 7 avisos moderados só de desenvolvimento (#44).
+- Segurança: `composer audit` sem avisos (local e no CI) e `npm audit --omit=dev` sem avisos (local, 16/11/2026; o CI não roda esse comando); alertas do Dependabot desligados (#43); avisos moderados só de desenvolvimento: 7 no `npm audit` local e 8 no `npm ci` do run 43826555344 (#44).
 
 **Definição de pronto.** Lint, Vitest, Playwright e build passam; CI verde no PR #42; revisão independente feita e erros corrigidos; `MVP.md`, README, `DEPLOY.md` e este plano atualizados; issues comentadas.
 
 ### Plano de ação
 
 **Este ciclo executa.**
-1. Segurança: vue, vue-router, pinia, vitest e laravel/sanctum em patch ou minor; audits limpos.
+1. Segurança: `npm update` de vue, vue-router, pinia e vitest e `npm audit fix` sem versão maior (o lock trouxe junto patch e minor de dependências de desenvolvimento, como `@vue/test-utils` 2.6.0 e `eslint` 10.15); laravel/sanctum 4.4.0; audits de produção limpos.
 2. Honestidade: critério 9 em "Parcial"; critério 8 sem o "escuro"; hipótese com "saberemos quando"; cada "Atende" com comando, data e run.
 3. Código: axe com dados reais no `fluxo`; projeto celular no lugar do escuro; código e tabelas do Teste Técnico focáveis; sem rolagem lateral no celular.
 4. Melhoria de issue antiga: reserva da área da vitrine (#36), com teste de CLS.
 5. Documentação: `docs/DEPLOY.md`, ADR D23 da conta de demonstração, README.
 
 **Vira issue ou segue em issue.** Novas: #43 (alertas do Dependabot, responsável), #44 (avisos de desenvolvimento), #45 (leitor de tela), #46 (tabelas com invólucro), #47 (dependências de desenvolvimento). Seguem: #16, #17, #18 e #28 (responsável); #20, #24, #30, #33 e #37. #21, #29 e #31 fecham com a evidência da `main`.
+
+**Revisão independente (16/11/2026).** Um subagente que não viu o raciocínio leu só o diff do PR #42 e os logs do CI. Erros corrigidos: o número de avisos de desenvolvimento não batia com o run (7 no `npm audit` local, 8 no `npm ci` do run 43826555344; agora os dois aparecem) e o `npm audit --omit=dev` não dizia que é local. Sugestões aplicadas: mocks zerados com `vi.resetAllMocks`, varredura de foco do `fluxo` com limite folgado e conferência de que terminou antes dele, Node conforme o `engines`, lista completa do que o `npm update` trouxe e o risco da reserva na troca de página. Ficam como estão: o projeto celular parte do Chrome de desktop (serve para largura e refluxo; o app não detecta celular pelo user agent) e o Tab no celular, que não é usado como evidência de teclado no celular. Teste do `confirm` cancelado pelo teclado vira parte da #45.
