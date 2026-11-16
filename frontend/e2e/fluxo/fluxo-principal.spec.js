@@ -8,6 +8,7 @@
  */
 
 import { expect, test } from '@playwright/test'
+import { semFocoVisivel, violacoesGraves } from '../apoio/acessibilidade.js'
 
 /** Converte "R$ 1.234,56" em número. */
 const paraNumero = (texto) => Number(texto.replace(/[^\d,]/g, '').replace(',', '.'))
@@ -69,6 +70,48 @@ test('vitrine, login, administração e checkout', async ({ page }) => {
   await expect(page.getByText('Endereço encontrado.', { exact: false })).toBeVisible()
   await page.getByRole('button', { name: 'Fechar pedido' }).click()
   await expect(page.getByText('Pedido realizado com sucesso!')).toBeVisible()
+})
+
+// Critério 8 com dados reais e largura de desktop: axe (WCAG 2.1 A e AA,
+// sem violação séria ou crítica) em cada página do roteiro, com os
+// produtos e as imagens do seed, e foco visível por Tab na vitrine e no
+// checkout. O app não tem tema escuro próprio; o celular fica no test:e2e.
+test('axe e foco visível com os dados do seed', async ({ page }) => {
+  await page.route(/viacep\.com\.br|brasilapi\.com\.br|apicep\.com|correios\.com\.br|widenet\.host/, (rota) =>
+    rota.abort(),
+  )
+
+  await page.goto('/')
+  await expect(page.locator('.vitrine__grade article').first()).toBeVisible()
+  expect(await violacoesGraves(page)).toEqual([])
+  // Limite folgado, e a volta precisa terminar antes dele: senão parte dos
+  // elementos ficaria sem conferir.
+  const vitrine = await semFocoVisivel(page, 150)
+  expect(vitrine.alcancados).toBeGreaterThan(5)
+  expect(vitrine.alcancados).toBeLessThan(150)
+  expect(vitrine.falhas).toEqual([])
+
+  await page.goto('/teste-tecnico')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  expect(await violacoesGraves(page)).toEqual([])
+
+  await page.goto('/checkout')
+  await expect(page.getByRole('button', { name: 'Fechar pedido' })).toBeVisible()
+  expect(await violacoesGraves(page)).toEqual([])
+  const checkout = await semFocoVisivel(page, 150)
+  expect(checkout.alcancados).toBeGreaterThan(5)
+  expect(checkout.alcancados).toBeLessThan(150)
+  expect(checkout.falhas).toEqual([])
+
+  await page.goto('/login')
+  await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
+  expect(await violacoesGraves(page)).toEqual([])
+  await page.getByLabel('E-mail').fill('avaliador@tshirt.test')
+  await page.getByLabel('Senha').fill('Avaliador@2026')
+  await page.getByRole('button', { name: 'Entrar' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Produtos' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Excluir / }).first()).toBeVisible()
+  expect(await violacoesGraves(page)).toEqual([])
 })
 
 /* Fim de fluxo-principal.spec.js */

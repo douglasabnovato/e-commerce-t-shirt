@@ -21,7 +21,7 @@
 | A1 | Alta | Os testes do frontend não rodavam, e nada avisava | PR #7 |
 | A2 | Média | Sem CI | PR #7 |
 | A3 | Média | Dependências com falhas de segurança | PR #7 |
-| A4 | A decidir | A senha de demonstração no README dá acesso à administração em produção: qualquer pessoa pode alterar ou excluir produtos | Decisão do responsável |
+| A4 | A decidir | A senha de demonstração no README dá acesso à administração em produção: qualquer pessoa pode alterar ou excluir produtos | Decidido: risco aceito pelo responsável (#9), registrado na D23 de `DECISOES.md` em 16/11/2026 |
 | A5 | Baixa | O deploy é manual, sem ligação com o CI | Próximo ciclo |
 
 ## Nota

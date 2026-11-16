@@ -92,7 +92,13 @@ watch(() => [rota.query.categoria, rota.query.pagina, ordem.value], carregar, { 
       </div>
     </header>
 
-    <CarregandoIndicador v-if="carregando" texto="Carregando produtos…" />
+    <!--
+      Enquanto a lista carrega, a área da grade fica reservada (altura da
+      tela), para o rodapé não subir e depois descer com os cards (#36, CLS).
+    -->
+    <div v-if="carregando" class="vitrine__reserva" data-testid="vitrine-reserva">
+      <CarregandoIndicador texto="Carregando produtos…" />
+    </div>
 
     <div v-else-if="erro" class="alerta alerta--erro" role="alert">
       <p>{{ erro }}</p>
@@ -159,6 +165,10 @@ watch(() => [rota.query.categoria, rota.query.pagina, ordem.value], carregar, { 
     select {
       width: auto;
     }
+  }
+
+  &__reserva {
+    min-height: 100vh;
   }
 
   &__grade {

@@ -1,13 +1,16 @@
 /*
  * Acessibilidade da administração (#31, critério 8 do MVP).
  * Percorre login, lista, exclusão e formulários com a API simulada por
- * page.route (sem banco), nos projetos claro e escuro. Falha com violação
- * séria ou crítica do axe (WCAG 2.1 A e AA) ou com elemento alcançado por
- * Tab sem foco visível. As credenciais são fictícias: a API é simulada.
+ * page.route (sem banco), na largura de desktop e na de celular (375 px).
+ * O app não tem tema escuro próprio (nenhum prefers-color-scheme no CSS),
+ * então não há projeto "escuro": ele só repetiria a tela clara. Falha com
+ * violação séria ou crítica do axe (WCAG 2.1 A e AA), com elemento
+ * alcançado por Tab sem foco visível ou com rolagem horizontal da página.
+ * As credenciais são fictícias: a API é simulada.
  */
 
 import { expect, test } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
+import { rolagemHorizontal, semFocoVisivel, violacoesGraves } from './apoio/acessibilidade.js'
 
 // PNG de 1×1 pixel para as miniaturas.
 const PNG = Buffer.from(
@@ -74,53 +77,6 @@ async function simularApi(page) {
   })
 }
 
-/** Roda o axe e devolve as violações sérias ou críticas. */
-async function violacoesGraves(page) {
-  const { violations } = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze()
-  return violations
-    .filter((v) => v.impact === 'serious' || v.impact === 'critical')
-    .map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)
-}
-
-/**
- * Percorre a página com Tab a partir do início e devolve os elementos
- * alcançados sem contorno nem sombra de foco. Cada elemento é marcado com
- * data-e2e-visto, para que dois controles com o mesmo nome não encerrem a
- * volta antes do fim; contorno transparente não conta como visível.
- */
-async function semFocoVisivel(page, maximo = 60) {
-  await page.evaluate(() => {
-    document.querySelectorAll('[data-e2e-visto]').forEach((el) => el.removeAttribute('data-e2e-visto'))
-    document.activeElement?.blur()
-  })
-  await page.locator('body').focus()
-  let alcancados = 0
-  const falhas = []
-  for (let i = 0; i < maximo; i += 1) {
-    await page.keyboard.press('Tab')
-    const info = await page.evaluate(() => {
-      const el = document.activeElement
-      if (!el || el === document.body || el.hasAttribute('data-e2e-visto')) return null
-      el.setAttribute('data-e2e-visto', '')
-      const estilo = getComputedStyle(el)
-      const transparente = (cor) => cor === 'transparent' || /rgba\(.*,\s*0\)$/.test(cor)
-      const contorno =
-        estilo.outlineStyle !== 'none' &&
-        parseFloat(estilo.outlineWidth) > 0 &&
-        !transparente(estilo.outlineColor)
-      const sombra = estilo.boxShadow && estilo.boxShadow !== 'none'
-      const nome = `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''} "${(el.getAttribute('aria-label') ?? el.textContent ?? '').trim().slice(0, 40)}"`
-      return { nome, visivel: contorno || sombra }
-    })
-    if (!info) break
-    alcancados += 1
-    if (!info.visivel) falhas.push(info.nome)
-  }
-  return { alcancados, falhas }
-}
-
 test.beforeEach(async ({ page }) => {
   await simularApi(page)
 })
@@ -129,6 +85,7 @@ test('login, lista, exclusão e formulários sem violações e com foco visível
   await page.goto('/login')
   await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
   expect(await violacoesGraves(page)).toEqual([])
+  expect(await rolagemHorizontal(page)).toBe(0)
   const login = await semFocoVisivel(page)
   expect(login.alcancados).toBeGreaterThan(2)
   expect(login.falhas).toEqual([])
@@ -140,6 +97,7 @@ test('login, lista, exclusão e formulários sem violações e com foco visível
   await expect(page).toHaveURL(/\/admin\/produtos$/)
   await expect(page.getByRole('row', { name: /Camiseta de teste 1/ })).toBeVisible()
   expect(await violacoesGraves(page)).toEqual([])
+  expect(await rolagemHorizontal(page)).toBe(0)
   const lista = await semFocoVisivel(page)
   expect(lista.alcancados).toBeGreaterThan(4)
   expect(lista.falhas).toEqual([])
@@ -155,6 +113,7 @@ test('login, lista, exclusão e formulários sem violações e com foco visível
   await page.getByRole('link', { name: 'Novo produto' }).click()
   await expect(page.getByRole('heading', { name: 'Novo produto' })).toBeVisible()
   expect(await violacoesGraves(page)).toEqual([])
+  expect(await rolagemHorizontal(page)).toBe(0)
   const novo = await semFocoVisivel(page)
   expect(novo.alcancados).toBeGreaterThan(4)
   expect(novo.falhas).toEqual([])
@@ -163,6 +122,7 @@ test('login, lista, exclusão e formulários sem violações e com foco visível
   await expect(page.getByRole('heading', { name: 'Editar produto' })).toBeVisible()
   await expect(page.getByLabel('Nome')).toHaveValue('Camiseta de teste 2')
   expect(await violacoesGraves(page)).toEqual([])
+  expect(await rolagemHorizontal(page)).toBe(0)
   const edicao = await semFocoVisivel(page)
   expect(edicao.alcancados).toBeGreaterThan(4)
   expect(edicao.falhas).toEqual([])
