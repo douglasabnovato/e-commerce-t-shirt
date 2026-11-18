@@ -19,12 +19,23 @@ test.beforeEach(async ({ page }) => {
 test('Teste Técnico: código e tabelas focáveis, axe e sem rolagem horizontal', async ({ page }) => {
   await page.goto('/teste-tecnico')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-  // Blocos de código e tabelas rolam na horizontal: precisam ser focáveis.
-  const blocos = page.locator('.teste__resposta pre, .teste__resposta table')
+  // Blocos de código e invólucros das tabelas rolam na horizontal: precisam
+  // ser focáveis. A tabela fica com o display padrão e o papel de tabela (#46).
+  const blocos = page.locator('.teste__resposta pre, .teste__resposta .tabela-rolavel')
   expect(await blocos.count()).toBeGreaterThan(1)
   for (const bloco of await blocos.all()) {
     await expect(bloco).toHaveAttribute('tabindex', '0')
   }
+  const regiao = page.getByRole('region', { name: 'Tabela 1 do exercício 01' })
+  await expect(regiao).toBeVisible()
+  await expect(regiao.getByRole('table')).toHaveCount(1)
+  expect(await page.locator('.teste__resposta table').count()).toBeGreaterThan(1)
+  for (const tabela of await page.locator('.teste__resposta table').all()) {
+    expect(await tabela.evaluate((el) => getComputedStyle(el).display)).toBe('table')
+  }
+  expect(await page.getByRole('table').count()).toBe(
+    await page.locator('.teste__resposta table').count(),
+  )
   expect(await violacoesGraves(page)).toEqual([])
   expect(await rolagemHorizontal(page)).toBe(0)
 })

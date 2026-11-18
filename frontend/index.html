@@ -19,7 +19,8 @@
        * Quando a lista chega, a imagem do primeiro produto (o LCP) começa a
        * baixar por um <link rel=preload>, sem esperar o Vue montar o card
        * (#33). O endereço é o mesmo do src do card, então o navegador
-       * reaproveita o download.
+       * reaproveita o download. Se o Laravel já pôs o preload no HTML
+       * (link com data-preload-lcp, rota spa), não repete.
        */
       if (location.pathname === '/' && !location.search && window.fetch) {
         window.__vitrineInicial = fetch('/api/produtos?page=1&por_pagina=12', {
@@ -32,6 +33,9 @@
           var primeiro = corpo && corpo.data && corpo.data[0]
           if (primeiro && typeof primeiro.imagem_url === 'string' && primeiro.imagem_url) {
             try {
+              if (document.querySelector && document.querySelector('link[data-preload-lcp]')) {
+                return corpo
+              }
               var imagem = document.createElement('link')
               imagem.rel = 'preload'
               imagem.as = 'image'

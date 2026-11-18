@@ -47,6 +47,13 @@ test('vitrine, login, administração e checkout', async ({ page }) => {
   const cards = page.locator('.vitrine__grade article')
   await expect(cards.first()).toBeVisible()
   expect(await cards.count()).toBeGreaterThan(1)
+  // O HTML do Laravel já traz o preload da imagem do 1º card (#33), uma vez só.
+  const preload = page.locator('link[rel="preload"][as="image"]')
+  await expect(preload).toHaveCount(1)
+  await expect(preload).toHaveAttribute('data-preload-lcp', '')
+  expect(await preload.getAttribute('href')).toBe(
+    await cards.first().locator('img').getAttribute('src'),
+  )
   await page.getByLabel('Ordenar por').selectOption('menor-preco')
   await expect(page).toHaveURL(/ordem=menor-preco/)
   await expect

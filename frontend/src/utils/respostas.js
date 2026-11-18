@@ -69,4 +69,20 @@ export function montarRespostas(arquivos) {
     .sort((a, b) => a.numero - b.numero || a.arquivo.localeCompare(b.arquivo))
 }
 
+/**
+ * Envolve cada <table> do HTML num <div> que rola na horizontal (#46). A
+ * tabela fica com o display padrão e não perde o papel de tabela para os
+ * leitores de tela; quem rola é o invólucro, focável pelo teclado
+ * (scrollable-region-focusable do axe) e com nome próprio
+ * ("Tabela 1 do exercício 03").
+ */
+export function envolverTabelas(html, numero) {
+  let ordem = 0
+  return html.replace(/<table>([\s\S]*?)<\/table>/g, (_, conteudo) => {
+    ordem += 1
+    const nome = `Tabela ${ordem} do exercício ${numeroComDoisDigitos(numero)}`
+    return `<div class="tabela-rolavel" role="region" tabindex="0" aria-label="${nome}"><table>${conteudo}</table></div>`
+  })
+}
+
 /* Fim de utils/respostas.js */

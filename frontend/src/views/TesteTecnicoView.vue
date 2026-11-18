@@ -7,7 +7,12 @@
 -->
 <script setup>
 import MarkdownIt from 'markdown-it'
-import { TITULOS_DOS_EXERCICIOS, montarRespostas, numeroComDoisDigitos } from '@/utils/respostas'
+import {
+  TITULOS_DOS_EXERCICIOS,
+  envolverTabelas,
+  montarRespostas,
+  numeroComDoisDigitos,
+} from '@/utils/respostas'
 
 const arquivos = import.meta.glob('@docs/respostas/*.{md,txt}', {
   query: '?raw',
@@ -32,16 +37,17 @@ const TELAS = [
  * Converte o markdown de uma resposta em HTML (HTML bruto desativado) e
  * desce um nível nos títulos: cada resposta já tem o seu h2, então os
  * títulos internos passam a h3, h4… e a hierarquia fica correta para
- * leitores de tela. Blocos de código (`<pre>`) e tabelas recebem
- * tabindex="0": eles rolam na horizontal (no celular, quase sempre), e quem
- * usa só o teclado precisa focá-los para rolar (WCAG 2.1.1; regra
- * scrollable-region-focusable do axe).
+ * leitores de tela. Blocos de código (`<pre>`) recebem tabindex="0", e as
+ * tabelas rolam num invólucro focável com nome (#46): eles rolam na
+ * horizontal (no celular, quase sempre), e quem usa só o teclado precisa
+ * focá-los para rolar (WCAG 2.1.1; regra scrollable-region-focusable do axe).
  */
-function renderizar(corpo) {
-  return markdown
+function renderizar(corpo, numero) {
+  const html = markdown
     .render(corpo)
     .replace(/<(\/?)h([1-5])(?=[\s>])/g, (_, barra, nivel) => `<${barra}h${Number(nivel) + 1}`)
-    .replace(/<(pre|table)>/g, '<$1 tabindex="0">')
+    .replace(/<pre>/g, '<pre tabindex="0">')
+  return envolverTabelas(html, numero)
 }
 </script>
 
@@ -92,7 +98,7 @@ function renderizar(corpo) {
       <div
         v-if="resposta.tipo === 'md'"
         class="teste__conteudo"
-        v-html="renderizar(resposta.corpo)"
+        v-html="renderizar(resposta.corpo, resposta.numero)"
       ></div>
       <template v-else>
         <p class="teste__arquivo">
@@ -178,11 +184,15 @@ function renderizar(corpo) {
       font-size: @texto-medio;
     }
 
-    :deep(table) {
-      display: block;
+    // Quem rola é o invólucro; a tabela mantém o display padrão (#46).
+    :deep(.tabela-rolavel) {
       overflow-x: auto;
-      width: 100%;
+      max-width: 100%;
       margin-bottom: @espaco-4;
+    }
+
+    :deep(table) {
+      width: 100%;
       font-size: @texto-pequeno;
       border-collapse: collapse;
     }

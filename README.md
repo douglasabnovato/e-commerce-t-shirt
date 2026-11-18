@@ -439,14 +439,12 @@ Nível: Vitrine (N2). **9 de 12** critérios do MVP atendidos; **finalizado: sim
 **O que queremos fazer**
 - [#28](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/28) Publicar esta versão e converter as imagens do servidor (responsável).
 - [#16](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/16) Ligar a publicação pelo CI: segredos SSH e Variable (responsável; passo a passo na issue e em `docs/DEPLOY.md`).
-- [#43](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/43) Ligar os alertas do Dependabot (ligados pelo responsável em 16/11/2026; falta fechar a issue).
+- [#43](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/43) Ligar os alertas do Dependabot (ligados pelo responsável em 16/11/2026; falta o responsável fechar a issue).
 - [#18](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/18) Criar a conta do GoatCounter `douglasabnovato` (responsável; o código já está pronto).
 - [#17](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/17) Validar com uma pessoa de fora (validação de produto).
-- [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) Medir o LCP e o CLS no site depois da publicação; [#33](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/33) preload da imagem também pelo Laravel.
-- [#36](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/36) Deslocamento do rodapé: feito no PR #42; falta o Lighthouse no ar, com a #24.
-- [#45](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/45) Leitor de tela; [#46](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/46) tabelas do Teste Técnico com rolagem num invólucro.
-- [#44](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/44) e [#47](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/47) Dependências de desenvolvimento; a #44 cobre o único alerta aberto do Dependabot (#14, `minimatch`), aceito na D24 até sair a correção.
-- [#37](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/37) Fontes servidas pelo próprio site; [#30](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/30) imagens em dois tamanhos (`srcset`); [#20](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/20) filtro por faixa de preço.
+- Próximos passos (rótulo `proximo-passo`, 18/11/2026): [#24](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/24) medir o LCP e o CLS no site depois da publicação; [#30](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/30) imagens em dois tamanhos (`srcset`); [#37](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/37) fontes servidas pelo próprio site.
+- Na sprint, esperando a `main` (PR #51): [#33](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/33) preload da imagem também pelo Laravel; [#46](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/46) tabelas do Teste Técnico com rolagem num invólucro; testes de [#45](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/45) (o percurso com leitor de tela segue lá); front de [#47](https://github.com/douglasabnovato/e-commerce-t-shirt/issues/47) (o backend segue lá).
+- O único alerta aberto do Dependabot (#14, `minimatch`, só de desenvolvimento) está aceito na D24. O filtro por faixa de preço (#20) ficou fora do MVP.
 
 **Onde está a documentação**
 - Estado e critérios: [`docs/MVP.md`](docs/MVP.md).
