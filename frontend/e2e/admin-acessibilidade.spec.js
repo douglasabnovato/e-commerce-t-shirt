@@ -102,6 +102,15 @@ test('login, lista, exclusão e formulários sem violações e com foco visível
   expect(lista.alcancados).toBeGreaterThan(4)
   expect(lista.falhas).toEqual([])
 
+  // Cancelar a exclusão pelo teclado (o "Esc" do critério 8: a exclusão usa
+  // o confirm do navegador, #45): nada é excluído nem anunciado.
+  page.once('dialog', (dialogo) => dialogo.dismiss())
+  await page.getByRole('button', { name: 'Excluir Camiseta de teste 1' }).focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('row', { name: /Camiseta de teste 1/ })).toBeVisible()
+  await expect(page.getByText(/excluído\./)).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Excluir Camiseta de teste 1' })).toBeFocused()
+
   // Exclusão só pelo teclado: o foco deve ir para o título "Produtos".
   page.once('dialog', (dialogo) => dialogo.accept())
   await page.getByRole('button', { name: 'Excluir Camiseta de teste 1' }).focus()
