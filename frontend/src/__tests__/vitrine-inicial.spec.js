@@ -83,6 +83,26 @@ describe('busca inicial no index.html', () => {
     })
   })
 
+  it('não repete o preload quando o Laravel já o pôs no HTML (#33)', async () => {
+    const comImagem = { ...corpo, data: [{ id: 1, imagem_url: 'http://loja.test/storage/produtos/a.webp' }] }
+    const adicionados = []
+    const seletores = []
+    const document = {
+      querySelector: (seletor) => (seletores.push(seletor), {}),
+      createElement: () => ({ setAttribute() {} }),
+      head: { appendChild: (el) => adicionados.push(el) },
+    }
+    const fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(comImagem) }))
+    const html = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../index.html'), 'utf8')
+    const script = html.match(/<script>([\s\S]*?)<\/script>/)[1]
+    const janela = { fetch }
+    runInNewContext(script, { window: janela, location: { pathname: '/', search: '' }, fetch, document })
+
+    await expect(janela.__vitrineInicial).resolves.toEqual(comImagem)
+    expect(seletores).toEqual(['link[data-preload-lcp]'])
+    expect(adicionados).toHaveLength(0)
+  })
+
   it.each([
     ['sem o campo', corpo],
     ['com imagem_url null', { ...corpo, data: [{ id: 1, imagem_url: null }] }],
