@@ -10,6 +10,13 @@
 
 Três critérios em "Parcial" dependem do responsável, e cada um tem issue com `depende-do-responsavel`: 5 (conta do GoatCounter, #18), 7 (publicar a versão nova, #28) e 10 (ligar a publicação pelo CI, #16). O 9 voltou a "Atende" em 16/11/2026: o único alerta do Dependabot (`minimatch`, só de desenvolvimento) está aceito na D24 de [`DECISOES.md`](DECISOES.md). Por isso o Finalizado é "sim". Em 10/11/2026 a tabela marcava 9 de 12.
 
+## Produto
+
+- **Problema:** quem avalia o teste técnico precisa conferir vitrine, administração e respostas sem instalar nada.
+- **Público:** quem avalia o teste técnico.
+- **Hipótese:** acreditamos que o roteiro de 5 minutos do README, com a conta de demonstração, fará quem avalia percorrer vitrine, administração, checkout e respostas sem ajuda. Saberemos quando uma pessoa de fora registrar o tempo na #17 e, depois da conta de medição (#18), o painel do GoatCounter mostrar visitas a `/login` e eventos `pedido-fechado`.
+- **Métrica:** tempo de uma pessoa de fora para concluir o roteiro, medido por sessão observada (registro na #17) e, depois da conta (#18), pelas visitas a `/login` e eventos `pedido-fechado` no GoatCounter — meta: até 5 minutos, sem perguntar nada, decidida pelo coordenador em 10/11/2026 (D1), revisável pelo responsável.
+
 ## Problema e hipótese
 
 **Problema e público:** responde a um teste técnico. Quem avalia confere a vitrine, a administração e as respostas pelo link publicado, sem instalar nada.
@@ -75,6 +82,8 @@ Leitura: tirar o axios reduziu o JS inicial de 56,7 para 40,5 KB transferidos (1
 Deslocamento de layout: o rodapé se desloca (CLS de 0,28 a 0,29) em 10 de 14 execuções da sprint e em 1 de 7 da versão final. Não é efeito das fontes (a troca de fonte deu 0,0005); fica na issue #36.
 
 ## Histórico
+
+- 20/11/2026: bloco Produto padronizado, sem mudar critérios.
 
 ### Revisão de 16/11/2026, 14h39 (D24)
 
